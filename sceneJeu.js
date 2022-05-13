@@ -7,8 +7,10 @@
             this.pointDeVie = data.pointDeVie,
             this.spawnXSortieScene = data.spawnXSortieScene,
             this.spawnYSortieScene = data.spawnYSortieScene,
-            this.speed = data.speed,
-            this.dialogue = data.dialogue
+            this.speedLeft = data.speedLeft,
+            this.speedRight = data.speedRight,
+            this.dialogue = data.dialogue,
+            this.speed = data.speed
         }
 
         preload(){
@@ -32,6 +34,18 @@
                     "build",
                     tileset
                     );
+
+
+            this.doubleSautLeft = false
+            this.compteurDoubleSautLeft = 10
+            this.doubleSautRight = false
+            this.compteurDoubleSautRight = 10
+
+            this.doubleSautLeftPossible = true
+            this.doubleSautRightPossible = true
+
+            this.resetGraviteLeft = false
+            this.resetGraviteRight = false
 
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
@@ -112,18 +126,87 @@
                 }  
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
-                    this.player.setVelocityX(-this.speed); 
+                    this.player.setVelocityX(-this.speedLeft); 
                     this.player.anims.play('left', true);
                 }
                 else if (this.moveRight){ 
                     this.player.direction = 'right';
-                    this.player.setVelocityX(this.speed);
+                    this.player.setVelocityX(this.speedRight);
                     this.player.anims.play('right', true);
                 }
                 else{ 
                     this.player.setVelocityX(0); 
                     this.player.anims.play('turn');
                 }
+
+                if(this.doubleSautRightPossible == true){
+                    if (this.player.body.blocked.right ) {
+                        if (this.moveUp) {
+                            this.doubleSautLeft = true
+                        }  
+                    }
+                }
+
+                if(this.doubleSautLeftPossible == true){
+                    if (this.player.body.blocked.left ) {
+                        if (this.moveUp) {
+                            this.doubleSautRight = true
+                        }  
+                    }
+                }
+                
+                if(this.doubleSautLeft == true){
+                    this.resetGraviteLeft = true
+                    this.doubleSautRightPossible = false
+                    this.doubleSautLeftPossible = true
+                    this.compteurDoubleSautLeft -=1 ;
+                    this.player.setVelocityX(-300);
+                    this.player.setVelocityY(-600);
+                    this.player.angle += 30
+                    if(this.compteurDoubleSautLeft == 0){
+                        this.compteurDoubleSautLeft = 10
+                        this.doubleSautLeft = false
+                        this.player.angle = 0
+                    }
+                }
+
+                if(this.doubleSautRight == true){
+                    this.resetGraviteRight = true
+                    this.doubleSautRightPossible = true
+                    this.doubleSautLeftPossible = false
+                    this.compteurDoubleSautRight -=1 ;
+                    this.player.setVelocityX(300);
+                    this.player.setVelocityY(-600);
+                    this.player.angle -= 30
+                    if(this.compteurDoubleSautRight == 0){
+                        this.compteurDoubleSautRight = 10
+                        this.doubleSautRight = false
+                        this.player.angle = 0
+                    }
+                }
+
+                if (this.resetGraviteLeft == true){
+                    this.speedRight = 100
+                }
+                else{
+                    this.speedRight = this.speed
+                }
+                if (this.resetGraviteRight == true){
+                    this.speedLeft = 100
+                }
+                else{
+                    this.speedLeft = this.speed
+                }
+
+                if (this.player.body.blocked.down){
+                    this.doubleSautRightPossible = true
+                    this.doubleSautLeftPossible = true
+
+                    this.resetGraviteLeft = false
+                    this.resetGraviteRight = false
+                }
+
+                console.log(this.doubleSautLeft)
                     
             }
         }

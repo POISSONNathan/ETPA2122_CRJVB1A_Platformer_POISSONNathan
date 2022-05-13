@@ -32,8 +32,10 @@ this.startButton.on('pointerdown', function (pointer) {
         pointDeVie:4,
         spawnXSortieScene: this.spawnXSortieScene,
         spawnYSortieScene: this.spawnYSortieScene,
-        speed: 300,
-        dialogue: false
+        speedLeft: 300,
+        speedRight: 300,
+        dialogue: false,
+        speed: 300
 })
 });
 
