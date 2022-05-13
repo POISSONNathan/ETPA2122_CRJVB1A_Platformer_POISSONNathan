@@ -50,13 +50,15 @@
             this.resetGraviteLeft = false
             this.resetGraviteRight = false
 
+            this.animNormal = true
+            this.animJump = true
+
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
 
             this.player = this.physics.add.sprite(this.spawnXSortieScene, this.spawnYSortieScene, 'perso').setOrigin(0);
-            this.player.body.setSize(24,6,true)
-            this.player.setOffset(4, 26)
+            this.player.body.setSize(22,32,true)
             
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
@@ -87,8 +89,20 @@
             });
 
             this.anims.create({
-                key: 'saut',
-                frames: this.anims.generateFrameNumbers('persoTest', {start:0,end:1}),
+                key: 'jumpRight',
+                frames: this.anims.generateFrameNumbers('persoTest', {start:0,end:3}),
+                frameRate: 6,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'turnJump',
+                frames: this.anims.generateFrameNumbers('persoTest', {start:8,end:10}),
+                frameRate: 6,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'jumpLeft',
+                frames: this.anims.generateFrameNumbers('persoTest', {start:4,end:7}),
                 frameRate: 6,
                 repeat: -1
             });
@@ -130,12 +144,21 @@
             }
 
             // frames utiliser selon les situations
-            this.frameLeft = 'left'
-            this.frameRight = 'right'
-            this.frameTurn = 'turn'
+            if (this.animNormal == true){
+                this.frameLeft = 'left'
+                this.frameRight = 'right'
+                this.frameTurn = 'turn'
+            }
+
+            if (this.animNormal == false){
+                if (this.animJump == true){
+                    this.frameLeft = 'jumpLeft'
+                    this.frameRight = 'jumpRight'
+                    this.frameTurn = 'turnJump'
+                }
+            }
             
                 if (this.moveUp && this.player.body.blocked.down ) {
-                    this.player.anims.play('saut', true)
                     this.player.setVelocityY(-this.speed);
                 }  
                 if (this.moveLeft){ 
@@ -150,7 +173,7 @@
                 }
                 else{ 
                     this.player.setVelocityX(0); 
-                    this.player.anims.play(this.frameTurn);
+                    this.player.anims.play(this.frameTurn, true);
                 }
 
                 if(this.doubleSautRightPossible == true){
@@ -195,26 +218,25 @@
                     }
                 }
 
-                if (this.resetGraviteLeft == true){
-                    this.speedRight = 100
-                }
-                else{
-                    this.speedRight = this.speed
-                }
-                if (this.resetGraviteRight == true){
-                    this.speedLeft = 100
-                }
-                else{
-                    this.speedLeft = this.speed
-                }
+                if (this.resetGraviteLeft == true){this.speedRight = 100}
+                else{this.speedRight = this.speed}
+
+                if (this.resetGraviteRight == true){this.speedLeft = 100}
+                else{this.speedLeft = this.speed}
 
                 if (this.player.body.blocked.down){
                     this.doubleSautRightPossible = true
                     this.doubleSautLeftPossible = true
-
                     this.resetGraviteLeft = false
                     this.resetGraviteRight = false
-                }                    
+
+                    this.animNormal = true
+                    this.animJump = false
+                }      
+                else{
+                    this.animNormal = false
+                    this.animJump = true
+                }              
             }
         }
 
