@@ -11,11 +11,11 @@
         }
 
         preload(){
-            this.load.image("Phaser_tuilesdejeu", "assets/tuilesJeu.png");
+            this.load.image("Phaser_tuilesdejeu", "assets/tileset.png");
 
             this.load.tilemapTiledJSON("carte", "map.json");  
 
-            this.load.spritesheet('perso','assets/perso.png',
+            this.load.spritesheet('perso','assets/persoDebut.png',
             { frameWidth: 32, frameHeight: 32 });
         }
 
@@ -43,8 +43,6 @@
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
 
-            collisionInvisible.setCollisionByProperty({ estSolide: true });
-
             this.player.setCollideWorldBounds(true);
 
             this.cameras.main.zoom = 3
@@ -54,20 +52,19 @@
 
             this.anims.create({
                 key: 'left',
-                frames: this.anims.generateFrameNumbers('perso', {start:18,end:23}),
-                frameRate: 8,
+                frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
+                frameRate: 6,
                 repeat: -1
+            });
+            this.anims.create({
+                key: 'turn',
+                frames: [ { key: 'perso', frame: 4 } ],
+                frameRate: 20
             });
             this.anims.create({
                 key: 'right',
-                frames: this.anims.generateFrameNumbers('perso', {start:12,end:17}),
-                frameRate: 8,
-                repeat: -1
-            });
-            this.anims.create({
-                key: 'front',
-                frames: this.anims.generateFrameNumbers('perso', {start:0,end:5}),
-                frameRate: 8,
+                frames: this.anims.generateFrameNumbers('perso', {start:5,end:8}),
+                frameRate: 6,
                 repeat: -1
             });
 
@@ -82,9 +79,6 @@
 
             // touches spéciales clavier + manettes
             this.toucheF = this.input.keyboard.addKey('F') ||this.paddle.A;
-            this.toucheG = this.input.keyboard.addKey('G')||this.paddle.Y;
-            this.trancher = this.input.keyboard.addKey('A')||this.paddle.X;
-
         }
 
         update(){
@@ -111,23 +105,24 @@
                 this.moveDown = ( this.cursors.down.isDown) 
             }
 
-                    if (this.moveLeft) {
-                        this.player.setVelocityX(-this.speed)
-                        this.player.direction = 'left';
-                    } else if (this.moveRight) {
-                        this.player.setVelocityX(this.speed)
-                        this.player.direction = 'right';
-                    }
-
-                    if (this.moveUp) {
-                        this.player.setVelocityY(-this.speed)
-                        this.player.direction = 'up';
-                    } else if (this.moveDown) {
-                        this.player.setVelocityY(this.speed)
-                        this.player.direction = 'down';
-                    }
-
-                    this.player.body.velocity.normalize().scale(this.speed)
+                if (this.moveUp && this.player.body.blocked.down ) {
+                    this.player.setVelocityY(-this.speed);
+                }  
+                if (this.moveLeft){ 
+                    this.player.direction = 'left';
+                    this.player.setVelocityX(-this.speed); 
+                    this.player.anims.play('left', true);
+                }
+                else if (this.moveRight){ 
+                    this.player.direction = 'right';
+                    this.player.setVelocityX(this.speed);
+                    this.player.anims.play('right', true);
+                }
+                else{ 
+                    this.player.setVelocityX(0); 
+                    this.player.anims.play('turn');
+                }
+                    
             }
         }
 
