@@ -7,7 +7,8 @@
             this.pointDeVie = data.pointDeVie,
             this.spawnXSortieScene = data.spawnXSortieScene,
             this.spawnYSortieScene = data.spawnYSortieScene,
-            this.speed = data.speed
+            this.speed = data.speed,
+            this.dialogue = data.dialogue
         }
 
         preload(){
@@ -105,6 +106,7 @@
                 this.moveDown = ( this.cursors.down.isDown) 
             }
 
+            
                 if (this.moveUp && this.player.body.blocked.down ) {
                     this.player.setVelocityY(-this.speed);
                 }  
@@ -130,7 +132,7 @@
         //////////changements de scènes//////////
         /////////////////////////////////////////
 
-        goInsideGrotto(player,entreeGrotte){
+        changeScene(player,entreeGrotte){
             if (Phaser.Input.Keyboard.JustDown(this.toucheF)) { 
                 this.scene.start("sceneGrotte", {
                     pointDeVie:this.pointDeVie,
