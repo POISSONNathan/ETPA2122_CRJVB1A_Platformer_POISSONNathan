@@ -18,7 +18,10 @@
 
             this.load.tilemapTiledJSON("carte", "map.json");  
 
-            this.load.spritesheet('perso','assets/persoDebut.png',
+            this.load.spritesheet('perso','assets/perso.png',
+            { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('persoTest','assets/test.png',
             { frameWidth: 32, frameHeight: 32 });
         }
 
@@ -37,9 +40,9 @@
 
 
             this.doubleSautLeft = false
-            this.compteurDoubleSautLeft = 10
+            this.compteurDoubleSautLeft = 50
             this.doubleSautRight = false
-            this.compteurDoubleSautRight = 10
+            this.compteurDoubleSautRight = 50
 
             this.doubleSautLeftPossible = true
             this.doubleSautRightPossible = true
@@ -66,19 +69,26 @@
             this.cameras.main.setBounds(0, 0, 6400, 2880);
 
             this.anims.create({
-                key: 'left',
-                frames: this.anims.generateFrameNumbers('perso', {start:0,end:3}),
+                key: 'right',
+                frames: this.anims.generateFrameNumbers('perso', {start:0,end:4}),
                 frameRate: 6,
                 repeat: -1
             });
             this.anims.create({
                 key: 'turn',
-                frames: [ { key: 'perso', frame: 4 } ],
+                frames: [ { key: 'perso', frame: 5 } ],
                 frameRate: 20
             });
             this.anims.create({
-                key: 'right',
-                frames: this.anims.generateFrameNumbers('perso', {start:5,end:8}),
+                key: 'left',
+                frames: this.anims.generateFrameNumbers('perso', {start:6,end:10}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'saut',
+                frames: this.anims.generateFrameNumbers('persoTest', {start:0,end:1}),
                 frameRate: 6,
                 repeat: -1
             });
@@ -97,7 +107,6 @@
         }
 
         update(){
-
             if (this.dialogue == false){
 
             this.input.gamepad.once('connected', function (pad) {
@@ -120,23 +129,28 @@
                 this.moveDown = ( this.cursors.down.isDown) 
             }
 
+            // frames utiliser selon les situations
+            this.frameLeft = 'left'
+            this.frameRight = 'right'
+            this.frameTurn = 'turn'
             
                 if (this.moveUp && this.player.body.blocked.down ) {
+                    this.player.anims.play('saut', true)
                     this.player.setVelocityY(-this.speed);
                 }  
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
                     this.player.setVelocityX(-this.speedLeft); 
-                    this.player.anims.play('left', true);
+                    this.player.anims.play(this.frameLeft, true);
                 }
                 else if (this.moveRight){ 
                     this.player.direction = 'right';
                     this.player.setVelocityX(this.speedRight);
-                    this.player.anims.play('right', true);
+                    this.player.anims.play(this.frameRight, true);
                 }
                 else{ 
                     this.player.setVelocityX(0); 
-                    this.player.anims.play('turn');
+                    this.player.anims.play(this.frameTurn);
                 }
 
                 if(this.doubleSautRightPossible == true){
@@ -160,13 +174,11 @@
                     this.doubleSautRightPossible = false
                     this.doubleSautLeftPossible = true
                     this.compteurDoubleSautLeft -=1 ;
-                    this.player.setVelocityX(-300);
-                    this.player.setVelocityY(-600);
-                    this.player.angle += 30
+                    this.player.setVelocityX(-200);
+                    this.player.setVelocityY(-150);
                     if(this.compteurDoubleSautLeft == 0){
-                        this.compteurDoubleSautLeft = 10
+                        this.compteurDoubleSautLeft = 50
                         this.doubleSautLeft = false
-                        this.player.angle = 0
                     }
                 }
 
@@ -175,13 +187,11 @@
                     this.doubleSautRightPossible = true
                     this.doubleSautLeftPossible = false
                     this.compteurDoubleSautRight -=1 ;
-                    this.player.setVelocityX(300);
-                    this.player.setVelocityY(-600);
-                    this.player.angle -= 30
+                    this.player.setVelocityX(200);
+                    this.player.setVelocityY(-150);
                     if(this.compteurDoubleSautRight == 0){
-                        this.compteurDoubleSautRight = 10
+                        this.compteurDoubleSautRight = 50
                         this.doubleSautRight = false
-                        this.player.angle = 0
                     }
                 }
 
@@ -204,10 +214,7 @@
 
                     this.resetGraviteLeft = false
                     this.resetGraviteRight = false
-                }
-
-                console.log(this.doubleSautLeft)
-                    
+                }                    
             }
         }
 
