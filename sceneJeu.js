@@ -26,7 +26,12 @@
             { frameWidth: 32, frameHeight: 32 });
 
             this.load.spritesheet('attaque','assets/attaque.png',
-            { frameWidth: 96, frameHeight: 32 });
+            { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('animLasso','assets/animLasso.png',
+            { frameWidth: 64, frameHeight: 32 });
+
+            this.load.image("ennemi", "assets/ennemi.png");
         }
 
         create(){
@@ -37,11 +42,15 @@
                     "Phaser_tuilesdejeu"
                     );  
 
+            const background = carte.createLayer(
+                    "background",
+                    tileset
+                        );
+
             const build = carte.createLayer(
                     "build",
                     tileset
                     );
-
 
             this.doubleSautLeft = false
             this.compteurDoubleSautLeft = 10
@@ -57,7 +66,6 @@
             this.animNormal = true
             this.animJump = false
             this.attaque = false
-            this.tpLeft = false
 
             this.doubleJumpActif = false
 
@@ -133,6 +141,32 @@
                 repeat: -1
             });
 
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animLassoRight',
+                frames: this.anims.generateFrameNumbers('animLasso', {start:0,end:4}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animLassoLeft',
+                frames: this.anims.generateFrameNumbers('animLasso', {start:9,end:5}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.enemis = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('ennemi').objects.forEach((enemis) => {
+                this.enemi = this.enemis.create(enemis.x, enemis.y, 'ennemi').setOrigin(0);
+            });
+
+            this.physics.add.collider(this.enemis,build)
+
+
 
             ///////////////////////////////////////////////////////////////
             /////////////////////////TOUCHES///////////////////////////////
@@ -172,6 +206,13 @@
                 this.moveRight = (this.keys.d.isDown ) 
             }
 
+            if (this.player.direction == 'left'){
+                this.player.setOffset(4,0)
+            }
+            if (this.player.direction == 'right'){
+                this.player.setOffset(6,0)
+            }
+
             // frames utiliser selon les situations
             if (this.animNormal == true){
                 this.frameLeft = 'left'
@@ -186,45 +227,93 @@
             }
 
             if (this.attaque == true){
+                this.frameLeft = 'attaqueLeft'
                 this.frameRight = 'attaqueRight'
                 this.frameTurn = 'turnJump'
             }
 
-                if (this.attaqueTouche){ 
-                    this.attaque = true
-                    this.animNormal = false
-                    this.animJump = false
-                }
+            if (this.attaqueTouche){ 
+                this.attaque = true
+                this.animNormal = false
+                this.animJump = false
+
+                this.createLasso = true
+            }
+
+            if (this.createLasso == true){
+                this.lasso = this.physics.add.sprite(this.player.x,this.player.y,'animLasso').setOrigin(0);
+                this.lasso.body.setAllowGravity(false)
+                this.createLasso = false
+            }
 
             if  (this.attaque == true){
-                this.player.anims.play(this.frameRight, true);
-
-                if (this.moveUp && this.player.body.blocked.down ) {
-                    this.player.setVelocityY(-this.speedSaut);
-
-                }  
+                this.lasso.y = this.player.y
+                
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
                     this.player.setVelocityX(-this.speedLeft); 
-                    this.player.flipX = true
-                    this.tpLeft = true
-                    this.player.setOffset(54,0)
+                    this.player.anims.play(this.frameLeft, true);
+                    this.lasso.anims.play('animLassoLeft', true);
+
                 }
                 else if (this.moveRight){ 
                     this.player.direction = 'right';
                     this.player.setVelocityX(this.speedRight);
-                    this.player.flipX = false
-                    this.player.setOffset(5,0)
+                    this.player.anims.play(this.frameRight, true);
+                    this.lasso.anims.play('animLassoRight', true);
                 }
                 else{ 
                     this.player.setVelocityX(0); 
-                    this.player.anims.play(this.frameTurn, true);
-                    this.player.setOffset(5,0)
                 }
 
-                if (this.tpLeft == true){
-                    this.player.x -= 10
-                    this.tpLeft = false
+                if (this.player.direction == 'right'){
+                    this.lasso.x = this.player.x + 32
+
+                    if (this.lasso.anims.currentFrame.index == 1){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(-4,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 2){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(10,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 3){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(26,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 4){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(42,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 5){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(42,12)
+                    }
+                }
+
+                if (this.player.direction == 'left'){
+                    this.lasso.x = this.player.x - 64
+
+                    if (this.lasso.anims.currentFrame.index == 1){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(42,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 2){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(42,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 3){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(26,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 4){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(10,12)
+                    }
+                    if (this.lasso.anims.currentFrame.index == 5){
+                        this.lasso.body.setSize(20,12)
+                        this.lasso.setOffset(-4,12)
+                    }
                 }
             }
             
@@ -315,18 +404,12 @@
                         this.animJump = true
                         this.doubleJumpActif = true
                     }      
-                }     
+                }       
 
-                /*if (this.attaque == true){
-                    if (this.player.direction == 'left'){
-                        this.tpLeft = true
-                    }
+
+                if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
+                    this.player.setVelocityY(20); 
                 }
-
-                if (this.tpLeft == true){
-                    this.player.setOffset(64,0)
-                    this.tpLeft = false
-                }*/
 
             }
         }

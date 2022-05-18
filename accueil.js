@@ -36,7 +36,7 @@ this.startButton.on('pointerdown', function (pointer) {
         speedRight: 300,
         dialogue: false,
         speed: 300,
-        speedSaut: 600
+        speedSaut: 400
 })
 });
 
