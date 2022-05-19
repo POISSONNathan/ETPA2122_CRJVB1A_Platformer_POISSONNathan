@@ -36,7 +36,24 @@ this.startButton.on('pointerdown', function (pointer) {
         speedRight: 300,
         dialogue: false,
         speed: 300,
-        speedSaut: 400
+        speedSaut: 400,
+        doubleSautLeft: false,
+        compteurDoubleSautLeft: 10,
+        doubleSautRight: false,
+        compteurDoubleSautRight: 10,
+        doubleSautLeftPossible: true,
+        doubleSautRightPossible: true,
+        resetGraviteLeft: false,
+        resetGraviteRight: false,
+        animNormal: true,
+        animJump: false,
+        attaque: false,
+        attaquePossible: true,
+        doubleJumpActif: false,
+        torcheDebloque: false,
+        torcheActive: false,
+        pouvoirTirer: false,
+        tempsAvantTirer: false
 })
 });
 

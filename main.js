@@ -8,7 +8,7 @@ var config = {
     debug: false
     }},
     pixelArt:true,
-    scene: [accueil,sceneJeu],
+    scene: [accueil,sceneJeu,sceneTemple],
     input : {gamepad:true},
     };
 
