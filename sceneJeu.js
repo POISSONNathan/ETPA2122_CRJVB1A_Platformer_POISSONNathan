@@ -114,15 +114,20 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 2
+            this.cameras.main.zoom = 1
             this.cameras.main.startFollow(this.player); 
-            this.physics.world.setBounds(0, 0, 6400, 2880);
-            this.cameras.main.setBounds(0, 0, 6400, 2880);
+            this.physics.world.setBounds(0, 0, 6400, 1920);
+            this.cameras.main.setBounds(0, 0, 6400, 1920);
 
             this.nbrTorcheAllume = 0
 
             this.murStop = false
             this.compteurMurStop = 180
+
+            this.accroche1 = false
+
+            this.accrochePossible1 = true
+            this.compteurAccrochePossible1 = 100
 
             this.anims.create({
                 key: 'right',
@@ -326,55 +331,45 @@
                 e: Phaser.Input.Keyboard.KeyCodes.E
             });
 
-            ///////////////////////
+            /////////////////////// /////////////////////// /////////////////////// ///////////////////////
+            /////////////////////// /////////////////// LIANES //////////////////// ///////////////////////
+            /////////////////////// /////////////////////// /////////////////////// ///////////////////////
 
-            this.graphics = this.add.graphics();
-
-            this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
-
-            this.path = new Phaser.Curves.Path();
-
-            this.path.add(new Phaser.Curves.Ellipse(1420, 1740, 100));
-
+            this.follower1 = { t: 0, vec: new Phaser.Math.Vector2() };
+            this.path1 = new Phaser.Curves.Path();
+            carte.getObjectLayer('lianes1').objects.forEach((lianes1) => {
+                this.liane1X = lianes1.x
+                this.liane1Y = lianes1.y
+            });
+            this.path1.add(new Phaser.Curves.Ellipse(this.liane1X, this.liane1Y, 125));
             this.tweens.add({
-                targets: this.follower,
+                targets: this.follower1,
                 t: 1,
                 ease: 'Sine.easeInOut',
-                duration: 2000,
+                duration: 1000,
                 yoyo: true,
                 repeat: -1
             });
-
-
+            this.accrocheJoueur1 = this.physics.add.image(0,0,"invisible")
+            this.accrocheJoueur1.body.setAllowGravity(false)
+            this.physics.add.overlap(this.player,this.accrocheJoueur1,this.accrocheJoueur1Fonction,null,this)
         }
 
         update(){
 
-            this.graphics.clear();
-            this.graphics.lineStyle(2, 0xffffff, 1);
-        
-            
-            this.path.draw(this.graphics);
-        
-            this.path.getPoint(this.follower.t, this.follower.vec);
-        
-            this.graphics.fillStyle(0xff0000, 1);
-            this.graphics.fillCircle(this.follower.vec.x, this.follower.vec.y, 12);
+
+            this.accrocheJoueur1.x = this.follower1.vec.x
+            this.accrocheJoueur1.y = this.follower1.vec.y
+            this.path1.getPoint(this.follower1.t/2, this.follower1.vec);
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
+            //////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////
             
             if (this.player.direction == 'right'){
                 this.light.x = this.player.x + 30;
@@ -697,7 +692,7 @@
                         }
                     }
 
-                    if (this.resetGraviteLeft == true){this.speedRight = 100}
+                    if (this.resetGraviteLeft == true ){this.speedRight = 100}
                     else{this.speedRight = this.speed}
 
                     if (this.resetGraviteRight == true){this.speedLeft = 100}
@@ -734,7 +729,6 @@
                 }
             }
 
-
             if (this.templeOuvertTorcheAllumer == true){
                 this.torchesAAllumer.children.iterate((child) => {
                     child.setTexture('torchesAllumer');
@@ -746,8 +740,40 @@
                 this.tirer(this.player);
             }
 
-            
+            //////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////
+
+            if (this.accroche1 == true){
+                this.resetGraviteLeft = false
+                this.resetGraviteRight = false
+                this.player.x = this.accrocheJoueur1.x - 14
+                this.player.y = this.accrocheJoueur1.y - 14
+                this.player.body.setAllowGravity(false)
+                if (this.moveUp){
+                    this.accrochePossible1 = false
+                    this.accroche1 = false
+                    this.player.body.setAllowGravity(true)
+                }
+            }
+            if (this.accrochePossible1 == false){
+                this.compteurAccrochePossible1 -= 1
+                if (this.compteurAccrochePossible1 == 0){
+                    this.compteurAccrochePossible1 = 100
+                    this.accrochePossible1 = true
+                }
+            }               
         }
+
+        accrocheJoueur1Fonction(player,accroche){
+            if (this.accrochePossible1 == true){ 
+                this.accroche1 = true
+            }
+        }
+
+        //////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////
 
         takeWeapon(play,arme){
             arme.destroy()
