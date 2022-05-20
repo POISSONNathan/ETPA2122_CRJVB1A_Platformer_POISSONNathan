@@ -114,7 +114,7 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 3
+            this.cameras.main.zoom = 2
             this.cameras.main.startFollow(this.player); 
             this.physics.world.setBounds(0, 0, 6400, 2880);
             this.cameras.main.setBounds(0, 0, 6400, 2880);
@@ -325,10 +325,55 @@
                 f: Phaser.Input.Keyboard.KeyCodes.F,
                 e: Phaser.Input.Keyboard.KeyCodes.E
             });
+
+            ///////////////////////
+
+            this.graphics = this.add.graphics();
+
+            this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
+
+            this.path = new Phaser.Curves.Path();
+
+            this.path.add(new Phaser.Curves.Ellipse(1420, 1740, 100));
+
+            this.tweens.add({
+                targets: this.follower,
+                t: 1,
+                ease: 'Sine.easeInOut',
+                duration: 2000,
+                yoyo: true,
+                repeat: -1
+            });
+
+
         }
 
         update(){
+
+            this.graphics.clear();
+            this.graphics.lineStyle(2, 0xffffff, 1);
+        
             
+            this.path.draw(this.graphics);
+        
+            this.path.getPoint(this.follower.t, this.follower.vec);
+        
+            this.graphics.fillStyle(0xff0000, 1);
+            this.graphics.fillCircle(this.follower.vec.x, this.follower.vec.y, 12);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             
             if (this.player.direction == 'right'){
@@ -365,8 +410,6 @@
                     this.torcheActive = true
                 }
             }
-
-            console.log(this.templeOuvertTorcheAllumer)
 
             if (this.torcheActive == true){
                 this.light.setIntensity(6)
@@ -677,10 +720,9 @@
                     }      
                 }       
 
-
-                if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
-                    this.player.setVelocityY(20); 
-                }
+            if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
+                this.player.setVelocityY(20); 
+            }
 
             }
 
@@ -703,6 +745,8 @@
             if (this.shot){
                 this.tirer(this.player);
             }
+
+            
         }
 
         takeWeapon(play,arme){
