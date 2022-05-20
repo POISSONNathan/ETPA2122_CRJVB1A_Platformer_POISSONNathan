@@ -73,7 +73,8 @@
             this.load.image("mur2", "assets/objets/mur2.png");
             this.load.image("mur3", "assets/objets/mur3.png");
 
-            this.load.image("lianes", "assets/lianes.png");
+            this.load.spritesheet('lianes','assets/lianes.png',
+            { frameWidth: 250, frameHeight: 156 });
 
         }
 
@@ -116,7 +117,7 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 1
+            this.cameras.main.zoom = 2.5
             this.cameras.main.startFollow(this.player); 
             this.physics.world.setBounds(0, 0, 6400, 1920);
             this.cameras.main.setBounds(0, 0, 6400, 1920);
@@ -237,6 +238,17 @@
                 repeat: -1
             });
 
+            /////////////////////////
+
+            this.anims.create({
+                key: 'animLianes',
+                frames: this.anims.generateFrameNumbers('lianes', {start:0,end:17}),
+                frameRate: 9,
+                repeat: -1
+            });
+
+            ////////////////////////
+
             this.enemis = this.physics.add.group({
             });      
 
@@ -337,9 +349,15 @@
             /////////////////////// /////////////////// LIANES //////////////////// ///////////////////////
             /////////////////////// /////////////////////// /////////////////////// ///////////////////////
 
+            this.lianes = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+            
+
             this.follower1 = { t: 0, vec: new Phaser.Math.Vector2() };
             this.path1 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes1').objects.forEach((lianes1) => {this.liane1X = lianes1.x,this.liane1Y = lianes1.y,this.add.image(lianes1.x,lianes1.y + 32,'lianes').setDepth(7)});
+            carte.getObjectLayer('lianes1').objects.forEach((lianes1) => {this.liane1X = lianes1.x,this.liane1Y = lianes1.y,this.lianesAnim = this.lianes.create(lianes1.x,lianes1.y + 32,'lianes').setDepth(7)});
             this.path1.add(new Phaser.Curves.Ellipse(this.liane1X, this.liane1Y, 125));
             this.tweens.add({targets: this.follower1,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
             this.accrocheJoueur1 = this.physics.add.image(0,0,"invisible")
@@ -472,6 +490,9 @@
             this.path10.getPoint(this.follower10.t/2, this.follower10.vec);
             ///
         
+            this.lianes.children.iterate((child) => {
+                child.anims.play('animLianes', true);
+            });
 
             //////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////
