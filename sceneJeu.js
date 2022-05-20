@@ -28,7 +28,8 @@
             this.torcheDebloque = data.torcheDebloque,
             this.torcheActive = data.torcheActive,
             this.pouvoirTirer = data.pouvoirTirer,
-            this.tempsAvantTirer = data.tempsAvantTirer
+            this.tempsAvantTirer = data.tempsAvantTirer,
+            this.animTorche = data.animTorche
         }
 
         preload(){
@@ -36,14 +37,16 @@
 
             this.load.tilemapTiledJSON("carte", "map.json");  
 
+             //////////////////////// SPRITES PERSO
             this.load.spritesheet('perso','assets/perso.png',
             { frameWidth: 32, frameHeight: 32 });
-
             this.load.spritesheet('persoTest','assets/test.png',
             { frameWidth: 32, frameHeight: 32 });
-
             this.load.spritesheet('attaque','assets/attaque.png',
             { frameWidth: 32, frameHeight: 32 });
+            this.load.spritesheet('animTorche','assets/animTorche.png',
+            { frameWidth: 32, frameHeight: 32 });
+            ///////////////////////
 
             this.load.spritesheet('animLasso','assets/animLasso.png',
             { frameWidth: 96, frameHeight: 32 });
@@ -95,6 +98,11 @@
 
             this.player = this.physics.add.sprite(this.spawnXSortieScene, this.spawnYSortieScene, 'perso').setOrigin(0)
             this.player.body.setSize(16,32,true)
+
+            const devant = carte.createLayer(
+                "devant",
+                tileset
+                );
             
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
@@ -107,6 +115,9 @@
             this.cameras.main.setBounds(0, 0, 6400, 2880);
 
             this.nbrTorcheAllume = 0
+
+            this.murStop = false
+            this.compteurMurStop = 180
 
             this.anims.create({
                 key: 'right',
@@ -150,6 +161,32 @@
             ////////////////////////
 
             this.anims.create({
+                key: 'animTorcheRight',
+                frames: this.anims.generateFrameNumbers('animTorche', {start:0,end:4}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animTorcheLeft',
+                frames: this.anims.generateFrameNumbers('animTorche', {start:5,end:9}),
+                frameRate: 6,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'idleRightTorche',
+                frames: [ { key: 'animTorche', frame: 10 } ],
+                frameRate: 20
+            });
+            this.anims.create({
+                key: 'idleLeftTorche',
+                frames: [ { key: 'animTorche', frame: 11 } ],
+                frameRate: 20
+            });
+
+            ////////////////////////
+
+            this.anims.create({
                 key: 'attaqueRight',
                 frames: this.anims.generateFrameNumbers('attaque', {start:0,end:4}),
                 frameRate: 4,
@@ -163,12 +200,12 @@
             });
             this.anims.create({
                 key: 'idleRight',
-                frames: [ { key: 'attaque', frame: 2 } ],
+                frames: [ { key: 'attaque', frame: 10 } ],
                 frameRate: 20
             });
             this.anims.create({
                 key: 'idleLeft',
-                frames: [ { key: 'attaque', frame: 7 } ],
+                frames: [ { key: 'attaque', frame: 11 } ],
                 frameRate: 20
             });
 
@@ -240,6 +277,8 @@
                 this.torchesAAllumer1 = this.torchesAAllumer.create(torchesAAllumer.x, torchesAAllumer.y, 'torchesAAllumer').setOrigin(0);
                 this.torchesAAllumer1.setPushable(false)
                 this.torchesAAllumer1.setInteractive()
+                this.torchesAAllumer1.body.setSize(30,32)
+                this.torchesAAllumer1.setOffset(17,16)
             });
 
             this.physics.add.overlap(this.player,this.torchesAAllumer,this.allumeTorche,null,this)
@@ -258,7 +297,7 @@
             /////////////////////////////
             /////////////////////////////
 
-            this.entreTemple = this.physics.add.image(1056, 1760, 'invisible').setOrigin(0)
+            this.entreTemple = this.physics.add.image(1824, 1760, 'invisible').setOrigin(0)
             this.entreTemple.body.setAllowGravity(false)
             this.physics.add.overlap(this.player,this.entreTemple,this.goTemple,null,this)
 
@@ -321,12 +360,19 @@
             if (this.torcheActive == true){
                 this.light.setIntensity(6)
                 this.player.alpha = 1
-
+        
+                this.animTorche = true
+                this.animNormal = false
+                this.animJump = false
+                this.attaquePossible = false
+        
                 if (this.noLightTouche){
                     this.torcheActive = false
+                    this.animNormal = true
+                    this.attaquePossible = true
+                    this.animTorche = false
                 }
             }
-
             if (this.torcheActive == false){
                 this.light.setIntensity(0)
                 this.player.alpha = 1
@@ -349,6 +395,11 @@
                 this.frameLeft = 'attaqueLeft'
                 this.frameRight = 'attaqueRight'
                 this.frameTurn = 'turnJump'
+            }
+
+            if (this.animTorche == true){
+                this.frameLeft = 'animTorcheLeft'
+                this.frameRight = 'animTorcheRight'
             }
 
             if (this.attaquePossible == true){
@@ -533,7 +584,17 @@
                 }
                 else{ 
                     this.player.setVelocityX(0); 
-                    this.player.anims.play(this.frameTurn, true);
+                    if (this.animTorche == false){
+                        this.player.anims.play(this.frameTurn, true);
+                    }
+                    else{
+                        if (this.player.direction == 'right'){
+                            this.player.anims.play('idleRightTorche', true);
+                        }
+                        if (this.player.direction == 'left'){
+                            this.player.anims.play('idleLeftTorche', true);
+                        }
+                    }
                 }
 
                     if(this.doubleJumpActif == true){
@@ -612,6 +673,13 @@
 
             }
 
+            if (this.murStop == true){
+                this.compteurMurStop --
+                if (this.compteurMurStop == 0){
+                    this.murAOuvrir.setVelocityY(0)
+                }
+            }
+
             if (this.shot){
                 this.tirer(this.player);
             }
@@ -672,7 +740,7 @@
         }
 
         allumeTorche(play,torchesAAllumer){
-            if (this.torcheDebloque == true){
+            if (this.torcheActive == true){
                 if (this.interagir){
                     torchesAAllumer.destroy()
                     this.torchesAllumer.create(torchesAAllumer.x, torchesAAllumer.y, 'torchesAllumer').setOrigin(0);
@@ -680,8 +748,10 @@
                 }
 
                 if (this.nbrTorcheAllume == 2){
-                    this.murAOuvrir.setVelocityY(-30)
-                    this.cameras.main.shake(5000, 0.0007);
+                    this.murAOuvrir.setVelocityY(-20)
+                    this.murStop = true
+
+                    this.cameras.main.shake(3000, 0.0007);
                 }
             }
         }
@@ -718,7 +788,8 @@
                     torcheDebloque: this.torcheDebloque,
                     torcheActive: this.torcheActive,
                     pouvoirTirer: this.pouvoirTirer,
-                    tempsAvantTirer: this.tempsAvantTirer
+                    tempsAvantTirer: this.tempsAvantTirer,
+                    animTorche: this.animTorche
                 })
             }
         }
