@@ -27,10 +27,12 @@ init(data){
             this.doubleJumpActif = data.doubleJumpActif,
             this.torcheDebloque = data.torcheDebloque,
             this.torcheActive = data.torcheActive,
-            this.torcheActive = data.torcheActive,
             this.pouvoirTirer = data.pouvoirTirer,
             this.tempsAvantTirer = data.tempsAvantTirer,
-            this.animTorche = data.animTorche
+            this.animTorche = data.animTorche,
+            this.ouvrirTemplePossible = data.ouvrirTemplePossible,
+            this.entreeTemplePossible = data.entreeTemplePossible,
+            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer
 }
 
 preload(){
@@ -712,7 +714,10 @@ goOutTemple(player,retourAvantTemple){
             torcheActive: this.torcheActive,
             pouvoirTirer: this.pouvoirTirer,
             tempsAvantTirer: this.tempsAvantTirer,
-            animTorche: this.animTorche
+            animTorche: this.animTorche,
+            ouvrirTemplePossible: this.ouvrirTemplePossible,
+            entreeTemplePossible: this.entreeTemplePossible,
+            templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer
         })
     }
 }

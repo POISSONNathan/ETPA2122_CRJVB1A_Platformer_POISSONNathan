@@ -28,35 +28,38 @@ this.startButton.on('pointerdown', function (pointer) {
             this.spawnYSortieScene =  spawnJoueur.y
         });
 
-        this.scene.scene.start("sceneTemple", {
-        pointDeVie:4,
-        spawnXSortieScene: this.spawnXSortieScene,
-        spawnYSortieScene: this.spawnYSortieScene,
-        speedLeft: 300,
-        speedRight: 300,
-        dialogue: false,
-        speed: 300,
-        speedSaut: 400,
-        doubleSautLeft: false,
-        compteurDoubleSautLeft: 10,
-        doubleSautRight: false,
-        compteurDoubleSautRight: 10,
-        doubleSautLeftPossible: true,
-        doubleSautRightPossible: true,
-        resetGraviteLeft: false,
-        resetGraviteRight: false,
-        animNormal: true,
-        animJump: false,
-        attaque: false,
-        attaquePossible: true,
-        doubleJumpActif: false,
-        torcheDebloque: true,
-        torcheActive: false,
-        pouvoirTirer: false,
-        tempsAvantTirer: false,
-        animTorche: false
-})
-});
+        this.scene.scene.start("sceneJeu", {
+            pointDeVie:4,
+            spawnXSortieScene: this.spawnXSortieScene,
+            spawnYSortieScene: this.spawnYSortieScene,
+            speedLeft: 300,
+            speedRight: 300,
+            dialogue: false,
+            speed: 300,
+            speedSaut: 400,
+            doubleSautLeft: false,
+            compteurDoubleSautLeft: 10,
+            doubleSautRight: false,
+            compteurDoubleSautRight: 10,
+            doubleSautLeftPossible: true,
+            doubleSautRightPossible: true,
+            resetGraviteLeft: false,
+            resetGraviteRight: false,
+            animNormal: true,
+            animJump: false,
+            attaque: false,
+            attaquePossible: true,
+            doubleJumpActif: false,
+            torcheDebloque: false,
+            torcheActive: false,
+            pouvoirTirer: false,
+            tempsAvantTirer: false,
+            animTorche: false,
+            ouvrirTemplePossible: false,
+            entreeTemplePossible: false,
+            templeOuvertTorcheAllumer: false
+        })
+        });
 
 this.quitButton = this.add.image(this.cameras.main.width/2,500, 'bouttonLeave').setScale(0.53).setInteractive();
 

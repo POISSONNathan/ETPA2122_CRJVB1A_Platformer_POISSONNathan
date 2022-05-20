@@ -29,7 +29,10 @@
             this.torcheActive = data.torcheActive,
             this.pouvoirTirer = data.pouvoirTirer,
             this.tempsAvantTirer = data.tempsAvantTirer,
-            this.animTorche = data.animTorche
+            this.animTorche = data.animTorche,
+            this.ouvrirTemplePossible = data.ouvrirTemplePossible,
+            this.entreeTemplePossible = data.entreeTemplePossible,
+            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer
         }
 
         preload(){
@@ -66,6 +69,9 @@
 
             this.load.image("murAOuvrir", "assets/objets/murAOuvrir.png");
 
+            this.load.image("mur1", "assets/objets/mur1.png");
+            this.load.image("mur2", "assets/objets/mur2.png");
+            this.load.image("mur3", "assets/objets/mur3.png");
 
         }
 
@@ -91,12 +97,11 @@
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
 
-
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
 
-            this.player = this.physics.add.sprite(this.spawnXSortieScene, this.spawnYSortieScene, 'perso').setOrigin(0)
+            this.player = this.physics.add.sprite(this.spawnXSortieScene, this.spawnYSortieScene, 'perso').setOrigin(0).setDepth(10)
             this.player.body.setSize(16,32,true)
 
             const devant = carte.createLayer(
@@ -289,9 +294,13 @@
                 this.murAOuvrir = this.physics.add.image(murAOuvrir.x, murAOuvrir.y, 'murAOuvrir').setOrigin(0);
                 this.murAOuvrir.setPushable(false)
                 this.murAOuvrir.body.setAllowGravity(false)
+                this.murAOuvrir.setInteractive()
+
+                this.murAOuvrir.body.setSize(64,96)
+                this.murAOuvrir.setOffset(-16,0)
             });
 
-            this.physics.add.collider(this.player,this.murAOuvrir)
+            this.physics.add.overlap(this.player,this.murAOuvrir,this.murOuvert,null,this)
 
             /////////////////////////////
             /////////////////////////////
@@ -356,6 +365,8 @@
                     this.torcheActive = true
                 }
             }
+
+            console.log(this.templeOuvertTorcheAllumer)
 
             if (this.torcheActive == true){
                 this.light.setIntensity(6)
@@ -677,7 +688,16 @@
                 this.compteurMurStop --
                 if (this.compteurMurStop == 0){
                     this.murAOuvrir.setVelocityY(0)
+                    this.entreeTemplePossible = true
                 }
+            }
+
+
+            if (this.templeOuvertTorcheAllumer == true){
+                this.torchesAAllumer.children.iterate((child) => {
+                    child.setTexture('torchesAllumer');
+                });
+                this.murAOuvrir.setTexture('mur3')
             }
 
             if (this.shot){
@@ -747,12 +767,26 @@
                     this.nbrTorcheAllume ++
                 }
 
-                if (this.nbrTorcheAllume == 2){
-                    this.murAOuvrir.setVelocityY(-20)
-                    this.murStop = true
-
-                    this.cameras.main.shake(3000, 0.0007);
+                if (this.nbrTorcheAllume == 1){
+                    this.murAOuvrir.setTexture('mur1')
                 }
+                if (this.nbrTorcheAllume == 2){
+                    this.murAOuvrir.setTexture('mur2')
+                }
+                if (this.nbrTorcheAllume == 3){
+                    this.murAOuvrir.setTexture('mur3')
+                    this.ouvrirTemplePossible = true
+                }
+            }
+        }
+
+        murOuvert(player,murAOuvrir){
+            if (this.ouvrirTemplePossible == true && this.interagir){
+                this.ouvrirTemplePossible = false
+                murAOuvrir.setVelocityY(-11)
+                this.murStop = true
+                this.cameras.main.shake(3000, 0.0007);
+                this.nbrTorcheAllume = 0
             }
         }
 
@@ -762,7 +796,10 @@
 
 
         goTemple(player,entreTemple){
-            if (this.interagir) { 
+            if (this.interagir && this.entreeTemplePossible == true) {
+                this.ouvrirTemplePossible = true
+                this.entreeTemplePossible = false
+                this.templeOuvertTorcheAllumer = true 
                 this.scene.start("sceneTemple", {
                     pointDeVie:this.pointDeVie,
                     spawnXSortieScene: this.player.x,
@@ -789,7 +826,10 @@
                     torcheActive: this.torcheActive,
                     pouvoirTirer: this.pouvoirTirer,
                     tempsAvantTirer: this.tempsAvantTirer,
-                    animTorche: this.animTorche
+                    animTorche: this.animTorche,
+                    ouvrirTemplePossible: this.ouvrirTemplePossible ,
+                    entreeTemplePossible: this.entreeTemplePossible,
+                    templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer
                 })
             }
         }
