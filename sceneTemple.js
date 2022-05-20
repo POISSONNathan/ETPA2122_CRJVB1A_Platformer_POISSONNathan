@@ -101,7 +101,7 @@ create(){
 
     this.player.setCollideWorldBounds(true);
 
-    this.cameras.main.zoom = 3
+    this.cameras.main.zoom = 2.5
     this.cameras.main.startFollow(this.player); 
     this.physics.world.setBounds(0, 0, 6400, 2880);
     this.cameras.main.setBounds(0, 0, 6400, 2880);
