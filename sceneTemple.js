@@ -75,12 +75,12 @@ create(){
     const backgroundGrotte = carte2.createLayer(
             "backgroundGrotte",
             tileset
-            ).setPipeline('Light2D').setAlpha(0.1);
+            ).setPipeline('Light2D').setAlpha(0.05);
 
     const buildGrotte = carte2.createLayer(
             "buildGrotte",
             tileset
-            ).setPipeline('Light2D').setAlpha(0.1);
+            ).setPipeline('Light2D').setAlpha(0.05);
 
            
 
@@ -192,14 +192,14 @@ create(){
     this.anims.create({
         key: 'animTorcheRight',
         frames: this.anims.generateFrameNumbers('animTorche', {start:0,end:4}),
-        frameRate: 6,
+        frameRate: 12,
         repeat: -1
     });
 
     this.anims.create({
         key: 'animTorcheLeft',
         frames: this.anims.generateFrameNumbers('animTorche', {start:5,end:9}),
-        frameRate: 6,
+        frameRate: 12,
         repeat: -1
     });
     this.anims.create({
@@ -314,7 +314,7 @@ update(){
     }
 
     if (this.torcheActive == true){
-        this.light.setIntensity(6)
+        this.light.setIntensity(16)
         this.player.alpha = 1
 
         this.animTorche = true
@@ -332,7 +332,7 @@ update(){
 
     if (this.torcheActive == false){
         this.light.setIntensity(0)
-        this.player.alpha = 0
+        this.player.alpha = 0.1
     }
 
     // frames utiliser selon les situations
@@ -376,6 +376,7 @@ update(){
         this.lasso = this.physics.add.sprite(this.player.x,this.player.y,'animLasso').setOrigin(0);
         this.lasso.body.setAllowGravity(false)
         this.createLasso = false
+        this.lasso.alpha = 0.1
 
         this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
     }
