@@ -22,6 +22,7 @@
             this.resetGraviteRight = data.resetGraviteRight,
             this.animNormal = data.animNormal,
             this.animJump = data.animJump,
+            this.animPousseCaisse = data.animPousseCaisse,
             this.attaque = data.attaque,
             this.attaquePossible = data.attaquePossible,
             this.doubleJumpActif = data.doubleJumpActif,
@@ -36,7 +37,8 @@
             this.compteurDeplacementLasso = data.compteurDeplacementLasso,
             this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
             this.deplacementEnnemi = data.deplacementEnnemi,
-            this.deplacementCaisse = data.deplacementCaisse
+            this.deplacementCaisse = data.deplacementCaisse,
+            this.blockCaisse = data.blockCaisse
         }
 
         preload(){
@@ -53,6 +55,11 @@
             { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('animTorche','assets/animTorche.png',
             { frameWidth: 32, frameHeight: 32 });
+            this.load.spritesheet('animPousse','assets/animPousse.png',
+            { frameWidth: 32, frameHeight: 32 });
+            this.load.spritesheet('animGrimpeLiane','assets/animGrimpeLiane.png',
+            { frameWidth: 32, frameHeight: 32 });
+
             ///////////////////////
 
             this.load.spritesheet('animLasso','assets/animLasso.png',
@@ -66,7 +73,8 @@
 
             this.load.image("balleLeft", "assets/objets/balleLeft.png");
             this.load.image("balleRight", "assets/objets/balleRight.png");
-            this.load.image("arme", "assets/objets/arme.png");
+            this.load.spritesheet('arme','assets/objets/arme.png',
+            { frameWidth: 32, frameHeight: 32 });
 
             this.load.image("torchesAAllumer", "assets/objets/torchesAAllumer.png");
             this.load.image("torchesAllumer", "assets/objets/torchesAllumer.png");
@@ -85,6 +93,8 @@
 
             this.load.image("caisses", "assets/objets/caisses.png");
 
+            this.load.image("lianesAGrimper", "assets/objets/lianesAGrimper.png");
+            this.load.image("boutLianesAGrimper", "assets/objets/boutLianesAGrimper.png");
         }
 
         create(){
@@ -104,6 +114,7 @@
                     "build",
                     tileset
                     ).setDepth(8)
+
 
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
@@ -148,6 +159,9 @@
             this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
             this.compteurDeplacementLassoCaisseStock = this.compteurDeplacementLassoCaisse
 
+            this.compteurStopGrimper = 8
+            this.stopGrimper = false
+
             this.anims.create({
                 key: 'right',
                 frames: this.anims.generateFrameNumbers('perso', {start:0,end:4}),
@@ -184,6 +198,34 @@
                 key: 'jumpLeft',
                 frames: this.anims.generateFrameNumbers('persoTest', {start:4,end:7}),
                 frameRate: 6,
+                repeat: -1
+            });
+
+             /////////////////////////
+
+             this.anims.create({
+                key: 'animGrimpeLiane',
+                frames: this.anims.generateFrameNumbers('animGrimpeLiane', {start:0,end:3}),
+                frameRate: 5,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'idleAnimGrimpeLiane',
+                frames: [ { key: 'animGrimpeLiane', frame: 4 } ],
+                frameRate: 20
+            });
+            /////////////////////////
+
+            this.anims.create({
+                key: 'animPousseRight',
+                frames: this.anims.generateFrameNumbers('animPousse', {start:0,end:2}),
+                frameRate: 5,
+                repeat: -1
+            });
+            this.anims.create({
+                key: 'animPousseLeft',
+                frames: this.anims.generateFrameNumbers('animPousse', {start:3,end:5}),
+                frameRate: 5,
                 repeat: -1
             });
 
@@ -272,6 +314,15 @@
 
             ////////////////////////
 
+            this.anims.create({
+                key: 'animArme',
+                frames: this.anims.generateFrameNumbers('arme', {start:0,end:13}),
+                frameRate: 12,
+                repeat: -1
+            });
+
+            ////////////////////////
+
             this.enemis = this.physics.add.group({
             });      
 
@@ -284,13 +335,11 @@
             this.physics.add.collider(this.enemis,build)
             this.physics.add.collider(this.player,this.enemis,this.stopEnnemi,null,this)
 
-            ///////////////////////////////////////////////////////////////
-
-            this.torche = this.physics.add.staticGroup({
-            });      
+            ///////////////////////////////////////////////////////////////  
 
             carte.getObjectLayer('torche').objects.forEach((torche) => {
-                this.torche = this.torche.create(torche.x, torche.y, 'torche').setOrigin(0);
+                this.torche = this.physics.add.image(torche.x, torche.y, 'torche').setOrigin(0);
+                this.torche.body.setAllowGravity(false)
             });
 
             this.physics.add.overlap(this.player,this.torche,this.prendreTorche,null,this)
@@ -307,7 +356,7 @@
             /////////////////////////////
 
             carte.getObjectLayer('arme').objects.forEach((arme) => {
-                this.arme = this.physics.add.image(arme.x, arme.y, 'arme').setOrigin(0);
+                this.arme = this.physics.add.sprite(arme.x, arme.y + 6, 'arme').setOrigin(0).setScale(0.8)
                 this.arme.body.setAllowGravity(false)
             });
 
@@ -349,13 +398,39 @@
             this.caisses = this.physics.add.group({
                 immovable: true,
             })
-            
+
             carte.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
                 this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(7)
             });
 
+            this.physics.add.collider(this.caisses,this.caisses,this.stopCaisseVelocite0,null,this)
             this.physics.add.collider(this.caisses,build)
             this.physics.add.collider(this.player,this.caisses,this.stopCaisse,null,this)
+            
+
+            //////////////////////////////////////////////////
+
+            this.lianesAGrimper = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+            this.boutLianesAGrimper = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+
+            carte.getObjectLayer('lianesAGrimper').objects.forEach((lianesAGrimper) => {
+                this.lianeAGrimper = this.lianesAGrimper.create(lianesAGrimper.x + 16,lianesAGrimper.y + 16 ,'lianesAGrimper').setDepth(7)
+                this.lianeAGrimper.body.setSize(4,96)
+            });
+
+            carte.getObjectLayer('boutLianesAGrimper').objects.forEach((boutLianesAGrimper) => {
+                this.boutLianeAGrimper = this.boutLianesAGrimper.create(boutLianesAGrimper.x + 16,boutLianesAGrimper.y - 7  ,'boutLianesAGrimper').setDepth(7)
+                this.boutLianeAGrimper.body.setSize(8,10)
+            });
+
+            this.physics.add.collider(this.player,this.boutLianesAGrimper)
+            this.physics.add.overlap(this.player,this.lianesAGrimper,this.grimperLianes,null,this)
 
             /////////////////////////////
             /////////////////////////////
@@ -375,6 +450,8 @@
                 space: Phaser.Input.Keyboard.KeyCodes.SPACE,
                 q: Phaser.Input.Keyboard.KeyCodes.Q,
                 d: Phaser.Input.Keyboard.KeyCodes.D,
+                z: Phaser.Input.Keyboard.KeyCodes.Z,
+                s: Phaser.Input.Keyboard.KeyCodes.S,
                 a: Phaser.Input.Keyboard.KeyCodes.A,
                 c: Phaser.Input.Keyboard.KeyCodes.C,
                 v: Phaser.Input.Keyboard.KeyCodes.V,
@@ -408,10 +485,10 @@
 
         update(){
 
-        
-         
-
-
+            if ( this.pouvoirTirer == false){
+            this.arme.anims.play('animArme', true);
+            }
+            
             //////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////
@@ -425,17 +502,20 @@
 
             this.light.y = this.player.y;
 
+            this.shot = Phaser.Input.Keyboard.JustDown(this.keys.e)
+            this.attaqueTouche = Phaser.Input.Keyboard.JustDown(this.keys.a)
+            this.lightTouche = Phaser.Input.Keyboard.JustDown(this.keys.c)
+            this.interagir = Phaser.Input.Keyboard.JustDown(this.keys.f)
+            this.noLightTouche = Phaser.Input.Keyboard.JustDown(this.keys.v)
+            this.moveUp = Phaser.Input.Keyboard.JustDown(this.keys.space)
+            this.moveLeft = (this.keys.q.isDown )  
+            this.moveRight = (this.keys.d.isDown ) 
+            this.moveUpLiane = (this.keys.z.isDown )  
+            this.moveDownLiane = (this.keys.s.isDown ) 
+
 
             if (this.dialogue == false){
 
-                this.shot = Phaser.Input.Keyboard.JustDown(this.keys.e)
-                this.attaqueTouche = Phaser.Input.Keyboard.JustDown(this.keys.a)
-                this.lightTouche = Phaser.Input.Keyboard.JustDown(this.keys.c)
-                this.interagir = Phaser.Input.Keyboard.JustDown(this.keys.f)
-                this.noLightTouche = Phaser.Input.Keyboard.JustDown(this.keys.v)
-                this.moveUp = Phaser.Input.Keyboard.JustDown(this.keys.space)
-                this.moveLeft = (this.keys.q.isDown )  
-                this.moveRight = (this.keys.d.isDown ) 
         
             if (this.player.direction == 'left'){
                 this.player.setOffset(8,0)
@@ -476,6 +556,11 @@
                 this.frameLeft = 'left'
                 this.frameRight = 'right'
                 this.frameTurn = 'turn'
+            }
+
+            if (this.animPousseCaisse == true){
+                this.frameLeft = 'animPousseLeft'
+                this.frameRight = 'animPousseRight'
             }
 
             if (this.animJump == true){
@@ -657,14 +742,11 @@
                             this.lasso.destroy()
                         }          
                 }
-
-
             }
             
             if (this.attaque == false){
                 if (this.moveUp && this.player.body.blocked.down ) {
                     this.player.setVelocityY(-this.speedSaut);
-
                 }  
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
@@ -748,15 +830,20 @@
                         this.doubleSautLeftPossible = true
                         this.resetGraviteLeft = false
                         this.resetGraviteRight = false
-
-                        this.animNormal = true
+                        if (this.animPousseCaisse == false){
+                            this.animNormal = true
+                        }
                         this.animJump = false
                         this.doubleJumpActif = false
+                        this.accrochePossibleLianeAGrimper = false
                     }      
                     else{
                         this.animNormal = false
                         this.animJump = true
                         this.doubleJumpActif = true
+                        if (this.stopGrimper == false){
+                            this.accrochePossibleLianeAGrimper = true
+                        }
                     }      
                 }       
 
@@ -861,19 +948,95 @@
                 }
             }
 
-            if (this.deplacementCaisse == true){
+            if (this.deplacementCaisse == true){grimperLiane
                 this.compteurDeplacementLassoCaisse --
                 if (this.compteurDeplacementLassoCaisse == 0){
                     this.caisses.setVelocityX(0)
                     this.compteurDeplacementLassoCaisse = this.compteurDeplacementLassoCaisseStock
                     this.deplacementCaisse = false
+                    this.blockCaisse = true
                 }
             }
 
-            
+            if (this.blockCaisse == true){
+                this.caisses.children.iterate((child) => {
+                    if (child.x < this.player.x - 10 ){
+                        child.setVelocityX(0)
+                        this.animPousseCaisse = false
+                    }
+                    if (child.x > this.player.x + 40 ){
+                        child.setVelocityX(0)
+                        this.animPousseCaisse = false
+                    }
+                });
+            }
+            if (this.dialogue == true){
+                this.player.body.setAllowGravity(false)
+                this.player.setVelocityY(0)
+                
+                if (this.moveUpLiane){
+                    this.player.setVelocityY(-80)
+                    this.player.anims.play('animGrimpeLiane', true);
+                }
+                else if (this.moveDownLiane){
+                    this.player.setVelocityY(80)
+                    this.player.anims.play('animGrimpeLiane', true);
+                }
+                else {
+                    this.player.setVelocityY(0)
+                    this.player.anims.play('idleAnimGrimpeLiane', true);
+                }
+
+                if (this.moveRight){
+                    this.player.direction = 'right'
+                }
+                if (this.moveLeft){
+                    this.player.direction = 'left'
+                }
+
+                if (this.moveUp){
+                    this.accrochePossibleLianeAGrimper = false
+                    if (this.player.direction == 'right'){
+                        this.player.setVelocityX(300)
+                        this.player.setVelocityY(-300)
+                    }
+                    if (this.player.direction == 'left'){
+                        this.player.setVelocityX(-300)
+                        this.player.setVelocityY(-300)
+                    }
+                    this.dialogue = false
+                    this.stopGrimper = true
+                }
+            }
+
+            if (this.stopGrimper == true){
+                this.compteurStopGrimper -= 1
+                if (this.compteurStopGrimper == 0){
+                    this.compteurStopGrimper = 8
+                    this.player.body.setAllowGravity(true)
+                    this.stopGrimper = false
+                    this.accrochePossibleLianeAGrimper = true
+                }
+            }
+
+            console.log(this.accrochePossibleLianeAGrimper )
     } 
 
+        grimperLianes(player,lianesAGrimper){
+            if (this.accrochePossibleLianeAGrimper == true){ 
+                player.x = lianesAGrimper.x - 15
+                this.dialogue = true
+                player.setVelocityX(0)
+            }
+        }
+
+        stopCaisseVelocite0(caisse1,caisse2){
+            caisse1.setVelocityX(0)
+            caisse2.setVelocityX(0)
+        }
+
         bougerCaisse(lasso,caisse){
+            this.blockCaisse = false
             lasso.destroy()
 
             this.attaque = false
@@ -891,11 +1054,20 @@
         }
 
         stopCaisse(player,caisse){
-            if (caisse.x < player.x){
-                caisse.setVelocityX(-60)
-            }
-            if (caisse.x > player.x){
-                caisse.setVelocityX(60)
+            if (this.torcheActive == false){
+                this.blockCaisse = true
+                if (caisse.x < player.x){
+                    caisse.setVelocityX(-55)
+                }
+                if (caisse.x > player.x){
+                    caisse.setVelocityX(55)
+                }
+
+                this.animNormal = false
+                this.animPousseCaisse = true
+
+                this.compteurDeplacementLassoCaisse = this.compteurDeplacementLassoCaisseStock
+                this.deplacementCaisse = false
             }
         }
 
@@ -1042,7 +1214,9 @@
                     compteurDeplacementLasso: this.compteurDeplacementLasso,
                     compteurDeplacementLassoCaisse: this.compteurDeplacementLassoCaisse,
                     deplacementEnnemi: this.deplacementEnnemi,
-                    deplacementCaisse: this.deplacementCaisse
+                    deplacementCaisse: this.deplacementCaisse,
+                    blockCaisse: this.blockCaisse,
+                    animPousseCaisse: this.animPousseCaisse
                 })
             }
         }

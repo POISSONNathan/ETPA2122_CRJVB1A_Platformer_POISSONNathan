@@ -47,10 +47,11 @@ this.startButton.on('pointerdown', function (pointer) {
             resetGraviteRight: false,
             animNormal: true,
             animJump: false,
+            animPousseCaisse: false,
             attaque: false,
             attaquePossible: true,
             doubleJumpActif: false,
-            torcheDebloque: false,
+            torcheDebloque: true,
             torcheActive: false,
             pouvoirTirer: false,
             tempsAvantTirer: false,
@@ -61,7 +62,8 @@ this.startButton.on('pointerdown', function (pointer) {
             compteurDeplacementLasso: 120,
             compteurDeplacementLassoCaisse: 70,
             deplacementEnnemi: false,
-            deplacementCaisse: false
+            deplacementCaisse: false,
+            blockCaisse: false
 
         })
         });

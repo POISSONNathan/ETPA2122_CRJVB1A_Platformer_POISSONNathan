@@ -22,6 +22,7 @@ init(data){
             this.resetGraviteRight = data.resetGraviteRight,
             this.animNormal = data.animNormal,
             this.animJump = data.animJump,
+            this.animPousseCaisse = data.animPousseCaisse,
             this.attaque = data.attaque,
             this.attaquePossible = data.attaquePossible,
             this.doubleJumpActif = data.doubleJumpActif,
@@ -36,7 +37,8 @@ init(data){
             this.compteurDeplacementLasso = data.compteurDeplacementLasso,
             this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
             this.deplacementEnnemi = data.deplacementEnnemi,
-            this.deplacementCaisse = data.deplacementCaisse
+            this.deplacementCaisse = data.deplacementCaisse,
+            this.blockCaisse = data.blockCaisse
 }
 
 preload(){
@@ -53,6 +55,8 @@ preload(){
     { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('animTorche','assets/animTorche.png',
     { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('animPousse','assets/animPousse.png',
+    { frameWidth: 32, frameHeight: 32 });
     ///////////////////////
 
 
@@ -65,6 +69,11 @@ preload(){
 
     this.load.image("torche", "assets/objets/torche.png");
 
+    this.load.image("caissesEclaire", "assets/objets/caisses.png");
+
+
+    this.load.spritesheet('torches','assets/objets/torches.png',
+    { frameWidth: 32, frameHeight: 48 });
 
 }
 
@@ -79,19 +88,20 @@ create(){
     const backgroundGrotte = carte2.createLayer(
             "backgroundGrotte",
             tileset
-            ).setPipeline('Light2D').setAlpha(0.05);
+            ).setPipeline('Light2D')
 
     const buildGrotte = carte2.createLayer(
             "buildGrotte",
             tileset
-            ).setPipeline('Light2D').setAlpha(0.05);
+            ).setPipeline('Light2D')
 
            
 
 
     this.lights.enable();
-    this.lights.setAmbientColor(0xFF0000);
+    this.lights.setAmbientColor(0x111111);
     this.light = this.lights.addLight(400, 300, 400).setIntensity(0);
+
 
     this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
     this.compteurDeplacementLassoCaisseStock = this.compteurDeplacementLassoCaisse
@@ -100,7 +110,7 @@ create(){
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
-    this.player = this.physics.add.sprite(64,1770, 'perso').setOrigin(0)
+    this.player = this.physics.add.sprite(64,1770, 'perso').setOrigin(0).setPipeline('Light2D')
     this.player.body.setSize(16,32)
 
     this.physics.add.collider(this.player, buildGrotte);
@@ -152,6 +162,21 @@ create(){
         repeat: -1
     });
 
+    /////////////////////////
+
+    this.anims.create({
+        key: 'animPousseRight',
+        frames: this.anims.generateFrameNumbers('animPousse', {start:0,end:2}),
+        frameRate: 5,
+        repeat: -1
+    });
+    this.anims.create({
+        key: 'animPousseLeft',
+        frames: this.anims.generateFrameNumbers('animPousse', {start:3,end:5}),
+        frameRate: 5,
+        repeat: -1
+    });
+
     ////////////////////////
 
     this.anims.create({
@@ -164,7 +189,7 @@ create(){
     this.anims.create({
         key: 'attaqueLeft',
         frames: this.anims.generateFrameNumbers('attaque', {start:5,end:9}),
-        frameRate: 3,
+        frameRate: 4,
         repeat: -1
     });
     this.anims.create({
@@ -183,14 +208,14 @@ create(){
     this.anims.create({
         key: 'animLassoRight',
         frames: this.anims.generateFrameNumbers('animLasso', {start:0,end:10}),
-        frameRate: 6,
+        frameRate: 14,
         repeat: -1
     });
 
     this.anims.create({
         key: 'animLassoLeft',
         frames: this.anims.generateFrameNumbers('animLasso', {start:21,end:11}),
-        frameRate: 6,
+        frameRate: 14,
         repeat: -1
     });
 
@@ -222,13 +247,23 @@ create(){
 
     ////////////////////////
 
+    this.anims.create({
+        key: 'animTorches',
+        frames: this.anims.generateFrameNumbers('torches', {start:0,end:4}),
+        frameRate: 6,
+        repeat: -1
+    });
+
+    ////////////////////////
+
     this.enemis = this.physics.add.group({
-    });      
+    })      
 
     carte2.getObjectLayer('ennemi').objects.forEach((enemis) => {
         this.enemi = this.enemis.create(enemis.x, enemis.y, 'ennemi').setOrigin(0);
         this.enemi.setPushable(false)
         this.enemi.body.setSize(22,32)
+        this.enemi.setPipeline('Light2D')
     });
 
     this.physics.add.collider(this.enemis,buildGrotte)
@@ -245,18 +280,30 @@ create(){
 
     ////////////////////////
 
-    this.torches = this.physics.add.group({
-    });   
-       
-    carte2.getObjectLayer('torches').objects.forEach((torches) => {
-        this.torche = this.torches.create(torches.x, torches.y, 'torches').setOrigin(0);
-        this.torche.setPushable(false)
-        this.torche.body.setSize(22,32)
+    this.caisses = this.physics.add.group({
+        immovable: true,
+    })
+
+    carte2.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
+        this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caissesEclaire').setDepth(7)
+        this.caisse.setPipeline('Light2D')
     });
 
-   
+    this.physics.add.collider(this.caisses,this.caisses,this.stopCaisseVelocite0,null,this)
+    this.physics.add.collider(this.caisses,buildGrotte)
+    this.physics.add.collider(this.player,this.caisses,this.stopCaisse,null,this)
 
-    
+    //////////////////////////////////////////////////////////////
+
+    this.torches = this.physics.add.staticGroup({
+        immovable: true,
+    })
+
+
+    carte2.getObjectLayer('lights').objects.forEach((light) => {
+        this.lights.addLight(light.x, light.y, 400).setIntensity(2);
+        this.torches.create(light.x,light.y,'torches').setPipeline('Light2D').setScale(0.7)
+    });
 
     ///////////////////////////////////////////////////////////////
 
@@ -284,7 +331,10 @@ create(){
 
 update(){
 
-    
+    this.torches.children.iterate((child) => {
+        child.anims.play('animTorches', true);
+    });
+
     if (this.player.direction == 'right'){
         this.light.x = this.player.x + 30;
     }
@@ -321,9 +371,7 @@ update(){
     }
 
     if (this.torcheActive == true){
-        this.light.setIntensity(16)
-        this.player.alpha = 1
-
+        this.light.setIntensity(1)
         this.animTorche = true
         this.animNormal = false
         this.animJump = false
@@ -339,7 +387,6 @@ update(){
 
     if (this.torcheActive == false){
         this.light.setIntensity(0)
-        this.player.alpha = 0.1
     }
 
     // frames utiliser selon les situations
@@ -347,6 +394,11 @@ update(){
         this.frameLeft = 'left'
         this.frameRight = 'right'
         this.frameTurn = 'turn'
+    }
+
+    if (this.animPousseCaisse == true){
+        this.frameLeft = 'animPousseLeft'
+        this.frameRight = 'animPousseRight'
     }
 
     if (this.animJump == true){
@@ -386,6 +438,7 @@ update(){
         this.lasso.alpha = 0.1
 
         this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
+        this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
     }
 
     if  (this.attaque == true){
@@ -617,8 +670,9 @@ update(){
                 this.doubleSautLeftPossible = true
                 this.resetGraviteLeft = false
                 this.resetGraviteRight = false
-
-                this.animNormal = true
+                if (this.animPousseCaisse == false){
+                    this.animNormal = true
+                }
                 this.animJump = false
                 this.doubleJumpActif = false
             }      
@@ -637,6 +691,70 @@ update(){
         if (this.shot){
             this.tirer(this.player);
         }
+    }
+
+    if (this.deplacementCaisse == true){
+        this.compteurDeplacementLassoCaisse --
+        if (this.compteurDeplacementLassoCaisse == 0){
+            this.caisses.setVelocityX(0)
+            this.compteurDeplacementLassoCaisse = this.compteurDeplacementLassoCaisseStock
+            this.deplacementCaisse = false
+            this.blockCaisse = true
+        }
+    }
+
+    if (this.blockCaisse == true){
+        this.caisses.children.iterate((child) => {
+            if (child.x < this.player.x - 10 ){
+                child.setVelocityX(0)
+                this.animPousseCaisse = false
+            }
+            if (child.x > this.player.x + 40 ){
+                child.setVelocityX(0)
+                this.animPousseCaisse = false
+            }
+        });
+    }
+}
+
+stopCaisseVelocite0(caisse1,caisse2){
+    caisse1.setVelocityX(0)
+    caisse2.setVelocityX(0)
+}
+
+bougerCaisse(lasso,caisse){
+    this.blockCaisse = false
+    lasso.destroy()
+
+    this.attaque = false
+    this.animNormal = true
+
+    if (caisse.x < this.player.x){
+        caisse.setVelocityX(100)
+    }
+    if (caisse.x > this.player.x){
+        caisse.setVelocityX(-100)
+    }
+
+    this.attaquePossible = true
+    this.deplacementCaisse = true
+}
+
+stopCaisse(player,caisse){
+    if (this.torcheActive == false){
+        this.blockCaisse = true
+        if (caisse.x < player.x){
+            caisse.setVelocityX(-55)
+        }
+        if (caisse.x > player.x){
+            caisse.setVelocityX(55)
+        }
+
+        this.animNormal = false
+        this.animPousseCaisse = true
+
+        this.compteurDeplacementLassoCaisse = this.compteurDeplacementLassoCaisseStock
+        this.deplacementCaisse = false
     }
 }
 
@@ -729,7 +847,9 @@ goOutTemple(player,retourAvantTemple){
             compteurDeplacementLasso: this.compteurDeplacementLasso,
             compteurDeplacementLassoCaisse: this.compteurDeplacementLassoCaisse,
             deplacementEnnemi: this.deplacementEnnemi,
-            deplacementCaisse: this.deplacementCaisse
+            deplacementCaisse: this.deplacementCaisse,
+            blockCaisse: this.blockCaisse,
+            animPousseCaisse: this.animPousseCaisse
         })
     }
 }
