@@ -32,7 +32,11 @@
             this.animTorche = data.animTorche,
             this.ouvrirTemplePossible = data.ouvrirTemplePossible,
             this.entreeTemplePossible = data.entreeTemplePossible,
-            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer
+            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer,
+            this.compteurDeplacementLasso = data.compteurDeplacementLasso,
+            this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
+            this.deplacementEnnemi = data.deplacementEnnemi,
+            this.deplacementCaisse = data.deplacementCaisse
         }
 
         preload(){
@@ -79,6 +83,7 @@
             { frameWidth: 266, frameHeight: 172 });
             this.load.image("invisibleLiane", "assets/invisibleLiane.png");
 
+            this.load.image("caisses", "assets/objets/caisses.png");
 
         }
 
@@ -121,7 +126,7 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 1
+            this.cameras.main.zoom = 2.5
             this.cameras.main.startFollow(this.player); 
             this.physics.world.setBounds(0, 0, 6400, 1920);
             this.cameras.main.setBounds(0, 0, 6400, 1920);
@@ -129,7 +134,7 @@
             this.nbrTorcheAllume = 0
 
             this.murStop = false
-            this.compteurMurStop = 180
+            this.compteurMurStop = 280
 
             this.accroche1 = false
 
@@ -137,10 +142,11 @@
             this.compteurAccrochePossible1 = 50
 
             this.animLianeSpecial = false
-
             this.idxDebutAnimLianeStop = 0
-
             this.apparaitreAccroche = false
+
+            this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
+            this.compteurDeplacementLassoCaisseStock = this.compteurDeplacementLassoCaisse
 
             this.anims.create({
                 key: 'right',
@@ -218,7 +224,7 @@
             this.anims.create({
                 key: 'attaqueLeft',
                 frames: this.anims.generateFrameNumbers('attaque', {start:5,end:9}),
-                frameRate: 3,
+                frameRate: 4,
                 repeat: -1
             });
             this.anims.create({
@@ -237,14 +243,14 @@
             this.anims.create({
                 key: 'animLassoRight',
                 frames: this.anims.generateFrameNumbers('animLasso', {start:0,end:10}),
-                frameRate: 12,
+                frameRate: 14,
                 repeat: -1
             });
 
             this.anims.create({
                 key: 'animLassoLeft',
                 frames: this.anims.generateFrameNumbers('animLasso', {start:21,end:11}),
-                frameRate: 12,
+                frameRate: 14,
                 repeat: -1
             });
 
@@ -253,14 +259,14 @@
             this.anims.create({
                 key: 'animLianes',
                 frames: this.anims.generateFrameNumbers('lianes', {start:0,end:17}),
-                frameRate: 9,
+                frameRate: 11,
                 repeat: -1
             });
 
             this.anims.create({
                 key: 'animLianesPerso',
                 frames: this.anims.generateFrameNumbers('lianesAnim', {start:0,end:17}),
-                frameRate: 9,
+                frameRate: 11,
                 repeat: -1
             });
 
@@ -318,8 +324,8 @@
                 this.torchesAAllumer1 = this.torchesAAllumer.create(torchesAAllumer.x, torchesAAllumer.y, 'torchesAAllumer').setOrigin(0);
                 this.torchesAAllumer1.setPushable(false)
                 this.torchesAAllumer1.setInteractive()
-                this.torchesAAllumer1.body.setSize(30,32)
-                this.torchesAAllumer1.setOffset(17,16)
+                this.torchesAAllumer1.body.setSize(20,32)
+                this.torchesAAllumer1.setOffset(22,16)
             });
 
             this.physics.add.overlap(this.player,this.torchesAAllumer,this.allumeTorche,null,this)
@@ -338,11 +344,25 @@
 
             this.physics.add.overlap(this.player,this.murAOuvrir,this.murOuvert,null,this)
 
+            ///////////////////////////////////////////////
+
+            this.caisses = this.physics.add.group({
+                immovable: true,
+            })
+            
+            carte.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
+                this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(7)
+            });
+
+            this.physics.add.collider(this.caisses,build)
+            this.physics.add.collider(this.player,this.caisses,this.stopCaisse,null,this)
+
             /////////////////////////////
             /////////////////////////////
             /////////////////////////////
 
-            this.entreTemple = this.physics.add.image(1824, 1760, 'invisible').setOrigin(0)
+
+            this.entreTemple = this.physics.add.image(this.murAOuvrir.x, this.murAOuvrir.y+64, 'invisible').setOrigin(0)
             this.entreTemple.body.setAllowGravity(false)
             this.physics.add.overlap(this.player,this.entreTemple,this.goTemple,null,this)
 
@@ -384,11 +404,6 @@
 
             this.physics.add.overlap(this.player,this.overlapTest,this.accrocheJoueur1Fonction,null,this)
             this.physics.add.overlap(this.player,this.lianes,this.testAnimLianes,null,this)
-
-            
-
-           
-    
         }
 
         update(){
@@ -491,7 +506,7 @@
                     this.createLasso = true
                     this.test = true
                 }
-            }
+            } 
 
             
             
@@ -501,6 +516,7 @@
                 this.createLasso = false
 
                 this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
+                this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
             }
 
             if  (this.attaque == true){
@@ -776,6 +792,7 @@
                 this.player.y = this.accrocheTest.y - 20
                 this.player.body.setAllowGravity(false)
                 this.player.alpha = 0
+                this.attaquePossible = false
 
                 this.cameras.main.startFollow(this.lianeTemporaire); 
 
@@ -791,6 +808,7 @@
                     this.idxDebutAnimLianeStop = this.lianeTemporaire.anims.currentFrame.index
                     this.cameras.main.startFollow(this.player); 
                     this.animLianeSpecial = false
+                    this.attaquePossible = true
                 }
             }
             if (this.accrochePossible1 == false){
@@ -811,85 +829,75 @@
                     this.idxDebutAnimLiane = child.anims.currentFrame.index
                 });
                 this.lianeTemporaire.anims.play({ key: 'animLianesPerso', startFrame: this.idxDebutAnimLiane }, true);
-
             }
 
             if (this.apparaitreAccroche == true){
-                if (this.lianeTemporaire.anims.currentFrame.index == 1){
-                    this.overlapTest.x = this.lianeTemporaire.x + 110
-                    this.overlapTest.y = this.lianeTemporaire.y - 50
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 2){
-                    this.overlapTest.x = this.lianeTemporaire.x + 90
-                    this.overlapTest.y = this.lianeTemporaire.y + 10
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 3){
-                    this.overlapTest.x = this.lianeTemporaire.x + 70
-                    this.overlapTest.y = this.lianeTemporaire.y + 40
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 4){
-                    this.overlapTest.x = this.lianeTemporaire.x + 36
-                    this.overlapTest.y = this.lianeTemporaire.y + 60
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 5){
-                    this.overlapTest.x = this.lianeTemporaire.x - 10
-                    this.overlapTest.y = this.lianeTemporaire.y + 60
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 6){
-                    this.overlapTest.x = this.lianeTemporaire.x - 52
-                    this.overlapTest.y = this.lianeTemporaire.y + 56
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 7){
-                    this.overlapTest.x = this.lianeTemporaire.x - 86
-                    this.overlapTest.y = this.lianeTemporaire.y + 40
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 8){
-                    this.overlapTest.x = this.lianeTemporaire.x - 110
-                    this.overlapTest.y = this.lianeTemporaire.y + 10
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 9){
-                    this.overlapTest.x = this.lianeTemporaire.x - 120
-                    this.overlapTest.y = this.lianeTemporaire.y - 50
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 10){
-                    this.overlapTest.x = this.lianeTemporaire.x - 120
-                    this.overlapTest.y = this.lianeTemporaire.y - 50
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 11){
-                    this.overlapTest.x = this.lianeTemporaire.x - 110
-                    this.overlapTest.y = this.lianeTemporaire.y + 10
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 12){
-                    this.overlapTest.x = this.lianeTemporaire.x - 86
-                    this.overlapTest.y = this.lianeTemporaire.y + 40
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 13){
-                    this.overlapTest.x = this.lianeTemporaire.x - 52
-                    this.overlapTest.y = this.lianeTemporaire.y + 56
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 14){
-                    this.overlapTest.x = this.lianeTemporaire.x - 10
-                    this.overlapTest.y = this.lianeTemporaire.y + 60
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 15){
-                    this.overlapTest.x = this.lianeTemporaire.x + 36
-                    this.overlapTest.y = this.lianeTemporaire.y + 60
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 16){
-                    this.overlapTest.x = this.lianeTemporaire.x + 70
-                    this.overlapTest.y = this.lianeTemporaire.y + 40
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 17){
-                    this.overlapTest.x = this.lianeTemporaire.x + 100
-                    this.overlapTest.y = this.lianeTemporaire.y + 10
-                }
-                if (this.lianeTemporaire.anims.currentFrame.index == 18){
-                    this.overlapTest.x = this.lianeTemporaire.x + 110
-                    this.overlapTest.y = this.lianeTemporaire.y - 50
+                if (this.lianeTemporaire.anims.currentFrame.index == 1){  this.overlapTest.x = this.lianeTemporaire.x + 110,this.overlapTest.y = this.lianeTemporaire.y - 50 }
+                if (this.lianeTemporaire.anims.currentFrame.index == 2){  this.overlapTest.x = this.lianeTemporaire.x + 90,this.overlapTest.y = this.lianeTemporaire.y + 10 }
+                if (this.lianeTemporaire.anims.currentFrame.index == 3){  this.overlapTest.x = this.lianeTemporaire.x + 70,this.overlapTest.y = this.lianeTemporaire.y + 40}
+                if (this.lianeTemporaire.anims.currentFrame.index == 4){  this.overlapTest.x = this.lianeTemporaire.x + 36,this.overlapTest.y = this.lianeTemporaire.y + 60}
+                if (this.lianeTemporaire.anims.currentFrame.index == 5){  this.overlapTest.x = this.lianeTemporaire.x - 10,this.overlapTest.y = this.lianeTemporaire.y + 60}
+                if (this.lianeTemporaire.anims.currentFrame.index == 6){  this.overlapTest.x = this.lianeTemporaire.x - 52,this.overlapTest.y = this.lianeTemporaire.y + 56}
+                if (this.lianeTemporaire.anims.currentFrame.index == 7){  this.overlapTest.x = this.lianeTemporaire.x - 86,this.overlapTest.y = this.lianeTemporaire.y + 40}
+                if (this.lianeTemporaire.anims.currentFrame.index == 8){ this.overlapTest.x = this.lianeTemporaire.x - 110, this.overlapTest.y = this.lianeTemporaire.y + 10}
+                if (this.lianeTemporaire.anims.currentFrame.index == 9){ this.overlapTest.x = this.lianeTemporaire.x - 120,this.overlapTest.y = this.lianeTemporaire.y - 50}
+                if (this.lianeTemporaire.anims.currentFrame.index == 10){  this.overlapTest.x = this.lianeTemporaire.x - 120,this.overlapTest.y = this.lianeTemporaire.y - 50}
+                if (this.lianeTemporaire.anims.currentFrame.index == 11){this.overlapTest.x = this.lianeTemporaire.x - 110, this.overlapTest.y = this.lianeTemporaire.y + 10}
+                if (this.lianeTemporaire.anims.currentFrame.index == 12){ this.overlapTest.x = this.lianeTemporaire.x - 86,this.overlapTest.y = this.lianeTemporaire.y + 40 }
+                if (this.lianeTemporaire.anims.currentFrame.index == 13){ this.overlapTest.x = this.lianeTemporaire.x - 52, this.overlapTest.y = this.lianeTemporaire.y + 56}
+                if (this.lianeTemporaire.anims.currentFrame.index == 14){ this.overlapTest.x = this.lianeTemporaire.x - 10,this.overlapTest.y = this.lianeTemporaire.y + 60}
+                if (this.lianeTemporaire.anims.currentFrame.index == 15){ this.overlapTest.x = this.lianeTemporaire.x + 36,this.overlapTest.y = this.lianeTemporaire.y + 60}
+                if (this.lianeTemporaire.anims.currentFrame.index == 16){ this.overlapTest.x = this.lianeTemporaire.x + 70,this.overlapTest.y = this.lianeTemporaire.y + 40}
+                if (this.lianeTemporaire.anims.currentFrame.index == 17){ this.overlapTest.x = this.lianeTemporaire.x + 100, this.overlapTest.y = this.lianeTemporaire.y + 10}
+                if (this.lianeTemporaire.anims.currentFrame.index == 18){ this.overlapTest.x = this.lianeTemporaire.x + 110,this.overlapTest.y = this.lianeTemporaire.y - 50}
+            }
+
+            if (this.deplacementEnnemi == true){
+                this.compteurDeplacementLasso --
+                if (this.compteurDeplacementLasso == 0){
+                    this.enemis.setVelocityX(0)
+                    this.compteurDeplacementLasso = this.compteurDeplacementLassoStock
+                    this.deplacementEnnemi = false
                 }
             }
 
+            if (this.deplacementCaisse == true){
+                this.compteurDeplacementLassoCaisse --
+                if (this.compteurDeplacementLassoCaisse == 0){
+                    this.caisses.setVelocityX(0)
+                    this.compteurDeplacementLassoCaisse = this.compteurDeplacementLassoCaisseStock
+                    this.deplacementCaisse = false
+                }
+            }
+
+            
     } 
+
+        bougerCaisse(lasso,caisse){
+            lasso.destroy()
+
+            this.attaque = false
+            this.animNormal = true
+
+            if (caisse.x < this.player.x){
+                caisse.setVelocityX(100)
+            }
+            if (caisse.x > this.player.x){
+                caisse.setVelocityX(-100)
+            }
+
+            this.attaquePossible = true
+            this.deplacementCaisse = true
+        }
+
+        stopCaisse(player,caisse){
+            if (caisse.x < player.x){
+                caisse.setVelocityX(-60)
+            }
+            if (caisse.x > player.x){
+                caisse.setVelocityX(60)
+            }
+        }
 
         accrocheJoueur1Fonction(player,accroche){
             if (this.accrochePossible1 == true){ 
@@ -925,7 +933,6 @@
                 }
                 
                 this.balle1 = this.balles.create(player.x + (this.distanceTir * this.directionTir), player.y + 16, this.imgBalle).setScale(0.4);
-
                 this.balle1.setVelocity(900 * this.directionTir, 0);  
             }  
         }  
@@ -942,7 +949,9 @@
             if (ennemi.x > this.player.x){
                 ennemi.setVelocityX(-100)
             }
+
             this.attaquePossible = true
+            this.deplacementEnnemi = true
         }
 
         stopEnnemi(play,ennemi){
@@ -1029,7 +1038,11 @@
                     animTorche: this.animTorche,
                     ouvrirTemplePossible: this.ouvrirTemplePossible ,
                     entreeTemplePossible: this.entreeTemplePossible,
-                    templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer
+                    templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer,
+                    compteurDeplacementLasso: this.compteurDeplacementLasso,
+                    compteurDeplacementLassoCaisse: this.compteurDeplacementLassoCaisse,
+                    deplacementEnnemi: this.deplacementEnnemi,
+                    deplacementCaisse: this.deplacementCaisse
                 })
             }
         }

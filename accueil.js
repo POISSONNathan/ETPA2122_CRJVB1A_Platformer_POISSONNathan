@@ -57,7 +57,12 @@ this.startButton.on('pointerdown', function (pointer) {
             animTorche: false,
             ouvrirTemplePossible: false,
             entreeTemplePossible: false,
-            templeOuvertTorcheAllumer: false
+            templeOuvertTorcheAllumer: false,
+            compteurDeplacementLasso: 120,
+            compteurDeplacementLassoCaisse: 70,
+            deplacementEnnemi: false,
+            deplacementCaisse: false
+
         })
         });
 

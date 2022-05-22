@@ -42,18 +42,6 @@
                  "width":0,
                  "x":96,
                  "y":1760
-                }, 
-                {
-                 "gid":133,
-                 "height":32,
-                 "id":3,
-                 "name":"",
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":32,
-                 "x":160,
-                 "y":1760
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -83,20 +71,9 @@
          "visible":true,
          "x":0,
          "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "id":5,
-         "name":"torches",
-         "objects":[],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":true,
-         "x":0,
-         "y":0
         }],
  "nextlayerid":6,
- "nextobjectid":4,
+ "nextobjectid":5,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

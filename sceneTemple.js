@@ -32,7 +32,11 @@ init(data){
             this.animTorche = data.animTorche,
             this.ouvrirTemplePossible = data.ouvrirTemplePossible,
             this.entreeTemplePossible = data.entreeTemplePossible,
-            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer
+            this.templeOuvertTorcheAllumer = data.templeOuvertTorcheAllumer,
+            this.compteurDeplacementLasso = data.compteurDeplacementLasso,
+            this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
+            this.deplacementEnnemi = data.deplacementEnnemi,
+            this.deplacementCaisse = data.deplacementCaisse
 }
 
 preload(){
@@ -88,6 +92,9 @@ create(){
     this.lights.enable();
     this.lights.setAmbientColor(0xFF0000);
     this.light = this.lights.addLight(400, 300, 400).setIntensity(0);
+
+    this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
+    this.compteurDeplacementLassoCaisseStock = this.compteurDeplacementLassoCaisse
 
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
@@ -718,7 +725,11 @@ goOutTemple(player,retourAvantTemple){
             animTorche: this.animTorche,
             ouvrirTemplePossible: this.ouvrirTemplePossible,
             entreeTemplePossible: this.entreeTemplePossible,
-            templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer
+            templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer,
+            compteurDeplacementLasso: this.compteurDeplacementLasso,
+            compteurDeplacementLassoCaisse: this.compteurDeplacementLassoCaisse,
+            deplacementEnnemi: this.deplacementEnnemi,
+            deplacementCaisse: this.deplacementCaisse
         })
     }
 }
