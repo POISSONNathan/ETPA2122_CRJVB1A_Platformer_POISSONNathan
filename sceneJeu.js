@@ -121,7 +121,7 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 2.5
+            this.cameras.main.zoom = 1
             this.cameras.main.startFollow(this.player); 
             this.physics.world.setBounds(0, 0, 6400, 1920);
             this.cameras.main.setBounds(0, 0, 6400, 1920);
@@ -139,6 +139,8 @@
             this.animLianeSpecial = false
 
             this.idxDebutAnimLianeStop = 0
+
+            this.apparaitreAccroche = false
 
             this.anims.create({
                 key: 'right',
@@ -368,145 +370,32 @@
                 immovable: true,
                 allowGravity: false
             })
+
+            this.overlapLiane = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+            
+            carte.getObjectLayer('lianes1').objects.forEach((lianes1) => {
+                this.lianes.create(lianes1.x,lianes1.y + 32,'lianes').setDepth(7)
+            });
+
+            this.overlapTest = this.overlapLiane.create(0,0,"invisibleLiane")
+
+            this.physics.add.overlap(this.player,this.overlapTest,this.accrocheJoueur1Fonction,null,this)
+            this.physics.add.overlap(this.player,this.lianes,this.testAnimLianes,null,this)
+
             
 
-            this.follower1 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path1 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes1').objects.forEach((lianes1) => {this.liane1X = lianes1.x,this.liane1Y = lianes1.y,this.lianesAnim1 = this.lianes.create(lianes1.x,lianes1.y + 32,'lianes').setDepth(7)});
-            this.path1.add(new Phaser.Curves.Ellipse(this.liane1X, this.liane1Y, 110));
-            this.tweens.add({targets: this.follower1,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur1 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur1.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur1,this.accrocheJoueur1Fonction,null,this)
-            this.physics.add.overlap(this.player,this.lianesAnim1,this.testAnimLianes,null,this)
-            ////////////////////////////////////////
-            this.follower2 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path2 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes2').objects.forEach((lianes2) => {this.lianes2X = lianes2.x,this.lianes2Y = lianes2.y,this.lianesAnim2 = this.lianes.create(lianes2.x,lianes2.y + 32,'lianes').setDepth(7)});
-            this.path2.add(new Phaser.Curves.Ellipse(this.lianes2X, this.lianes2Y, 110));
-            this.tweens.add({targets: this.follower2,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur2 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur2.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur2,this.accrocheJoueur1Fonction,null,this)
-            this.physics.add.overlap(this.player,this.lianesAnim2,this.testAnimLianes,null,this)
-            ////////////////////////////////////////
-            this.follower3 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path3 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes3').objects.forEach((lianes3) => {this.lianes3X = lianes3.x,this.lianes3Y = lianes3.y,this.lianesAnim3 = this.lianes.create(lianes3.x,lianes3.y + 32,'lianes').setDepth(7)});
-            this.path3.add(new Phaser.Curves.Ellipse(this.lianes3X, this.lianes3Y, 110));
-            this.tweens.add({targets: this.follower3,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur3 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur3.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur3,this.accrocheJoueur1Fonction,null,this)
-            this.physics.add.overlap(this.player,this.lianesAnim3,this.testAnimLianes,null,this)
-            ////////////////////////////////////////
-            this.follower4 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path4 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes4').objects.forEach((lianes4) => {this.lianes4X = lianes4.x,this.lianes4Y = lianes4.y,this.lianesAnim4 = this.lianes.create(lianes4.x,lianes4.y + 32,'lianes').setDepth(7)});
-            this.path4.add(new Phaser.Curves.Ellipse(this.lianes4X, this.lianes4Y, 110));
-            this.tweens.add({targets: this.follower4,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur4 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur4.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur4,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower5 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path5 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes5').objects.forEach((lianes5) => {this.lianes5X = lianes5.x,this.lianes5Y = lianes5.y,this.lianesAnim5 = this.lianes.create(lianes5.x,lianes5.y + 32,'lianes').setDepth(7)});
-            this.path5.add(new Phaser.Curves.Ellipse(this.lianes5X, this.lianes5Y, 110));
-            this.tweens.add({targets: this.follower5,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur5 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur5.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur5,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower6 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path6 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes6').objects.forEach((lianes6) => {this.lianes6X = lianes6.x,this.lianes6Y = lianes6.y,this.lianesAnim6 = this.lianes.create(lianes6.x,lianes6.y + 32,'lianes').setDepth(7)});
-            this.path6.add(new Phaser.Curves.Ellipse(this.lianes6X, this.lianes6Y, 110));
-            this.tweens.add({targets: this.follower6,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur6 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur6.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur6,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower7 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path7 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes7').objects.forEach((lianes7) => {this.lianes7X = lianes7.x,this.lianes7Y = lianes7.y,this.lianesAnim7 = this.lianes.create(lianes7.x,lianes7.y + 32,'lianes').setDepth(7)});
-            this.path7.add(new Phaser.Curves.Ellipse(this.lianes7X, this.lianes7Y, 110));
-            this.tweens.add({targets: this.follower7,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur7 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur7.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur7,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower8 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path8 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes8').objects.forEach((lianes8) => {this.lianes8X = lianes8.x,this.lianes8Y = lianes8.y,this.lianesAnim8 = this.lianes.create(lianes8.x,lianes8.y + 32,'lianes').setDepth(7)});
-            this.path8.add(new Phaser.Curves.Ellipse(this.lianes8X, this.lianes8Y, 110));
-            this.tweens.add({targets: this.follower8,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur8 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur8.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur8,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower9 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path9 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes9').objects.forEach((lianes9) => {this.lianes9X = lianes9.x,this.lianes9Y = lianes9.y,this.lianesAnim9 = this.lianes.create(lianes9.x,lianes9.y + 32,'lianes').setDepth(7)});
-            this.path9.add(new Phaser.Curves.Ellipse(this.lianes9X, this.lianes9Y, 110));
-            this.tweens.add({targets: this.follower9,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur9 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur9.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur9,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
-            this.follower10 = { t: 0, vec: new Phaser.Math.Vector2() };
-            this.path10 = new Phaser.Curves.Path();
-            carte.getObjectLayer('lianes10').objects.forEach((lianes10) => {this.lianes10X = lianes10.x,this.lianes10Y = lianes10.y,this.lianesAnim10 = this.lianes.create(lianes10.x,lianes10.y + 32,'lianes').setDepth(7)});
-            this.path10.add(new Phaser.Curves.Ellipse(this.lianes10X, this.lianes10Y, 110));
-            this.tweens.add({targets: this.follower10,t: 1,ease: 'Sine.easeInOut',duration: 1000,yoyo: true,repeat: -1 });
-            this.accrocheJoueur10 = this.physics.add.image(0,0,"invisibleLiane")
-            this.accrocheJoueur10.body.setAllowGravity(false)
-            this.physics.add.overlap(this.player,this.accrocheJoueur10,this.accrocheJoueur1Fonction,null,this)
-            ////////////////////////////////////////
+           
     
         }
 
         update(){
-            this.accrocheJoueur1.x = this.follower1.vec.x
-            this.accrocheJoueur1.y = this.follower1.vec.y
-            this.path1.getPoint(this.follower1.t/2, this.follower1.vec);
-            ///
-            this.accrocheJoueur2.x = this.follower2.vec.x
-            this.accrocheJoueur2.y = this.follower2.vec.y
-            this.path2.getPoint(this.follower2.t/2, this.follower2.vec);
-            ///
-            this.accrocheJoueur3.x = this.follower3.vec.x
-            this.accrocheJoueur3.y = this.follower3.vec.y
-            this.path3.getPoint(this.follower3.t/2, this.follower3.vec);
-            ///
-            this.accrocheJoueur4.x = this.follower4.vec.x
-            this.accrocheJoueur4.y = this.follower4.vec.y
-            this.path4.getPoint(this.follower4.t/2, this.follower4.vec);
-            ///
-            this.accrocheJoueur5.x = this.follower5.vec.x
-            this.accrocheJoueur5.y = this.follower5.vec.y
-            this.path5.getPoint(this.follower5.t/2, this.follower5.vec);
-            ///
-            this.accrocheJoueur6.x = this.follower6.vec.x
-            this.accrocheJoueur6.y = this.follower6.vec.y
-            this.path6.getPoint(this.follower6.t/2, this.follower6.vec);
-            ///
-            this.accrocheJoueur7.x = this.follower7.vec.x
-            this.accrocheJoueur7.y = this.follower7.vec.y
-            this.path7.getPoint(this.follower7.t/2, this.follower7.vec);
-            ///
-            this.accrocheJoueur8.x = this.follower8.vec.x
-            this.accrocheJoueur8.y = this.follower8.vec.y
-            this.path8.getPoint(this.follower8.t/2, this.follower8.vec);
-            ///
-            this.accrocheJoueur9.x = this.follower9.vec.x
-            this.accrocheJoueur9.y = this.follower9.vec.y
-            this.path9.getPoint(this.follower9.t/2, this.follower9.vec);
-            ///
-            this.accrocheJoueur10.x = this.follower10.vec.x
-            this.accrocheJoueur10.y = this.follower10.vec.y
-            this.path10.getPoint(this.follower10.t/2, this.follower10.vec);
-            ///
+
+        
+         
+
 
             //////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////
@@ -825,7 +714,7 @@
                         this.doubleSautLeftPossible = false
                         this.compteurDoubleSautRight -=1 ;
                         this.player.setVelocityX(200);
-                        this.player.setVelocityY(-this.speedSaut);w 
+                        this.player.setVelocityY(-this.speedSaut);
                         if(this.compteurDoubleSautRight == 0){
                             this.compteurDoubleSautRight = 10
                             this.doubleSautRight = false
@@ -925,7 +814,80 @@
 
             }
 
-            console.log(this.idxDebutAnimLianeStop)
+            if (this.apparaitreAccroche == true){
+                if (this.lianeTemporaire.anims.currentFrame.index == 1){
+                    this.overlapTest.x = this.lianeTemporaire.x + 110
+                    this.overlapTest.y = this.lianeTemporaire.y - 50
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 2){
+                    this.overlapTest.x = this.lianeTemporaire.x + 90
+                    this.overlapTest.y = this.lianeTemporaire.y + 10
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 3){
+                    this.overlapTest.x = this.lianeTemporaire.x + 70
+                    this.overlapTest.y = this.lianeTemporaire.y + 40
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 4){
+                    this.overlapTest.x = this.lianeTemporaire.x + 36
+                    this.overlapTest.y = this.lianeTemporaire.y + 60
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 5){
+                    this.overlapTest.x = this.lianeTemporaire.x - 10
+                    this.overlapTest.y = this.lianeTemporaire.y + 60
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 6){
+                    this.overlapTest.x = this.lianeTemporaire.x - 52
+                    this.overlapTest.y = this.lianeTemporaire.y + 56
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 7){
+                    this.overlapTest.x = this.lianeTemporaire.x - 86
+                    this.overlapTest.y = this.lianeTemporaire.y + 40
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 8){
+                    this.overlapTest.x = this.lianeTemporaire.x - 110
+                    this.overlapTest.y = this.lianeTemporaire.y + 10
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 9){
+                    this.overlapTest.x = this.lianeTemporaire.x - 120
+                    this.overlapTest.y = this.lianeTemporaire.y - 50
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 10){
+                    this.overlapTest.x = this.lianeTemporaire.x - 120
+                    this.overlapTest.y = this.lianeTemporaire.y - 50
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 11){
+                    this.overlapTest.x = this.lianeTemporaire.x - 110
+                    this.overlapTest.y = this.lianeTemporaire.y + 10
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 12){
+                    this.overlapTest.x = this.lianeTemporaire.x - 86
+                    this.overlapTest.y = this.lianeTemporaire.y + 40
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 13){
+                    this.overlapTest.x = this.lianeTemporaire.x - 52
+                    this.overlapTest.y = this.lianeTemporaire.y + 56
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 14){
+                    this.overlapTest.x = this.lianeTemporaire.x - 10
+                    this.overlapTest.y = this.lianeTemporaire.y + 60
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 15){
+                    this.overlapTest.x = this.lianeTemporaire.x + 36
+                    this.overlapTest.y = this.lianeTemporaire.y + 60
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 16){
+                    this.overlapTest.x = this.lianeTemporaire.x + 70
+                    this.overlapTest.y = this.lianeTemporaire.y + 40
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 17){
+                    this.overlapTest.x = this.lianeTemporaire.x + 100
+                    this.overlapTest.y = this.lianeTemporaire.y + 10
+                }
+                if (this.lianeTemporaire.anims.currentFrame.index == 18){
+                    this.overlapTest.x = this.lianeTemporaire.x + 110
+                    this.overlapTest.y = this.lianeTemporaire.y - 50
+                }
+            }
 
     } 
 
@@ -939,6 +901,8 @@
         testAnimLianes(player,lianeTempo){
             this.animLianeSpecial = true
             this.lianeTemporaire = lianeTempo
+
+            this.apparaitreAccroche = true
         }
 
         takeWeapon(play,arme){
