@@ -102,6 +102,12 @@ create(){
             tileset
             ).setPipeline('Light2D')
 
+    const decors = carte2.createLayer(
+            "decors",
+            tileset
+            ).setPipeline('Light2D')
+    
+
            
 
 
@@ -741,6 +747,13 @@ update(){
             }
         });
     }
+
+    if (this.lassoUnlcok == true){
+        this.inventaireEcran.setTexture('interfaceArmeObj1')
+        if (this.pouvoirTirer == true){
+            this.inventaireEcran.setTexture('interfaceArmeObj2')
+        }
+    }
 }
 
 stopCaisseVelocite0(caisse1,caisse2){
@@ -769,10 +782,10 @@ bougerCaisse(lasso,caisse){
 stopCaisse(player,caisse){
     if (this.torcheActive == false){
         this.blockCaisse = true
-        if (caisse.x < player.x){
+        if (this.player.body.blocked.left){
             caisse.setVelocityX(-55)
         }
-        if (caisse.x > player.x){
+        if (this.player.body.blocked.right){
             caisse.setVelocityX(55)
         }
 

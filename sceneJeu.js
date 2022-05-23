@@ -1043,13 +1043,17 @@
                 }
             }
 
-            console.log(this.accrochePossibleLianeAGrimper )
+            if (this.lassoUnlcok == true){
+                this.inventaireEcran.setTexture('interfaceArmeObj1')
+                if (this.pouvoirTirer == true){
+                    this.inventaireEcran.setTexture('interfaceArmeObj2')
+                }
+            }
     } 
 
         takeLasso(play,lasso){
             lasso.destroy()
             this.lassoUnlcok = true
-            this.inventaireEcran.setTexture('interfaceArmeObj1')
         }
 
         grimperLianes(player,lianesAGrimper){
@@ -1118,7 +1122,6 @@
         takeWeapon(play,arme){
             arme.destroy()
             this.pouvoirTirer = true
-            this.inventaireEcran.setTexture('interfaceArmeObj2')
         }
 
         tirer(player) {
