@@ -1,15 +1,21 @@
 var config = {
     type: Phaser.AUTO,
-    width: 1024, height: 576,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        parent: 'phaser-example',
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 1280,
+        height: 720,
+        pixelArt: false,
+        },
     physics: {
     default: 'arcade',
     arcade: {
     gravity: { y: 1000 },
-    debug: true
+    debug: false
     }},
-    pixelArt:true,
     scene: [accueil,sceneJeu,sceneTemple],
     input : {gamepad:true},
-    };
+      };
 
 new Phaser.Game(config); 

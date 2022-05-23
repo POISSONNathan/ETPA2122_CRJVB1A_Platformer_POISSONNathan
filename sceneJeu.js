@@ -38,7 +38,8 @@
             this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
             this.deplacementEnnemi = data.deplacementEnnemi,
             this.deplacementCaisse = data.deplacementCaisse,
-            this.blockCaisse = data.blockCaisse
+            this.blockCaisse = data.blockCaisse,
+            this.lassoUnlcok = data.lassoUnlcok
         }
 
         preload(){
@@ -76,6 +77,8 @@
             this.load.spritesheet('arme','assets/objets/arme.png',
             { frameWidth: 32, frameHeight: 32 });
 
+            this.load.image("lasso", "assets/objets/lasso.png");
+
             this.load.image("torchesAAllumer", "assets/objets/torchesAAllumer.png");
             this.load.image("torchesAllumer", "assets/objets/torchesAllumer.png");
 
@@ -95,6 +98,12 @@
 
             this.load.image("lianesAGrimper", "assets/objets/lianesAGrimper.png");
             this.load.image("boutLianesAGrimper", "assets/objets/boutLianesAGrimper.png");
+
+            ////////////////// INTERFACE /////////////////////
+
+            this.load.image("interfaceArmeObj0", "assets/interface/interfaceArmeObj0.png");
+            this.load.image("interfaceArmeObj1", "assets/interface/interfaceArmeObj1.png");
+            this.load.image("interfaceArmeObj2", "assets/interface/interfaceArmeObj2.png");
         }
 
         create(){
@@ -161,6 +170,7 @@
 
             this.compteurStopGrimper = 8
             this.stopGrimper = false
+
 
             this.anims.create({
                 key: 'right',
@@ -362,6 +372,16 @@
 
             this.physics.add.overlap(this.player,this.arme,this.takeWeapon,null,this)
 
+            /////////////////////////////
+
+            carte.getObjectLayer('lasso').objects.forEach((lasso) => {
+                this.lasso = this.physics.add.sprite(lasso.x + 3, lasso.y + 3 , 'lasso').setOrigin(0).setScale(0.8)
+                this.lasso.body.setAllowGravity(false)
+            });
+
+            this.physics.add.overlap(this.player,this.lasso,this.takeLasso,null,this)
+
+
             ///////////////////////////////////////////////////////////////
 
             this.torchesAAllumer = this.physics.add.staticGroup({
@@ -424,12 +444,6 @@
                 this.lianeAGrimper.body.setSize(4,96)
             });
 
-            carte.getObjectLayer('boutLianesAGrimper').objects.forEach((boutLianesAGrimper) => {
-                this.boutLianeAGrimper = this.boutLianesAGrimper.create(boutLianesAGrimper.x + 16,boutLianesAGrimper.y - 7  ,'boutLianesAGrimper').setDepth(7)
-                this.boutLianeAGrimper.body.setSize(8,10)
-            });
-
-            this.physics.add.collider(this.player,this.boutLianesAGrimper)
             this.physics.add.overlap(this.player,this.lianesAGrimper,this.grimperLianes,null,this)
 
             /////////////////////////////
@@ -481,6 +495,16 @@
 
             this.physics.add.overlap(this.player,this.overlapTest,this.accrocheJoueur1Fonction,null,this)
             this.physics.add.overlap(this.player,this.lianes,this.testAnimLianes,null,this)
+
+        ///////////////////////////////////////////////////////////////
+        ////////////////////////INTERFACE//////////////////////////////
+        ///////////////////////////////////////////////////////////////
+        
+        this.inventaireEcran = this.add.image(838,250,'interfaceArmeObj0').setScale(0.7)
+        this.inventaireEcran.setScrollFactor(0)
+        this.inventaireEcran.setDepth(100)
+        this.inventaireEcran.setInteractive()
+
         }
 
         update(){
@@ -581,7 +605,7 @@
             }
 
             if (this.attaquePossible == true){
-                if (this.attaqueTouche){ 
+                if (this.attaqueTouche && this.lassoUnlcok == true){ 
                     this.attaque = true
                     this.animNormal = false
                     this.animJump = false
@@ -948,7 +972,7 @@
                 }
             }
 
-            if (this.deplacementCaisse == true){grimperLiane
+            if (this.deplacementCaisse == true){
                 this.compteurDeplacementLassoCaisse --
                 if (this.compteurDeplacementLassoCaisse == 0){
                     this.caisses.setVelocityX(0)
@@ -1022,6 +1046,12 @@
             console.log(this.accrochePossibleLianeAGrimper )
     } 
 
+        takeLasso(play,lasso){
+            lasso.destroy()
+            this.lassoUnlcok = true
+            this.inventaireEcran.setTexture('interfaceArmeObj1')
+        }
+
         grimperLianes(player,lianesAGrimper){
             if (this.accrochePossibleLianeAGrimper == true){ 
                 player.x = lianesAGrimper.x - 15
@@ -1056,10 +1086,10 @@
         stopCaisse(player,caisse){
             if (this.torcheActive == false){
                 this.blockCaisse = true
-                if (caisse.x < player.x){
+                if (this.player.body.blocked.left){
                     caisse.setVelocityX(-55)
                 }
-                if (caisse.x > player.x){
+                if (this.player.body.blocked.right){
                     caisse.setVelocityX(55)
                 }
 
@@ -1088,6 +1118,7 @@
         takeWeapon(play,arme){
             arme.destroy()
             this.pouvoirTirer = true
+            this.inventaireEcran.setTexture('interfaceArmeObj2')
         }
 
         tirer(player) {
@@ -1216,7 +1247,8 @@
                     deplacementEnnemi: this.deplacementEnnemi,
                     deplacementCaisse: this.deplacementCaisse,
                     blockCaisse: this.blockCaisse,
-                    animPousseCaisse: this.animPousseCaisse
+                    animPousseCaisse: this.animPousseCaisse,
+                    lassoUnlcok: this.lassoUnlcok
                 })
             }
         }

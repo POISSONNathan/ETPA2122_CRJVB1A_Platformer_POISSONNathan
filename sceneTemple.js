@@ -38,7 +38,8 @@ init(data){
             this.compteurDeplacementLassoCaisse = data.compteurDeplacementLassoCaisse,
             this.deplacementEnnemi = data.deplacementEnnemi,
             this.deplacementCaisse = data.deplacementCaisse,
-            this.blockCaisse = data.blockCaisse
+            this.blockCaisse = data.blockCaisse,
+            this.lassoUnlcok = data.lassoUnlcok
 }
 
 preload(){
@@ -75,6 +76,12 @@ preload(){
     this.load.spritesheet('torches','assets/objets/torches.png',
     { frameWidth: 32, frameHeight: 48 });
 
+    ////////////////// INTERFACE /////////////////////
+
+    this.load.image("interfaceArmeObj0", "assets/interface/interfaceArmeObj0.png");
+    this.load.image("interfaceArmeObj1", "assets/interface/interfaceArmeObj1.png");
+    this.load.image("interfaceArmeObj2", "assets/interface/interfaceArmeObj2.png");
+
 }
 
 create(){
@@ -100,7 +107,7 @@ create(){
 
     this.lights.enable();
     this.lights.setAmbientColor(0x111111);
-    this.light = this.lights.addLight(400, 300, 400).setIntensity(0);
+    this.light = this.lights.addLight(0, 0, 400,100000000001110,4);
 
 
     this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
@@ -301,7 +308,7 @@ create(){
 
 
     carte2.getObjectLayer('lights').objects.forEach((light) => {
-        this.lights.addLight(light.x, light.y, 400).setIntensity(2);
+        this.lights.addLight(light.x, light.y, 400,100000000001110,4);
         this.torches.create(light.x,light.y,'torches').setPipeline('Light2D').setScale(0.7)
     });
 
@@ -327,6 +334,16 @@ create(){
         f: Phaser.Input.Keyboard.KeyCodes.F,
         e: Phaser.Input.Keyboard.KeyCodes.E
     });
+
+    ///////////////////////////////////////////////////////////////
+    ////////////////////////INTERFACE//////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    
+    this.inventaireEcran = this.add.image(838,250,'interfaceArmeObj0').setScale(0.7)
+    this.inventaireEcran.setScrollFactor(0)
+    this.inventaireEcran.setDepth(100)
+    this.inventaireEcran.setInteractive()
+
 }
 
 update(){
@@ -371,7 +388,7 @@ update(){
     }
 
     if (this.torcheActive == true){
-        this.light.setIntensity(1)
+        this.light.setIntensity(4)
         this.animTorche = true
         this.animNormal = false
         this.animJump = false
@@ -432,10 +449,10 @@ update(){
     }
     
     if (this.createLasso == true){
-        this.lasso = this.physics.add.sprite(this.player.x,this.player.y,'animLasso').setOrigin(0);
+        this.lasso = this.physics.add.sprite(this.player.x,this.player.y,'animLasso').setOrigin(0)
         this.lasso.body.setAllowGravity(false)
         this.createLasso = false
-        this.lasso.alpha = 0.1
+        this.lasso.setPipeline('Light2D')
 
         this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
         this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
@@ -693,6 +710,15 @@ update(){
         }
     }
 
+    if (this.deplacementEnnemi == true){
+        this.compteurDeplacementLasso --
+        if (this.compteurDeplacementLasso == 0){
+            this.enemis.setVelocityX(0)
+            this.compteurDeplacementLasso = this.compteurDeplacementLassoStock
+            this.deplacementEnnemi = false
+        }
+    }
+
     if (this.deplacementCaisse == true){
         this.compteurDeplacementLassoCaisse --
         if (this.compteurDeplacementLassoCaisse == 0){
@@ -790,7 +816,9 @@ toucheEnnemi(lasso,ennemi){
     if (ennemi.x > this.player.x){
         ennemi.setVelocityX(-100)
     }
+
     this.attaquePossible = true
+    this.deplacementEnnemi = true
 }
 
 stopEnnemi(play,ennemi){
@@ -849,7 +877,8 @@ goOutTemple(player,retourAvantTemple){
             deplacementEnnemi: this.deplacementEnnemi,
             deplacementCaisse: this.deplacementCaisse,
             blockCaisse: this.blockCaisse,
-            animPousseCaisse: this.animPousseCaisse
+            animPousseCaisse: this.animPousseCaisse,
+            lassoUnlcok: this.lassoUnlcok
         })
     }
 }

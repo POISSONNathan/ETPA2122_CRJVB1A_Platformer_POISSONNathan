@@ -51,7 +51,7 @@ this.startButton.on('pointerdown', function (pointer) {
             attaque: false,
             attaquePossible: true,
             doubleJumpActif: false,
-            torcheDebloque: true,
+            torcheDebloque: false,
             torcheActive: false,
             pouvoirTirer: false,
             tempsAvantTirer: false,
@@ -63,8 +63,8 @@ this.startButton.on('pointerdown', function (pointer) {
             compteurDeplacementLassoCaisse: 70,
             deplacementEnnemi: false,
             deplacementCaisse: false,
-            blockCaisse: false
-
+            blockCaisse: false,
+            lassoUnlcok: false
         })
         });
 
