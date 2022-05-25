@@ -39,7 +39,12 @@
             this.deplacementEnnemi = data.deplacementEnnemi,
             this.deplacementCaisse = data.deplacementCaisse,
             this.blockCaisse = data.blockCaisse,
-            this.lassoUnlcok = data.lassoUnlcok
+            this.lassoUnlcok = data.lassoUnlcok,
+            this.invulnérable = data.invulnérable,
+            this.compteurInvunlerable = data.compteurInvunlerable,
+            this.saveXMort = data.saveXMort,
+            this.saveYMort = data.saveYMort,
+            this.animAccrocheMur = data.animAccrocheMur
         }
 
         preload(){
@@ -60,13 +65,14 @@
             { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('animGrimpeLiane','assets/animGrimpeLiane.png',
             { frameWidth: 32, frameHeight: 32 });
-
+            this.load.spritesheet('animAccrocheMurPerso','assets/animAccrocheMurPerso.png',
+            { frameWidth: 32, frameHeight: 32 });
             ///////////////////////
 
             this.load.spritesheet('animLasso','assets/animLasso.png',
             { frameWidth: 96, frameHeight: 32 });
 
-            this.load.image("ennemi", "assets/ennemi.png");
+            this.load.image("enemisVolant", "assets/enemisVolant.png");
 
             this.load.image("torche", "assets/objets/torche.png");
 
@@ -104,6 +110,12 @@
             this.load.image("interfaceArmeObj0", "assets/interface/interfaceArmeObj0.png");
             this.load.image("interfaceArmeObj1", "assets/interface/interfaceArmeObj1.png");
             this.load.image("interfaceArmeObj2", "assets/interface/interfaceArmeObj2.png");
+
+            this.load.image("checkPoint", "assets/objets/checkPoint.png");
+
+            this.load.spritesheet('enemisMur','assets/enemisMur.png',
+            { frameWidth: 11, frameHeight: 32 });
+
         }
 
         create(){
@@ -124,6 +136,10 @@
                     tileset
                     ).setDepth(8)
 
+            const zoneEnnemi = carte.createLayer(
+                    "zoneEnnemi",
+                    tileset
+                    )
 
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
@@ -141,6 +157,8 @@
                 tileset
                 ).setDepth(10)
             
+            zoneEnnemi.setCollisionByProperty({ solideEnnemi: true });
+
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
 
@@ -333,19 +351,89 @@
 
             ////////////////////////
 
-            this.enemis = this.physics.add.group({
-            });      
-
-            carte.getObjectLayer('ennemi').objects.forEach((enemis) => {
-                this.enemi = this.enemis.create(enemis.x, enemis.y, 'ennemi').setOrigin(0);
-                this.enemi.setPushable(false)
-                this.enemi.body.setSize(22,32)
+            this.anims.create({
+                key: 'animEnemiMur',
+                frames: this.anims.generateFrameNumbers('enemisMur', {start:0,end:3}),
+                frameRate: 10,
+                repeat: -1
             });
 
-            this.physics.add.collider(this.enemis,build)
-            this.physics.add.collider(this.player,this.enemis,this.stopEnnemi,null,this)
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animAccrocheMurPersoRight',
+                frames: this.anims.generateFrameNumbers('animAccrocheMurPerso', {start:0,end:1}),
+                frameRate: 10,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animAccrocheMurPersoLeft',
+                frames: this.anims.generateFrameNumbers('animAccrocheMurPerso', {start:2,end:3}),
+                frameRate: 10,
+                repeat: -1
+            });
 
             ///////////////////////////////////////////////////////////////  
+            ///////////////////////////////////////////////////////////////  ENNEMIS
+            ///////////////////////////////////////////////////////////////  
+
+            this.enemisVolant = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('enemisVolant').objects.forEach((enemisVolant) => {
+                this.enemiVolant = this.enemisVolant.create(enemisVolant.x, enemisVolant.y, 'enemisVolant').setOrigin(0);
+                this.enemiVolant.setPushable(false)
+                this.enemiVolant.setBounce(1);
+                this.enemiVolant.body.setAllowGravity(false)
+            });
+
+            this.enemisVolant.setVelocityY(-60)
+            this.enemisVolant.setVelocityX(-60)
+            this.physics.add.collider(this.enemisVolant,zoneEnnemi)
+            this.physics.add.collider(this.enemisVolant,build)
+            this.physics.add.collider(this.player,this.enemisVolant,this.degatEnnemi,null,this)
+
+            //////////////////
+
+            this.enemisMurGauche = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('enemisMurGauche').objects.forEach((enemisMurGauche) => {
+                this.enemiMurGauche = this.enemisMurGauche.create(enemisMurGauche.x - 1, enemisMurGauche.y, 'enemisMur').setOrigin(0);
+                this.enemiMurGauche.setPushable(false)
+                this.enemiMurGauche.setBounce(1);
+                this.enemiMurGauche.body.setAllowGravity(false)
+            });
+
+            this.enemisMurGauche.setVelocityY(-60)
+            this.physics.add.collider(this.enemisMurGauche,zoneEnnemi)
+            this.physics.add.collider(this.enemisMurGauche,build)
+            this.physics.add.collider(this.player,this.enemisMurGauche,this.degatEnnemi,null,this)
+
+            //////////////
+
+            this.enemisMurDroite = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('enemisMurDroite').objects.forEach((enemisMurDroite) => {
+                this.enemiMurDroite = this.enemisMurDroite.create(enemisMurDroite.x - 9, enemisMurDroite.y, 'enemisMur').setOrigin(0);
+                this.enemiMurDroite.setPushable(false)
+                this.enemiMurDroite.setBounce(1);
+                this.enemiMurDroite.body.setAllowGravity(false)
+                this.enemiMurDroite.flipX = true
+            });
+
+
+            this.enemisMurDroite.setVelocityY(-60)
+            this.physics.add.collider(this.enemisMurDroite,zoneEnnemi)
+            this.physics.add.collider(this.enemisMurDroite,build)
+            this.physics.add.collider(this.player,this.enemisMurDroite,this.degatEnnemi,null,this)
+
+            ///////////////////////////////////////////////////////////////  
+            ///////////////////////////////////////////////////////////////  
+            ///////////////////////////////////////////////////////////////  
+
 
             carte.getObjectLayer('torche').objects.forEach((torche) => {
                 this.torche = this.physics.add.image(torche.x, torche.y, 'torche').setOrigin(0);
@@ -361,7 +449,7 @@
                 allowGravity: false
             })
 
-            this.physics.add.overlap(this.balles,this.enemis,this.hitGun,null,this)
+            this.physics.add.overlap(this.balles,this.enemisVolant,this.hitGun,null,this)
 
             /////////////////////////////
 
@@ -446,6 +534,19 @@
 
             this.physics.add.overlap(this.player,this.lianesAGrimper,this.grimperLianes,null,this)
 
+            ////////////////////////////////////////////////
+
+            this.checkPoints = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('checkPoint').objects.forEach((checkPoint) => {
+                this.checkPoint = this.checkPoints.create(checkPoint.x, checkPoint.y, 'checkPoint').setOrigin(0);
+                this.checkPoint.setPushable(false)
+                this.checkPoint.body.setAllowGravity(false)
+            });
+
+            this.physics.add.overlap(this.player,this.checkPoints,this.savePoint,null,this)
+
             /////////////////////////////
             /////////////////////////////
             /////////////////////////////
@@ -505,9 +606,16 @@
         this.inventaireEcran.setDepth(100)
         this.inventaireEcran.setInteractive()
 
+        this.vieTexte = this.add.text(400, 221, this.pointDeVie, {fontSize:30,color:"#000000" });
+        this.vieTexte.setDepth(100)
+        this.vieTexte.setScale(0.7);
+        this.vieTexte.setScrollFactor(0);
+
+
         }
 
-        update(){
+        update(time, delta){
+            super.update(time, delta);
 
             if ( this.pouvoirTirer == false){
             this.arme.anims.play('animArme', true);
@@ -582,6 +690,11 @@
                 this.frameTurn = 'turn'
             }
 
+            if (this.animAccrocheMur == true){
+                this.frameLeft = 'animAccrocheMurPersoLeft'
+                this.frameRight = 'animAccrocheMurPersoRight'
+            }
+
             if (this.animPousseCaisse == true){
                 this.frameLeft = 'animPousseLeft'
                 this.frameRight = 'animPousseRight'
@@ -624,7 +737,7 @@
                 this.lasso.body.setAllowGravity(false)
                 this.createLasso = false
 
-                this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
+                this.physics.add.overlap(this.lasso,this.enemisVolant,this.toucheEnnemi,null,this)
                 this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
             }
 
@@ -843,11 +956,13 @@
                         }
                     }
 
+                    if(this.invulnérable == false){
                     if (this.resetGraviteLeft == true ){this.speedRight = 100}
                     else{this.speedRight = this.speed}
 
                     if (this.resetGraviteRight == true){this.speedLeft = 100}
                     else{this.speedLeft = this.speed}
+                    }
 
                     if (this.player.body.blocked.down){
                         this.doubleSautRightPossible = true
@@ -873,6 +988,11 @@
 
             if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
                 this.player.setVelocityY(20); 
+                this.animAccrocheMur = true
+                this.animJump = false
+            }
+            else{
+                this.animAccrocheMur = false
             }
 
             }
@@ -966,7 +1086,7 @@
             if (this.deplacementEnnemi == true){
                 this.compteurDeplacementLasso --
                 if (this.compteurDeplacementLasso == 0){
-                    this.enemis.setVelocityX(0)
+                    this.enemisVolant.setVelocityX(0)
                     this.compteurDeplacementLasso = this.compteurDeplacementLassoStock
                     this.deplacementEnnemi = false
                 }
@@ -1049,7 +1169,93 @@
                     this.inventaireEcran.setTexture('interfaceArmeObj2')
                 }
             }
+
+            this.enemisVolant.children.iterate(function (child) {
+                this.distEnemisVolant = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
+                if(this.invulnérable == false && this.distEnemisVolant < 150){
+                    this.physics.moveToObject(child, child.scene.player, 60)
+                }
+            },this);
+
+           if(this.invulnérable == true){
+            this.compteurInvunlerable -=1 ;
+                if(this.compteurInvunlerable == 0){
+                    this.compteurInvunlerable = 100;
+                    this.speedSaut *= 1.5
+                    this.invulnérable = false ;
+                }
+            }
+
+            this.enemisMurGauche.children.iterate((child) => {
+                child.anims.play('animEnemiMur', true);
+                if (child.body.velocity.y < 0){
+                    child.flipY = true
+                }
+                if (child.body.velocity.y > 0){
+                    child.flipY = false
+                }
+            });
+
+            this.enemisMurDroite.children.iterate((child) => {
+                child.anims.play('animEnemiMur', true);
+                if (child.body.velocity.y < 0){
+                    child.flipY = true
+                }
+                if (child.body.velocity.y > 0){
+                    child.flipY = false
+                }
+            });
+
+            if (this.pointDeVie == 0){
+                this.respawnJoueur()
+            }
     } 
+
+        respawnJoueur(){
+            this.player.x = this.saveXMort
+            this.player.y = this.saveYMort
+
+            this.pointDeVie = 2
+            this.vieTexte.setText(this.pointDeVie)
+            this.invulnérable = false
+        }
+
+        savePoint(player,checkPoint){
+            this.saveXMort = checkPoint.x
+            this.saveYMort = checkPoint.y
+        }
+
+        toucheEnnemi(lasso,ennemi){
+            lasso.destroy()
+
+            this.attaque = false
+            this.animNormal = true
+
+            if (ennemi.x < this.player.x){
+                ennemi.setVelocityX(100)
+            }
+            if (ennemi.x > this.player.x){
+                ennemi.setVelocityX(-100)
+            }
+
+            this.attaquePossible = true
+            this.deplacementEnnemi = true
+        }
+
+        degatEnnemi(play,ennemi){
+            if(this.invulnérable == false){
+                this.pointDeVie --
+                this.vieTexte.setText(this.pointDeVie)
+                this.cameras.main.shake(150, 0.004);
+                this.invulnérable = true
+
+                this.speedLeft /= 1.5
+                this.speedRight /= 1.5
+                if (this.pointDeVie > 0){
+                this.speedSaut /= 1.5
+                }
+            }
+        }
 
         takeLasso(play,lasso){
             lasso.destroy()
@@ -1143,27 +1349,6 @@
             }  
         }  
 
-        toucheEnnemi(lasso,ennemi){
-            lasso.destroy()
-
-            this.attaque = false
-            this.animNormal = true
-
-            if (ennemi.x < this.player.x){
-                ennemi.setVelocityX(100)
-            }
-            if (ennemi.x > this.player.x){
-                ennemi.setVelocityX(-100)
-            }
-
-            this.attaquePossible = true
-            this.deplacementEnnemi = true
-        }
-
-        stopEnnemi(play,ennemi){
-            ennemi.setVelocityX(0)
-        }
-
         prendreTorche(player,torche){
             torche.destroy()
             this.torcheDebloque = true
@@ -1251,7 +1436,12 @@
                     deplacementCaisse: this.deplacementCaisse,
                     blockCaisse: this.blockCaisse,
                     animPousseCaisse: this.animPousseCaisse,
-                    lassoUnlcok: this.lassoUnlcok
+                    lassoUnlcok: this.lassoUnlcok,
+                    invulnérable: this.invulnérable,
+                    compteurInvunlerable: this.compteurInvunlerable,
+                    saveXMort: this.saveXMort,
+                    saveYMort: this.saveYMort,
+                    animAccrocheMur: this.animAccrocheMur
                 })
             }
         }

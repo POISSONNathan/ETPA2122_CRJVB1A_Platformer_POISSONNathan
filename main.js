@@ -6,7 +6,7 @@ var config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: 1280,
         height: 720,
-        pixelArt: false,
+        pixelArt: true,
         },
     physics: {
     default: 'arcade',

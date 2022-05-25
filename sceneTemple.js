@@ -39,7 +39,12 @@ init(data){
             this.deplacementEnnemi = data.deplacementEnnemi,
             this.deplacementCaisse = data.deplacementCaisse,
             this.blockCaisse = data.blockCaisse,
-            this.lassoUnlcok = data.lassoUnlcok
+            this.lassoUnlcok = data.lassoUnlcok,
+            this.invulnérable = data.invulnérable,
+            this.compteurInvunlerable = data.compteurInvunlerable,
+            this.saveXMort = data.saveXMort,
+            this.saveYMort = data.saveYMort,
+            this.animAccrocheMur = data.animAccrocheMur
 }
 
 preload(){
@@ -58,13 +63,13 @@ preload(){
     { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('animPousse','assets/animPousse.png',
     { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('animAccrocheMurPerso','assets/animAccrocheMurPerso.png',
+    { frameWidth: 32, frameHeight: 32 });
     ///////////////////////
 
 
     this.load.spritesheet('animLasso','assets/animLasso.png',
     { frameWidth: 96, frameHeight: 32 });
-
-    this.load.image("ennemi", "assets/ennemi.png");
 
     this.load.image("invisible", "assets/invisible.png");
 
@@ -269,18 +274,21 @@ create(){
 
     ////////////////////////
 
-    this.enemis = this.physics.add.group({
-    })      
-
-    carte2.getObjectLayer('ennemi').objects.forEach((enemis) => {
-        this.enemi = this.enemis.create(enemis.x, enemis.y, 'ennemi').setOrigin(0);
-        this.enemi.setPushable(false)
-        this.enemi.body.setSize(22,32)
-        this.enemi.setPipeline('Light2D')
+    this.anims.create({
+        key: 'animAccrocheMurPersoRight',
+        frames: this.anims.generateFrameNumbers('animAccrocheMurPerso', {start:0,end:1}),
+        frameRate: 10,
+        repeat: -1
     });
 
-    this.physics.add.collider(this.enemis,buildGrotte)
-    this.physics.add.collider(this.player,this.enemis,this.stopEnnemi,null,this)
+    this.anims.create({
+        key: 'animAccrocheMurPersoLeft',
+        frames: this.anims.generateFrameNumbers('animAccrocheMurPerso', {start:2,end:3}),
+        frameRate: 10,
+        repeat: -1
+    });
+
+
 
     /////////////////////////////
 
@@ -288,8 +296,6 @@ create(){
         immovable: true,
         allowGravity: false
     })
-
-    this.physics.add.overlap(this.balles,this.enemis,this.hitGun,null,this)
 
     ////////////////////////
 
@@ -419,6 +425,11 @@ update(){
         this.frameTurn = 'turn'
     }
 
+    if (this.animAccrocheMur == true){
+        this.frameLeft = 'animAccrocheMurPersoLeft'
+        this.frameRight = 'animAccrocheMurPersoRight'
+    }
+    
     if (this.animPousseCaisse == true){
         this.frameLeft = 'animPousseLeft'
         this.frameRight = 'animPousseRight'
@@ -460,7 +471,6 @@ update(){
         this.createLasso = false
         this.lasso.setPipeline('Light2D')
 
-        this.physics.add.overlap(this.lasso,this.enemis,this.toucheEnnemi,null,this)
         this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
     }
 
@@ -709,19 +719,15 @@ update(){
 
         if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
             this.player.setVelocityY(20); 
+            this.animAccrocheMur = true
+            this.animJump = false
+        }
+        else{
+            this.animAccrocheMur = false
         }
 
         if (this.shot){
             this.tirer(this.player);
-        }
-    }
-
-    if (this.deplacementEnnemi == true){
-        this.compteurDeplacementLasso --
-        if (this.compteurDeplacementLasso == 0){
-            this.enemis.setVelocityX(0)
-            this.compteurDeplacementLasso = this.compteurDeplacementLassoStock
-            this.deplacementEnnemi = false
         }
     }
 
@@ -754,6 +760,8 @@ update(){
             this.inventaireEcran.setTexture('interfaceArmeObj2')
         }
     }
+
+
 }
 
 stopCaisseVelocite0(caisse1,caisse2){
@@ -817,36 +825,11 @@ tirer(player) {
     }  
 }
 
-toucheEnnemi(lasso,ennemi){
-    lasso.destroy()
-
-    this.attaque = false
-    this.animNormal = true
-
-    if (ennemi.x < this.player.x){
-        ennemi.setVelocityX(100)
-    }
-    if (ennemi.x > this.player.x){
-        ennemi.setVelocityX(-100)
-    }
-
-    this.attaquePossible = true
-    this.deplacementEnnemi = true
-}
-
-stopEnnemi(play,ennemi){
-    ennemi.setVelocityX(0)
-}
-
 prendreTorche(player,torche){
     torche.destroy()
     this.torcheDebloque = true
 }
 
-hitGun(balle,enemi){
-    balle.destroy()
-    enemi.destroy()
-}
 
 /////////////////////////////////////////
 //////////changements de scènes//////////
@@ -891,7 +874,12 @@ goOutTemple(player,retourAvantTemple){
             deplacementCaisse: this.deplacementCaisse,
             blockCaisse: this.blockCaisse,
             animPousseCaisse: this.animPousseCaisse,
-            lassoUnlcok: this.lassoUnlcok
+            lassoUnlcok: this.lassoUnlcok,
+            invulnérable: this.invulnérable,
+            compteurInvunlerable: this.compteurInvunlerable,
+            saveXMort: this.saveXMort,
+            saveYMort: this.saveYMort,
+            animAccrocheMur: this.animAccrocheMur
         })
     }
 }
