@@ -120,6 +120,8 @@
             this.load.spritesheet('rondinsBois','assets/objets/rondinsBois.png',
             { frameWidth:96, frameHeight: 21 });
             
+            this.load.spritesheet('animEau','assets/animEau.png',
+            { frameWidth: 64, frameHeight: 32 });
 
 
         }
@@ -150,11 +152,13 @@
             const eau = carte.createLayer(
                     "eau",
                     tileset
-                    )
+                    ).setDepth(100)
 
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
+
+            this.pointDeVieStock = this.pointDeVie
 
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
@@ -209,6 +213,9 @@
 
             this.compteurStopGrimper = 8
             this.stopGrimper = false
+
+            this.compteurSpawnRondinPossible = 200
+            this.test = true
 
 
             this.anims.create({
@@ -400,6 +407,15 @@
             this.anims.create({
                 key: 'animRondinsBois',
                 frames: this.anims.generateFrameNumbers('rondinsBois', {start:0,end:3}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animationEau',
+                frames: this.anims.generateFrameNumbers('animEau', {start:0,end:15}),
                 frameRate: 10,
                 repeat: -1
             });
@@ -585,17 +601,29 @@
             })
 
             carte.getObjectLayer('rondinsBois').objects.forEach((rondinsBois) => {
-                this.rondinBois = this.rondinsBois.create(rondinsBois.x,rondinsBois.y ,'rondinsBois').setDepth(7)
-                this.rondinBois.body.setSize(96,15)
+                this.rondinBois = this.rondinsBois.create(rondinsBois.x,rondinsBois.y - 4 ,'rondinsBois').setDepth(7)
+                this.rondinBois.body.setSize(96,13)
                 this.rondinBois.setOffset(0,6)
-                this.rondinBois.setBounce(1);
+                this.spawnRondinX = this.rondinBois.x
+                this.spawnRondinY = this.rondinBois.y
+
+                this.rondinCreate = this.physics.add.image(rondinsBois.x + 200,rondinsBois.y,'invisible')
+                this.rondinCreate.body.setAllowGravity(false)
             });
 
-            this.rondinsBois.setVelocityX(40)
-
-            this.physics.add.collider(this.rondinsBois,build)
+            this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
+            this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
+            this.physics.add.collider(build,this.rondinsBois,this.destructionRondins,null,this)
             this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondins,null,this)
 
+            this.eau = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+            
+            carte.getObjectLayer('eauAnim').objects.forEach((eauAnim) => {
+                this.eau.create(eauAnim.x + 32,eauAnim.y - 16,'animEau').setDepth(7)
+            });
 
             /////////////////////////////
             /////////////////////////////
@@ -672,8 +700,16 @@
             }
 
             this.rondinsBois.children.iterate((child) => {
+                if (child.y < this.spawnRondinY + 1 ){
+                    child.setVelocityX(40)
+                    child.setVelocityY(0)
+                }
+                
                 child.anims.play('animRondinsBois', true);
+            });
 
+            this.eau.children.iterate((child) => {
+                child.anims.play('animationEau', true);
             });
             
             //////////////////////////////////////////////////////////
@@ -1261,10 +1297,41 @@
                 }
             });
 
+            if (this.spawnRondinPossible == true){
+                this.compteurSpawnRondinPossible --
+                if (this.compteurSpawnRondinPossible == 0){
+                    this.compteurSpawnRondinPossible = 200
+                    this.murAOuvrir.setVelocityY(0)
+                    this.spawnRondinPossible = false
+                    this.test = false
+                }
+            }
+
+            if (this.test == false){
+                this.rondinsBois.create(this.spawnRondinX + 16 ,this.spawnRondinY + 10,'rondinsBois')
+                this.rondinsBois.setVelocityY(-10)
+                this.test = true
+            }
+
             if (this.pointDeVie == 0){
                 this.respawnJoueur()
             }
     } 
+
+        spawnRondin(rondinBois,rondinCreate){
+            if (this.test == true) {
+            this.spawnRondinPossible = true
+            }
+        }
+
+        despawnRondin(rondinBois,zoneEnnemi) {
+            rondinBois.destroy()
+        }
+
+        destructionRondins(rondinBois,build){
+            rondinBois.setVelocityX(0)
+            rondinBois.setVelocityY(30)
+        }
 
         mouvementJoueurRondins(player,rondinBois){
             if (rondinBois.body.velocity.x > 0){
@@ -1279,7 +1346,7 @@
             this.player.x = this.saveXMort
             this.player.y = this.saveYMort
 
-            this.pointDeVie = 2
+            this.pointDeVie = this.pointDeVieStock
             this.vieTexte.setText(this.pointDeVie)
             this.invulnérable = false
         }
