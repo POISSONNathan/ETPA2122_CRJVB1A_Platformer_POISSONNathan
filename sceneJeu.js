@@ -44,7 +44,8 @@
             this.compteurInvunlerable = data.compteurInvunlerable,
             this.saveXMort = data.saveXMort,
             this.saveYMort = data.saveYMort,
-            this.animAccrocheMur = data.animAccrocheMur
+            this.animAccrocheMur = data.animAccrocheMur,
+            this.sortieTemple = data.sortieTemple
         }
 
         preload(){
@@ -116,6 +117,11 @@
             this.load.spritesheet('enemisMur','assets/enemisMur.png',
             { frameWidth: 11, frameHeight: 32 });
 
+            this.load.spritesheet('rondinsBois','assets/objets/rondinsBois.png',
+            { frameWidth:96, frameHeight: 21 });
+            
+
+
         }
 
         create(){
@@ -141,6 +147,11 @@
                     tileset
                     )
 
+            const eau = carte.createLayer(
+                    "eau",
+                    tileset
+                    )
+
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
@@ -148,6 +159,13 @@
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
+
+            if (this.sortieTemple == true){
+                carte.getObjectLayer('spawnJoueurSortieTemple').objects.forEach((spawnJoueurSortieTemple) => {
+                    this.spawnXSortieScene = spawnJoueurSortieTemple.x, 
+                    this.spawnYSortieScene =  spawnJoueurSortieTemple.y
+                });
+            }
 
             this.player = this.physics.add.sprite(this.spawnXSortieScene, this.spawnYSortieScene, 'perso').setOrigin(0).setDepth(9)
             this.player.body.setSize(16,32,true)
@@ -161,6 +179,9 @@
 
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
+
+            this.physics.add.collider(this.player, eau,this.respawnJoueur,null,this);
+            eau.setCollisionByProperty({ eauKill: true });
 
             this.player.setCollideWorldBounds(true);
 
@@ -374,6 +395,15 @@
                 repeat: -1
             });
 
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animRondinsBois',
+                frames: this.anims.generateFrameNumbers('rondinsBois', {start:0,end:3}),
+                frameRate: 10,
+                repeat: -1
+            });
+
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  ENNEMIS
             ///////////////////////////////////////////////////////////////  
@@ -547,6 +577,26 @@
 
             this.physics.add.overlap(this.player,this.checkPoints,this.savePoint,null,this)
 
+            ///////////////////////////////////////////////////
+
+            this.rondinsBois = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
+
+            carte.getObjectLayer('rondinsBois').objects.forEach((rondinsBois) => {
+                this.rondinBois = this.rondinsBois.create(rondinsBois.x,rondinsBois.y ,'rondinsBois').setDepth(7)
+                this.rondinBois.body.setSize(96,15)
+                this.rondinBois.setOffset(0,6)
+                this.rondinBois.setBounce(1);
+            });
+
+            this.rondinsBois.setVelocityX(40)
+
+            this.physics.add.collider(this.rondinsBois,build)
+            this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondins,null,this)
+
+
             /////////////////////////////
             /////////////////////////////
             /////////////////////////////
@@ -620,6 +670,11 @@
             if ( this.pouvoirTirer == false){
             this.arme.anims.play('animArme', true);
             }
+
+            this.rondinsBois.children.iterate((child) => {
+                child.anims.play('animRondinsBois', true);
+
+            });
             
             //////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////
@@ -1210,6 +1265,15 @@
                 this.respawnJoueur()
             }
     } 
+
+        mouvementJoueurRondins(player,rondinBois){
+            if (rondinBois.body.velocity.x > 0){
+                player.body.velocity.x += rondinBois.body.velocity.x + 70
+            }
+            if (rondinBois.body.velocity.x < 0){
+                player.body.velocity.x += rondinBois.body.velocity.x - 70
+            }
+        }
 
         respawnJoueur(){
             this.player.x = this.saveXMort

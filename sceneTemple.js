@@ -49,6 +49,7 @@ init(data){
 
 preload(){
     this.load.image("Phaser_tuilesdejeu", "assets/tileset.png");
+    this.load.image("Phaser_tuilesdejeu2", "assets/tilesetBackground.png");
 
     this.load.tilemapTiledJSON("carte2", "mapTemple.json");  
 
@@ -87,6 +88,11 @@ preload(){
     this.load.image("interfaceArmeObj1", "assets/interface/interfaceArmeObj1.png");
     this.load.image("interfaceArmeObj2", "assets/interface/interfaceArmeObj2.png");
 
+    this.load.image("plaquePression", "assets/objets/plaquePression.png");
+
+    this.load.image("grille", "assets/objets/grille.png");
+
+
 }
 
 create(){
@@ -97,24 +103,27 @@ create(){
             "Phaser_tuilesdejeu"
             );  
 
+    const tileset2 = carte2.addTilesetImage(
+            "tuilesJeu2",
+            "Phaser_tuilesdejeu2"
+            );  
+
+
     const backgroundGrotte = carte2.createLayer(
             "backgroundGrotte",
-            tileset
+            tileset2
             ).setPipeline('Light2D')
 
     const buildGrotte = carte2.createLayer(
             "buildGrotte",
             tileset
-            ).setPipeline('Light2D')
+            ).setPipeline('Light2D').setDepth(5)
 
     const decors = carte2.createLayer(
             "decors",
-            tileset
-            ).setPipeline('Light2D')
+            tileset2
+            ).setPipeline('Light2D').setDepth(5)
     
-
-           
-
 
     this.lights.enable();
     this.lights.setAmbientColor(0x111111);
@@ -128,7 +137,12 @@ create(){
     ///////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////
 
-    this.player = this.physics.add.sprite(64,1770, 'perso').setOrigin(0).setPipeline('Light2D')
+    carte2.getObjectLayer('spawnJoueurGrotte').objects.forEach((spawnJoueurGrotte) => {
+        this.spawnXGrotte = spawnJoueurGrotte.x, 
+        this.spawnYGrotte=  spawnJoueurGrotte.y
+    });
+
+    this.player = this.physics.add.sprite(this.spawnXGrotte,this.spawnYGrotte, 'perso').setOrigin(0).setPipeline('Light2D').setDepth(10)
     this.player.body.setSize(16,32)
 
     this.physics.add.collider(this.player, buildGrotte);
@@ -318,17 +332,68 @@ create(){
         immovable: true,
     })
 
-
     carte2.getObjectLayer('lights').objects.forEach((light) => {
         this.lights.addLight(light.x, light.y, 400,100000000001110,4);
         this.torches.create(light.x,light.y,'torches').setPipeline('Light2D').setScale(0.7)
     });
+
+    ////////////////////////////////////////////////////////
+
+    carte2.getObjectLayer('grille').objects.forEach((grille) => {
+        this.grille = this.physics.add.image(grille.x + 16,grille.y - 32,'grille')
+        this.grille.body.setAllowGravity(false)
+    });
+
+    this.hauteurGrille = this.grille.y
+
+    ////////////////////////////////////////////////////////
+
+    carte2.getObjectLayer('plaquePression1').objects.forEach((plaquePression1) => {
+        this.plaquePression1 = this.physics.add.image(plaquePression1.x + 16 ,plaquePression1.y + 30,'plaquePression')
+        this.plaquePression1.body.setAllowGravity(false)
+    });
+    carte2.getObjectLayer('plaquePression2').objects.forEach((plaquePression2) => {
+        this.plaquePression2 = this.physics.add.image(plaquePression2.x + 16 ,plaquePression2.y + 30,'plaquePression')
+        this.plaquePression2.body.setAllowGravity(false)
+    });
+    carte2.getObjectLayer('plaquePression3').objects.forEach((plaquePression3) => {
+        this.plaquePression3 = this.physics.add.image(plaquePression3.x + 16,plaquePression3.y + 30 ,'plaquePression')
+        this.plaquePression3.body.setAllowGravity(false)
+    });
+    carte2.getObjectLayer('plaquePression4').objects.forEach((plaquePression4) => {
+        this.plaquePression4 = this.physics.add.image(plaquePression4.x + 16,plaquePression4.y + 30 ,'plaquePression')
+        this.plaquePression4.body.setAllowGravity(false)
+    });
+
+    this.plaque1Active = false
+    this.plaque1PlusUse = false
+    this.plaque2Active = false
+    this.plaque2PlusUse = false
+    this.plaque3Active = false
+    this.plaque3PlusUse = false
+    this.plaque4Active = false
+    this.plaque4PlusUse = false
+
+    this.plaquePression1.setOffset(0,2)
+    this.plaquePression2.setOffset(0,2)
+    this.plaquePression3.setOffset(0,2)
+    this.plaquePression4.setOffset(0,2)
+
+    this.physics.add.overlap(this.caisses,this.plaquePression1,this.activePlaque1,null,this)
+    this.physics.add.overlap(this.caisses,this.plaquePression2,this.activePlaque2,null,this)
+    this.physics.add.overlap(this.caisses,this.plaquePression3,this.activePlaque3,null,this)
+    this.physics.add.overlap(this.caisses,this.plaquePression4,this.activePlaque4,null,this)
 
     ///////////////////////////////////////////////////////////////
 
     this.retourAvantTemple = this.physics.add.image(64, 1760, 'invisible').setOrigin(0)
     this.retourAvantTemple.body.setAllowGravity(false)
     this.physics.add.overlap(this.player,this.retourAvantTemple,this.goOutTemple,null,this)
+
+    this.sortirTemple = this.physics.add.image(this.grille.x - 16, this.grille.y, 'invisible').setOrigin(0)
+    this.sortirTemple.body.setAllowGravity(false)
+    this.sortirTemple.body.setSize(96,96)
+    this.physics.add.overlap(this.player,this.sortirTemple,this.goEndTemple,null,this)
 
 
     ///////////////////////////////////////////////////////////////
@@ -761,7 +826,71 @@ update(){
         }
     }
 
+    if (this.plaque1Active == true){
+        this.grille.setVelocityY(20)
+        if (this.grille.y > this.hauteurGrille + 30){
+            this.grille.setVelocityY(0)
+            this.plaque1Active = false
+            this.hauteurGrille = this.grille.y
+            this.plaque1PlusUse = true
+        }
+    }
+    if (this.plaque2Active == true){
+        this.grille.setVelocityY(20)
+        if (this.grille.y > this.hauteurGrille + 30){
+            this.grille.setVelocityY(0)
+            this.plaque2Active = false
+            this.hauteurGrille = this.grille.y
+            this.plaque2PlusUse = true
+        }
+    }
+    if (this.plaque3Active == true){
+        this.grille.setVelocityY(20)
+        if (this.grille.y > this.hauteurGrille + 30){
+            this.grille.setVelocityY(0)
+            this.plaque3Active = false
+            this.hauteurGrille = this.grille.y
+            this.plaque3PlusUse = true
+        }
+    }
+    if (this.plaque4Active == true){
+        this.grille.setVelocityY(20)
+        if (this.grille.y > this.hauteurGrille + 30){
+            this.grille.setVelocityY(0)
+            this.plaque4Active = false
+            this.hauteurGrille = this.grille.y
+            this.plaque4PlusUse = true
+        }
+    }
 
+    console.log(this.hauteurGrille )
+
+
+}
+
+activePlaque1(caisse,plaquePression1){
+    if (this.plaque1PlusUse == false){
+        this.plaque1Active = true
+        caisse.y += 0.1
+    }
+}
+activePlaque2(caisse,plaquePression2){
+    if (this.plaque2PlusUse == false){
+        this.plaque2Active = true
+        caisse.y += 0.1
+    }
+}
+activePlaque3(caisse,plaquePression3){
+    if (this.plaque3PlusUse == false){
+        this.plaque3Active = true
+        caisse.y += 0.1
+    }
+}
+activePlaque4(caisse,plaquePression4){
+    if (this.plaque4PlusUse == false){
+        this.plaque4Active = true
+        caisse.y += 0.1
+    }
 }
 
 stopCaisseVelocite0(caisse1,caisse2){
@@ -880,6 +1009,55 @@ goOutTemple(player,retourAvantTemple){
             saveXMort: this.saveXMort,
             saveYMort: this.saveYMort,
             animAccrocheMur: this.animAccrocheMur
+        })
+    }
+}
+
+goEndTemple(player,sortirTemple){
+    if (this.interagir && this.grille.y > 1850) { 
+        this.scene.start("sceneJeu", {
+            pointDeVie:this.pointDeVie,
+            spawnXSortieScene: this.spawnXSortieScene,
+            spawnYSortieScene: this.spawnYSortieScene,
+            speedLeft: this.speedLeft,
+            speedRight: this.speedRight,
+            dialogue: this.dialogue,
+            speed: this.speed,
+            speedSaut: this.speedSaut,
+            doubleSautLeft: this.doubleSautLeft,
+            compteurDoubleSautLeft: this.compteurDoubleSautLeft,
+            doubleSautRight: this.doubleSautRight,
+            compteurDoubleSautRight: this.compteurDoubleSautRight,
+            doubleSautLeftPossible: this.doubleSautLeftPossible,
+            doubleSautRightPossible: this.doubleSautRightPossible,
+            resetGraviteLeft: this.resetGraviteLeft,
+            resetGraviteRight: this.resetGraviteRight,
+            animNormal: this.animNormal,
+            animJump: this.animJump,
+            attaque: this.attaque,
+            attaquePossible: this.attaquePossible,
+            doubleJumpActif: this.doubleJumpActif,
+            torcheDebloque: this.torcheDebloque,
+            torcheActive: this.torcheActive,
+            pouvoirTirer: this.pouvoirTirer,
+            tempsAvantTirer: this.tempsAvantTirer,
+            animTorche: this.animTorche,
+            ouvrirTemplePossible: this.ouvrirTemplePossible,
+            entreeTemplePossible: this.entreeTemplePossible,
+            templeOuvertTorcheAllumer: this.templeOuvertTorcheAllumer,
+            compteurDeplacementLasso: this.compteurDeplacementLasso,
+            compteurDeplacementLassoCaisse: this.compteurDeplacementLassoCaisse,
+            deplacementEnnemi: this.deplacementEnnemi,
+            deplacementCaisse: this.deplacementCaisse,
+            blockCaisse: this.blockCaisse,
+            animPousseCaisse: this.animPousseCaisse,
+            lassoUnlcok: this.lassoUnlcok,
+            invulnérable: this.invulnérable,
+            compteurInvunlerable: this.compteurInvunlerable,
+            saveXMort: this.saveXMort,
+            saveYMort: this.saveYMort,
+            animAccrocheMur: this.animAccrocheMur,
+            sortieTemple: true
         })
     }
 }
