@@ -92,7 +92,13 @@ preload(){
 
     this.load.image("grille", "assets/objets/grille.png");
 
+    this.load.image("checkPoint", "assets/objets/checkPoint.png");
 
+    this.load.spritesheet('animLave','assets/animLave.png',
+    { frameWidth: 32, frameHeight: 50 });
+
+    this.load.spritesheet('solTombe','assets/objets/solTombe.png',
+    { frameWidth: 96, frameHeight: 17 });
 }
 
 create(){
@@ -118,6 +124,11 @@ create(){
             "buildGrotte",
             tileset
             ).setPipeline('Light2D').setDepth(5)
+
+    const lave = carte2.createLayer(
+            "lave",
+            tileset
+            ).setDepth(5)
 
     const decors = carte2.createLayer(
             "decors",
@@ -148,12 +159,22 @@ create(){
     this.physics.add.collider(this.player, buildGrotte);
     buildGrotte.setCollisionByProperty({ estSolide: true });
 
+    this.physics.add.collider(this.player, lave,this.respawnJoueur,null,this);
+    lave.setCollisionByProperty({ killLave: true });
+
     this.player.setCollideWorldBounds(true);
 
     this.cameras.main.zoom = 2.5
     this.cameras.main.startFollow(this.player); 
-    this.physics.world.setBounds(0, 0, 6400, 2880);
-    this.cameras.main.setBounds(0, 0, 6400, 2880);
+    this.physics.world.setBounds(0, 0, 6400, 1920);
+    this.cameras.main.setBounds(0, 0, 6400, 1920);
+
+    this.solOuvert = false
+
+    this.compteurSolRevient= 300
+    this.solRevient = false
+    this.sol2 = false
+    this.compteurSol2 = 300
 
     this.anims.create({
         key: 'right',
@@ -302,6 +323,34 @@ create(){
         repeat: -1
     });
 
+    ////////////////////////
+
+    this.anims.create({
+        key: 'animationLave',
+        frames: this.anims.generateFrameNumbers('animLave', {start:0,end:7}),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    ////////////////////////
+
+    this.anims.create({
+        key: 'animSolOuvert',
+        frames: this.anims.generateFrameNumbers('solTombe', {start:0,end:6}),
+        frameRate: 10,
+        repeat: -1
+    });
+
+    this.anims.create({
+        key: 'animSol1',
+        frames: [ { key: 'solTombe', frame: 6 } ],
+        frameRate: 20
+    });
+    this.anims.create({
+        key: 'animSol2',
+        frames: [ { key: 'solTombe', frame: 0 } ],
+        frameRate: 20
+    });
 
 
     /////////////////////////////
@@ -334,7 +383,7 @@ create(){
 
     carte2.getObjectLayer('lights').objects.forEach((light) => {
         this.lights.addLight(light.x, light.y, 400,100000000001110,4);
-        this.torches.create(light.x,light.y,'torches').setPipeline('Light2D').setScale(0.7)
+        this.torches.create(light.x + 16,light.y,'torches').setPipeline('Light2D').setScale(0.7)
     });
 
     ////////////////////////////////////////////////////////
@@ -395,6 +444,44 @@ create(){
     this.sortirTemple.body.setSize(96,96)
     this.physics.add.overlap(this.player,this.sortirTemple,this.goEndTemple,null,this)
 
+    /////////////////////////////////////////////////////////////////
+
+    this.lave = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    })
+    
+    carte2.getObjectLayer('lave').objects.forEach((lave) => {
+        this.lave.create(lave.x + 16,lave.y - 25,'animLave').setDepth(7)
+    });
+
+    ////////////////////////////////////////////////
+
+    this.checkPoints = this.physics.add.group({
+    });      
+
+    carte2.getObjectLayer('checkPoint').objects.forEach((checkPoint) => {
+        this.checkPoint = this.checkPoints.create(checkPoint.x, checkPoint.y, 'checkPoint').setOrigin(0);
+        this.checkPoint.setPushable(false)
+        this.checkPoint.body.setAllowGravity(false)
+    });
+
+    this.physics.add.overlap(this.player,this.checkPoints,this.savePoint,null,this)
+
+     ////////////////////////////////////////////////
+
+     this.plaquesDispawn = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });      
+
+    carte2.getObjectLayer('plaquesDispawn').objects.forEach((plaquesDispawn) => {
+        this.plaqueDispawn = this.plaquesDispawn.create(plaquesDispawn.x, plaquesDispawn.y - 32, 'solTombe').setOrigin(0);
+        this.plaqueDispawn.setPushable(false)
+        this.plaqueDispawn.body.setAllowGravity(false)
+    });
+
+    this.physics.add.collider(this.player,this.plaquesDispawn)
 
     ///////////////////////////////////////////////////////////////
     /////////////////////////TOUCHES///////////////////////////////
@@ -421,9 +508,81 @@ create(){
     this.inventaireEcran.setDepth(100)
     this.inventaireEcran.setInteractive()
 
+    this.vieTexte = this.add.text(400, 221, this.pointDeVie, {fontSize:30,color:"#000000" });
+    this.vieTexte.setDepth(100)
+    this.vieTexte.setScale(0.7);
+    this.vieTexte.setScrollFactor(0);
+
 }
 
 update(){
+
+    this.lave.children.iterate((child) => {
+        child.anims.play('animationLave', true);
+    });
+
+    this.plaquesDispawn.children.iterate((child) => {
+        if (this.solOuvert == false){
+            child.anims.play('animSolOuvert', true);
+            
+            if (child.anims.currentFrame.index == 1){
+                child.body.setSize(96,17)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 2){
+                child.body.setSize(78,17)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 3){
+                child.body.setSize(64,17)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 4){
+                child.body.setSize(48,17)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 5){
+                child.body.setSize(32,17)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 6){
+                child.body.setSize(1,1)
+                child.setOffset(0,0)
+            }
+            if (child.anims.currentFrame.index == 7){
+                child.body.setSize(1,1)
+                child.setOffset(-1,0)
+                this.solOuvert = true
+            }
+        }
+        if (this.solOuvert == true && this.sol2 == false){
+            child.anims.play('animSol1', true);
+            this.solRevient = true
+        }
+
+        if (this.solRevient == true){
+            this.compteurSolRevient --
+            if (this.compteurSolRevient == 0){
+                this.compteurSolRevient = 300
+                this.solRevient = false
+                this.sol2 = true
+            }
+        }
+
+        if (this.sol2 == true){
+            this.compteurSol2 --
+            child.anims.play('animSol2', true);
+            child.body.setSize(96,17)
+            child.setOffset(0,0)
+            if (this.compteurSol2 == 0){
+                this.compteurSol2 = 300
+                this.solOuvert = false
+                this.sol2 = false
+            }
+        }
+    });
+
+    console.log(this.solOuvert)
 
     this.torches.children.iterate((child) => {
         child.anims.play('animTorches', true);
@@ -863,9 +1022,25 @@ update(){
         }
     }
 
-    console.log(this.hauteurGrille )
 
 
+    if (this.pointDeVie == 0){
+        this.respawnJoueur()
+    }
+}
+
+respawnJoueur(){
+    this.player.x = this.saveXMort
+    this.player.y = this.saveYMort
+
+    this.pointDeVie = this.pointDeVieStock
+    this.vieTexte.setText(this.pointDeVie)
+    this.invulnérable = false
+}
+
+savePoint(player,checkPoint){
+    this.saveXMort = checkPoint.x
+    this.saveYMort = checkPoint.y
 }
 
 activePlaque1(caisse,plaquePression1){

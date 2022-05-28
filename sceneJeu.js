@@ -463,7 +463,7 @@
             });      
 
             carte.getObjectLayer('enemisMurDroite').objects.forEach((enemisMurDroite) => {
-                this.enemiMurDroite = this.enemisMurDroite.create(enemisMurDroite.x - 9, enemisMurDroite.y, 'enemisMur').setOrigin(0);
+                this.enemiMurDroite = this.enemisMurDroite.create(enemisMurDroite.x + 21, enemisMurDroite.y, 'enemisMur').setOrigin(0);
                 this.enemiMurDroite.setPushable(false)
                 this.enemiMurDroite.setBounce(1);
                 this.enemiMurDroite.body.setAllowGravity(false)
@@ -496,6 +496,9 @@
             })
 
             this.physics.add.overlap(this.balles,this.enemisVolant,this.hitGun,null,this)
+            this.physics.add.overlap(this.balles,this.enemisMurGauche,this.hitGun,null,this)
+            this.physics.add.overlap(this.balles,this.enemisMurDroite,this.hitGun,null,this)
+
 
             /////////////////////////////
 
