@@ -73,7 +73,8 @@
             this.load.spritesheet('animLasso','assets/animLasso.png',
             { frameWidth: 96, frameHeight: 32 });
 
-            this.load.image("enemisVolant", "assets/enemisVolant.png");
+            this.load.spritesheet('enemisVolant','assets/enemisVolant.png',
+            { frameWidth: 32, frameHeight: 19 });
 
             this.load.image("torche", "assets/objets/torche.png");
 
@@ -417,6 +418,22 @@
                 key: 'animationEau',
                 frames: this.anims.generateFrameNumbers('animEau', {start:0,end:15}),
                 frameRate: 10,
+                repeat: -1
+            });
+
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animEnemisVolantRight',
+                frames: this.anims.generateFrameNumbers('enemisVolant', {start:0,end:3}),
+                frameRate: 12,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animEnemisVolantLeft',
+                frames: this.anims.generateFrameNumbers('enemisVolant', {start:4,end:7}),
+                frameRate: 12,
                 repeat: -1
             });
 
@@ -1268,6 +1285,12 @@
                 this.distEnemisVolant = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
                 if(this.invulnérable == false && this.distEnemisVolant < 150){
                     this.physics.moveToObject(child, child.scene.player, 60)
+                }
+                if (child.body.velocity.x > 0){
+                    child.anims.play('animEnemisVolantRight', true);
+                }
+                if (child.body.velocity.x < 0){
+                    child.anims.play('animEnemisVolantLeft', true);
                 }
             },this);
 
