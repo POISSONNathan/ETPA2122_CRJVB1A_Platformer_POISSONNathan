@@ -582,8 +582,6 @@ update(){
         }
     });
 
-    console.log(this.solOuvert)
-
     this.torches.children.iterate((child) => {
         child.anims.play('animTorches', true);
     });
@@ -596,9 +594,6 @@ update(){
     }
 
     this.light.y = this.player.y;
-
-
-    if (this.dialogue == false){
 
         this.shot = Phaser.Input.Keyboard.JustDown(this.keys.e)
         this.attaqueTouche = Phaser.Input.Keyboard.JustDown(this.keys.a)
@@ -703,7 +698,6 @@ update(){
 
         if (this.test == true ){
             this.player.setVelocityX(this.speedRight/3);
-            this.lasso.anims.play('animLassoRight', true);
             this.player.anims.play(this.frameRight, true);
             this.test = false
         }
@@ -711,7 +705,6 @@ update(){
         if (this.moveLeft){ 
             this.player.direction = 'left';
             this.player.setVelocityX(-this.speedLeft/3); 
-            this.lasso.anims.play('animLassoLeft', true);
             this.player.anims.play(this.frameLeft, true);
 
         }
@@ -719,7 +712,6 @@ update(){
         else if (this.moveRight){ 
             this.player.direction = 'right';
             this.player.setVelocityX(this.speedRight/2);
-            this.lasso.anims.play('animLassoRight', true);
             this.player.anims.play(this.frameRight, true);
         }
         else{ 
@@ -734,6 +726,8 @@ update(){
 
             if (this.player.direction == 'right'){
                 this.lasso.x = this.player.x + 32
+                this.lasso.anims.play('animLassoRight', true);
+
                 if (this.lasso.anims.currentFrame.index == 1){
                     this.lasso.body.setSize(20,12)
                     this.lasso.setOffset(-4,12)
@@ -785,6 +779,8 @@ update(){
             }
 
             if (this.player.direction == 'left'){
+                this.lasso.anims.play('animLassoLeft', true);
+
                 this.lasso.x = this.player.x - 94
                 if (this.lasso.anims.currentFrame.index == 1){
                     this.lasso.body.setSize(20,12)
@@ -835,9 +831,7 @@ update(){
                     this.attaquePossible = true
                     this.lasso.destroy()
                 }          
-        }
-
-
+        }  
     }
     
     if (this.attaque == false){
@@ -894,8 +888,8 @@ update(){
                 this.doubleSautRightPossible = false
                 this.doubleSautLeftPossible = true
                 this.compteurDoubleSautLeft -=1 ;
-                this.player.setVelocityX(-200);
-                this.player.setVelocityY(-this.speedSaut);
+                this.player.setVelocityX(-300);
+                this.player.setVelocityY(-this.speedSaut + 75);
                 if(this.compteurDoubleSautLeft == 0){
                     this.compteurDoubleSautLeft = 10
                     this.doubleSautLeft = false
@@ -908,19 +902,21 @@ update(){
                 this.doubleSautRightPossible = true
                 this.doubleSautLeftPossible = false
                 this.compteurDoubleSautRight -=1 ;
-                this.player.setVelocityX(200);
-                this.player.setVelocityY(-this.speedSaut);
+                this.player.setVelocityX(300);
+                this.player.setVelocityY(-this.speedSaut + 75);
                 if(this.compteurDoubleSautRight == 0){
                     this.compteurDoubleSautRight = 10
                     this.doubleSautRight = false
                 }
             }
 
-            if (this.resetGraviteLeft == true){this.speedRight = 100}
+            if(this.invulnérable == false){
+            if (this.resetGraviteLeft == true ){this.speedRight = 75}
             else{this.speedRight = this.speed}
 
-            if (this.resetGraviteRight == true){this.speedLeft = 100}
+            if (this.resetGraviteRight == true){this.speedLeft = 75}
             else{this.speedLeft = this.speed}
+            }
 
             if (this.player.body.blocked.down){
                 this.doubleSautRightPossible = true
@@ -953,7 +949,7 @@ update(){
         if (this.shot){
             this.tirer(this.player);
         }
-    }
+    
 
     if (this.deplacementCaisse == true){
         this.compteurDeplacementLassoCaisse --
@@ -1031,7 +1027,7 @@ update(){
 
 respawnJoueur(){
     this.player.x = this.saveXMort
-    this.player.y = this.saveYMort
+    this.player.y = this.saveYMort + 10
 
     this.pointDeVie = this.pointDeVieStock
     this.vieTexte.setText(this.pointDeVie)

@@ -312,7 +312,7 @@
                 frameRate: 20
             });
 
-            ////////////////////////
+             ////////////////////////
 
             this.anims.create({
                 key: 'attaqueRight',
@@ -320,6 +320,7 @@
                 frameRate: 4,
                 repeat: -1
             });
+
             this.anims.create({
                 key: 'attaqueLeft',
                 frames: this.anims.generateFrameNumbers('attaque', {start:5,end:9}),
@@ -426,14 +427,14 @@
             this.anims.create({
                 key: 'animEnemisVolantRight',
                 frames: this.anims.generateFrameNumbers('enemisVolant', {start:0,end:3}),
-                frameRate: 12,
+                frameRate: 6,
                 repeat: -1
             });
 
             this.anims.create({
                 key: 'animEnemisVolantLeft',
                 frames: this.anims.generateFrameNumbers('enemisVolant', {start:4,end:7}),
-                frameRate: 12,
+                frameRate: 6,
                 repeat: -1
             });
 
@@ -800,49 +801,47 @@
                 this.frameRight = 'right'
                 this.frameTurn = 'turn'
             }
-
+        
             if (this.animAccrocheMur == true){
                 this.frameLeft = 'animAccrocheMurPersoLeft'
                 this.frameRight = 'animAccrocheMurPersoRight'
             }
-
+            
             if (this.animPousseCaisse == true){
                 this.frameLeft = 'animPousseLeft'
                 this.frameRight = 'animPousseRight'
             }
-
+        
             if (this.animJump == true){
                 this.frameLeft = 'jumpLeft'
                 this.frameRight = 'jumpRight'
                 this.frameTurn = 'turnJump'
             }
-
+        
             if (this.attaque == true){
                 this.frameLeft = 'attaqueLeft'
                 this.frameRight = 'attaqueRight'
                 this.frameTurn = 'turnJump'
             }
-
+        
             if (this.animTorche == true){
                 this.frameLeft = 'animTorcheLeft'
                 this.frameRight = 'animTorcheRight'
             }
-
+        
             if (this.attaquePossible == true){
-                if (this.attaqueTouche && this.lassoUnlcok == true){ 
+                if (this.attaqueTouche){ 
                     this.attaque = true
                     this.animNormal = false
                     this.animJump = false
                     this.attaquePossible = false
-
+        
                     this.player.direction = 'right';
                     this.createLasso = true
                     this.test = true
                 }
-            } 
+            }
 
-            
-            
             if (this.createLasso == true){
                 this.lasso = this.physics.add.sprite(this.player.x,this.player.y,'animLasso').setOrigin(0);
                 this.lasso.body.setAllowGravity(false)
@@ -854,10 +853,9 @@
 
             if  (this.attaque == true){
                 this.lasso.y = this.player.y
-
+        
                 if (this.test == true ){
                     this.player.setVelocityX(this.speedRight/3);
-                    this.lasso.anims.play('animLassoRight', true);
                     this.player.anims.play(this.frameRight, true);
                     this.test = false
                 }
@@ -865,15 +863,13 @@
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
                     this.player.setVelocityX(-this.speedLeft/3); 
-                    this.lasso.anims.play('animLassoLeft', true);
                     this.player.anims.play(this.frameLeft, true);
-
+        
                 }
                 
                 else if (this.moveRight){ 
                     this.player.direction = 'right';
                     this.player.setVelocityX(this.speedRight/2);
-                    this.lasso.anims.play('animLassoRight', true);
                     this.player.anims.play(this.frameRight, true);
                 }
                 else{ 
@@ -885,9 +881,11 @@
                         this.player.anims.play('idleRight', true);     
                     }
                 }
-
+        
                     if (this.player.direction == 'right'){
                         this.lasso.x = this.player.x + 32
+                        this.lasso.anims.play('animLassoRight', true);
+
                         if (this.lasso.anims.currentFrame.index == 1){
                             this.lasso.body.setSize(20,12)
                             this.lasso.setOffset(-4,12)
@@ -937,8 +935,10 @@
                             this.lasso.destroy()
                         }
                     }
-
+        
                     if (this.player.direction == 'left'){
+                        this.lasso.anims.play('animLassoLeft', true);
+
                         this.lasso.x = this.player.x - 94
                         if (this.lasso.anims.currentFrame.index == 1){
                             this.lasso.body.setSize(20,12)
@@ -980,7 +980,7 @@
                             this.lasso.body.setSize(20,12)
                             this.lasso.setOffset(74,12)
                         }
-
+        
                         if (this.lasso.anims.currentFrame.index == 11){
                             this.lasso.body.setSize(20,12)
                             this.lasso.setOffset(56,12)
@@ -989,7 +989,7 @@
                             this.attaquePossible = true
                             this.lasso.destroy()
                         }          
-                }
+                }  
             }
             
             if (this.attaque == false){
@@ -1045,8 +1045,8 @@
                         this.doubleSautRightPossible = false
                         this.doubleSautLeftPossible = true
                         this.compteurDoubleSautLeft -=1 ;
-                        this.player.setVelocityX(-200);
-                        this.player.setVelocityY(-this.speedSaut);
+                        this.player.setVelocityX(-300);
+                        this.player.setVelocityY(-this.speedSaut + 75);
                         if(this.compteurDoubleSautLeft == 0){
                             this.compteurDoubleSautLeft = 10
                             this.doubleSautLeft = false
@@ -1059,8 +1059,8 @@
                         this.doubleSautRightPossible = true
                         this.doubleSautLeftPossible = false
                         this.compteurDoubleSautRight -=1 ;
-                        this.player.setVelocityX(200);
-                        this.player.setVelocityY(-this.speedSaut);
+                        this.player.setVelocityX(300);
+                        this.player.setVelocityY(-this.speedSaut + 75);
                         if(this.compteurDoubleSautRight == 0){
                             this.compteurDoubleSautRight = 10
                             this.doubleSautRight = false
@@ -1068,10 +1068,10 @@
                     }
 
                     if(this.invulnérable == false){
-                    if (this.resetGraviteLeft == true ){this.speedRight = 100}
+                    if (this.resetGraviteLeft == true ){this.speedRight = 75}
                     else{this.speedRight = this.speed}
 
-                    if (this.resetGraviteRight == true){this.speedLeft = 100}
+                    if (this.resetGraviteRight == true){this.speedLeft = 75}
                     else{this.speedLeft = this.speed}
                     }
 
@@ -1370,7 +1370,7 @@
 
         respawnJoueur(){
             this.player.x = this.saveXMort
-            this.player.y = this.saveYMort
+            this.player.y = this.saveYMort + 10
 
             this.pointDeVie = this.pointDeVieStock
             this.vieTexte.setText(this.pointDeVie)
