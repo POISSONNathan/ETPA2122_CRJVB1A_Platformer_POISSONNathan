@@ -1099,6 +1099,7 @@
                     }      
                 }       
 
+                if (this.tileTest2.index == -1){
             if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
                 this.player.setVelocityY(20); 
                 this.animAccrocheMur = true
@@ -1107,28 +1108,11 @@
             else{
                 this.animAccrocheMur = false
             }
-            }
+        }
+            
         }
 
-        if (this.inWater == true){
-            if (this.moveUpLiane ) {
-                this.player.setVelocityY(-this.speedSaut);
-            }  
-            if (this.moveLeft){ 
-                this.player.direction = 'left';
-                this.player.setVelocityX(-this.speedLeft); 
-                this.player.anims.play(this.frameLeft, true);
-            }
-            else if (this.moveRight){ 
-                this.player.direction = 'right';
-                this.player.setVelocityX(this.speedRight);
-                this.player.anims.play(this.frameRight, true);
-            }
-            else{
-                this.player.setVelocityX(0)
-                this.player.setVelocityY(20)
-            }
-        }
+
 
             if (this.murStop == true){
                 this.compteurMurStop --
@@ -1316,6 +1300,8 @@
                 }
             },this);
 
+        }
+
            if(this.invulnérable == true){
             this.compteurInvunlerable -=1 ;
                 if(this.compteurInvunlerable == 0){
@@ -1368,16 +1354,19 @@
                 this.tile = this.eauLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
                 if (this.tile != null) {
                     if (this.tile.index != -1){
-                        this.player.body.setAllowGravity(false)
                        this.speedLeft = 100
                        this.speedRight = 100
                        this.speedSaut = 100
                        this.attaquePossible = false
                        this.pouvoirTirer = false
                        this.inWater = true
+
+                       this.animNormal = false
+                       this.animAccrocheMur = false
+                       this.animJump = false
+                       this.player.setVelocityY(10)
                     }
                     else{
-                        this.player.body.setAllowGravity(true)
                         this.speedLeft = this.speed
                        this.speedRight = this.speed
                        this.speedSaut = this.speed + 180
@@ -1385,6 +1374,35 @@
                        this.pouvoirTirer = true
                        this.inWater = false
                     }
+                }
+
+                this.tileTest2 = this.eauLayer.getTileAtWorldXY(this.player.x, this.player.y + 32, true);
+
+
+                if (this.inWater == true){
+              
+                    if (this.moveLeft){ 
+                        this.player.direction = 'left';
+                        this.player.setVelocityX(-this.speedLeft); 
+                        this.player.anims.play(this.frameLeft, true);
+                    }
+                    else if (this.moveRight){ 
+                        this.player.direction = 'right';
+                        this.player.setVelocityX(this.speedRight);
+                        this.player.anims.play(this.frameRight, true);
+                    }
+
+                    if (this.moveUpLiane){ 
+                        this.player.setVelocityY(-this.speedSaut);
+                    }
+                    if (this.moveDownLiane){ 
+                        this.player.setVelocityY(this.speedSaut);
+                    }
+
+                    if (this.keys.z.isUp && this.keys.q.isUp && this.keys.d.isUp && this.keys.s.isUp){
+                        this.player.setVelocityX(0)
+                    }
+                  
                 }
 
 
@@ -1414,9 +1432,7 @@
 
         mouvementJoueurRondins(player,rondinBois){
             player.body.velocity.x += rondinBois.body.velocity.x 
-        
-
-            console.log("edzer")
+    
         }
 
         respawnJoueur(){
