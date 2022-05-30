@@ -68,6 +68,8 @@
             { frameWidth: 32, frameHeight: 32 });
             this.load.spritesheet('animAccrocheMurPerso','assets/animAccrocheMurPerso.png',
             { frameWidth: 32, frameHeight: 32 });
+            this.load.spritesheet('animNage','assets/animNage.png',
+            { frameWidth: 32, frameHeight: 32 });
             ///////////////////////
 
             this.load.spritesheet('animLasso','assets/animLasso.png',
@@ -75,6 +77,9 @@
 
             this.load.spritesheet('enemisVolant','assets/enemisVolant.png',
             { frameWidth: 32, frameHeight: 19 });
+
+            this.load.spritesheet('enemisEau','assets/enemisEau.png',
+            { frameWidth: 32, frameHeight: 20 });
 
             this.load.image("torche", "assets/objets/torche.png");
 
@@ -91,10 +96,11 @@
             this.load.image("torchesAllumer", "assets/objets/torchesAllumer.png");
 
             this.load.image("murAOuvrir", "assets/objets/murAOuvrir.png");
-
-            this.load.image("mur1", "assets/objets/mur1.png");
-            this.load.image("mur2", "assets/objets/mur2.png");
-            this.load.image("mur3", "assets/objets/mur3.png");
+            this.load.image("temple0", "assets/objets/temple0.png");
+            this.load.image("temple1", "assets/objets/temple1.png");
+            this.load.image("temple2", "assets/objets/temple2.png");
+            this.load.image("temple3", "assets/objets/temple3.png");
+            this.load.image("temple4", "assets/objets/temple4.png");
 
             this.load.spritesheet('lianes','assets/lianes.png',
             { frameWidth: 266, frameHeight: 172 });
@@ -140,6 +146,11 @@
                     tileset
                         );
 
+            const background2 = carte.createLayer(
+                    "background2",
+                    tileset
+                    );
+
             const build = carte.createLayer(
                     "build",
                     tileset
@@ -153,7 +164,7 @@
             this.eauLayer = carte.createLayer(
                     "eau",
                     tileset
-                    )
+                    ).setDepth(1)
 
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
@@ -167,7 +178,7 @@
 
             if (this.sortieTemple == true){
                 carte.getObjectLayer('spawnJoueurSortieTemple').objects.forEach((spawnJoueurSortieTemple) => {
-                    this.spawnXSortieScene = spawnJoueurSortieTemple.x, 
+                    this.spawnXSortieScene = spawnJoueurSortieTemple.x + 10, 
                     this.spawnYSortieScene =  spawnJoueurSortieTemple.y
                 });
             }
@@ -217,6 +228,8 @@
 
             this.compteurSpawnRondinPossible = 200
             this.testRondins = true
+
+            this.animNage = false
 
 
             this.anims.create({
@@ -438,6 +451,45 @@
                 repeat: -1
             });
 
+            ////////////////////////
+
+            this.anims.create({
+                key: 'enemisEauRight',
+                frames: this.anims.generateFrameNumbers('enemisEau', {start:0,end:3}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'enemisEauLeft',
+                frames: this.anims.generateFrameNumbers('enemisEau', {start:4,end:7}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animNageRight',
+                frames: this.anims.generateFrameNumbers('animNage', {start:0,end:3}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animNageLeft',
+                frames: this.anims.generateFrameNumbers('animNage', {start:4,end:7}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animIdleNage',
+                frames: this.anims.generateFrameNumbers('animNage', {start:8,end:9}),
+                frameRate: 6,
+                repeat: -1
+            });
+            
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  ENNEMIS
             ///////////////////////////////////////////////////////////////  
@@ -493,6 +545,26 @@
             this.physics.add.collider(this.enemisMurDroite,zoneEnnemi)
             this.physics.add.collider(this.enemisMurDroite,build)
             this.physics.add.collider(this.player,this.enemisMurDroite,this.degatEnnemi,null,this)
+
+            
+            //////////////
+
+            this.enemisEau = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('enemisEau').objects.forEach((enemisEau) => {
+                this.enemiEau = this.enemisEau.create(enemisEau.x + 21, enemisEau.y, 'enemisEau').setOrigin(0);
+                this.enemiEau.setPushable(false)
+                this.enemiEau.setBounce(1);
+                this.enemiEau.body.setAllowGravity(false)
+                this.enemiEau.setDepth(2)
+                this.enemiEau.setCollideWorldBounds(true);
+
+            });
+            this.enemisEau.setVelocityX(40)
+            this.physics.add.collider(this.enemisEau,this.enemisEau)
+            this.physics.add.collider(this.enemisEau,build)
+            this.physics.add.collider(this.player,this.enemisEau,this.degatEnnemi,null,this)
 
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  
@@ -550,6 +622,7 @@
                 this.torchesAAllumer1.setInteractive()
                 this.torchesAAllumer1.body.setSize(20,32)
                 this.torchesAAllumer1.setOffset(22,16)
+                this.torchesAAllumer1.setDepth(1)
             });
 
             this.physics.add.overlap(this.player,this.torchesAAllumer,this.allumeTorche,null,this)
@@ -557,13 +630,19 @@
             ////////////////////////////////////////////////
 
             carte.getObjectLayer('murAOuvrir').objects.forEach((murAOuvrir) => {
-                this.murAOuvrir = this.physics.add.image(murAOuvrir.x, murAOuvrir.y, 'murAOuvrir').setOrigin(0);
+                this.murAOuvrir = this.physics.add.image(murAOuvrir.x + 12, murAOuvrir.y, 'murAOuvrir').setOrigin(0);
                 this.murAOuvrir.setPushable(false)
                 this.murAOuvrir.body.setAllowGravity(false)
                 this.murAOuvrir.setInteractive()
+                this.murAOuvrirY = this.murAOuvrir.y
+                
+
+                this.temple = this.physics.add.image(murAOuvrir.x - 138, murAOuvrir.y - 102, 'temple0').setOrigin(0);
+                this.temple.setPushable(false)
+                this.temple.body.setAllowGravity(false)
+                this.temple.setInteractive()
 
                 this.murAOuvrir.body.setSize(64,96)
-                this.murAOuvrir.setOffset(-16,0)
             });
 
             this.physics.add.overlap(this.player,this.murAOuvrir,this.murOuvert,null,this)
@@ -635,7 +714,7 @@
             this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
             this.physics.add.collider(build,this.rondinsBois,this.destructionRondins,null,this)
             this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
-            this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondins,null,this)
+            this.physics.add.collider(this.player,this.rondinsBois)
 
             this.eau = this.physics.add.group({
                 immovable: true,
@@ -646,14 +725,18 @@
                 this.eau.create(eauAnim.x + 32,eauAnim.y - 16,'animEau').setDepth(7)
             });
 
+            this.physics.add.collider(this.enemisEau,this.eau)
+
             /////////////////////////////
             /////////////////////////////
             /////////////////////////////
 
 
-            this.entreTemple = this.physics.add.image(this.murAOuvrir.x, this.murAOuvrir.y+64, 'invisible').setOrigin(0)
+            this.entreTemple = this.physics.add.image(this.murAOuvrir.x, this.murAOuvrir.y+32, 'invisible').setOrigin(0)
             this.entreTemple.body.setAllowGravity(false)
             this.physics.add.overlap(this.player,this.entreTemple,this.goTemple,null,this)
+            this.entreTemple.body.setSize(64,64)
+            this.entreTemple.setOffset(0,0)
 
             ///////////////////////////////////////////////////////////////
             /////////////////////////TOUCHES///////////////////////////////
@@ -761,12 +844,6 @@
             if (this.dialogue == false){
 
         
-            if (this.player.direction == 'left'){
-                this.player.setOffset(8,0)
-            }
-            if (this.player.direction == 'right'){
-                this.player.setOffset(8,0)
-            }
 
             if (this.torcheDebloque == true){
                 if (this.lightTouche){
@@ -805,6 +882,12 @@
             if (this.animAccrocheMur == true){
                 this.frameLeft = 'animAccrocheMurPersoLeft'
                 this.frameRight = 'animAccrocheMurPersoRight'
+            }
+
+            if (this.animNage == true){
+                this.frameLeft = 'animNageLeft'
+                this.frameRight = 'animNageRight'
+                this.frameTurn ='animIdleNage'
             }
             
             if (this.animPousseCaisse == true){
@@ -852,6 +935,13 @@
             }
 
         if (this.inWater == false){
+
+            if (this.player.direction == 'left'){
+                this.player.setOffset(8,0)
+            }
+            if (this.player.direction == 'right'){
+                this.player.setOffset(8,0)
+            }
 
             if  (this.attaque == true){
                 this.lasso.y = this.player.y
@@ -1099,7 +1189,7 @@
                     }      
                 }       
 
-                if (this.tileTest2.index == -1){
+        if (this.tileTest2.index == -1){
             if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
                 this.player.setVelocityY(20); 
                 this.animAccrocheMur = true
@@ -1115,18 +1205,18 @@
 
 
             if (this.murStop == true){
-                this.compteurMurStop --
-                if (this.compteurMurStop == 0){
+                if (this.murAOuvrir.y < this.murAOuvrirY - 100){
                     this.murAOuvrir.setVelocityY(0)
                     this.entreeTemplePossible = true
                 }
             }
 
+
             if (this.templeOuvertTorcheAllumer == true){
                 this.torchesAAllumer.children.iterate((child) => {
                     child.setTexture('torchesAllumer');
                 });
-                this.murAOuvrir.setTexture('mur3')
+                this.temple.setTexture('temple4')
             }
 
             if (this.shot){
@@ -1300,6 +1390,19 @@
                 }
             },this);
 
+            this.enemisEau.children.iterate(function (child) {
+                this.distEnemisEau = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
+                if(this.invulnérable == false && this.distEnemisEau < 150){
+                    this.physics.moveToObject(child, child.scene.player, 40)
+                }
+                if (child.body.velocity.x > 0){
+                    child.anims.play('enemisEauRight', true);
+                }
+                if (child.body.velocity.x < 0){
+                    child.anims.play('enemisEauLeft', true);
+                }
+            },this);
+
         }
 
            if(this.invulnérable == true){
@@ -1335,7 +1438,6 @@
                 this.compteurSpawnRondinPossible --
                 if (this.compteurSpawnRondinPossible == 0){
                     this.compteurSpawnRondinPossible = 200
-                    this.murAOuvrir.setVelocityY(0)
                     this.spawnRondinPossible = false
                     this.testRondins = false
                 }
@@ -1354,17 +1456,20 @@
                 this.tile = this.eauLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
                 if (this.tile != null) {
                     if (this.tile.index != -1){
-                       this.speedLeft = 100
-                       this.speedRight = 100
-                       this.speedSaut = 100
+                       this.speedLeft = 75
+                       this.speedRight = 75
+                       this.speedSaut = 65
                        this.attaquePossible = false
                        this.pouvoirTirer = false
                        this.inWater = true
+                       this.animNage = true
 
                        this.animNormal = false
                        this.animAccrocheMur = false
                        this.animJump = false
-                       this.player.setVelocityY(10)
+                       this.player.setVelocityY(8)
+
+                       this.sortEau = true
                     }
                     else{
                         this.speedLeft = this.speed
@@ -1373,6 +1478,13 @@
                        this.attaquePossible = true
                        this.pouvoirTirer = true
                        this.inWater = false
+                       this.animNage = false
+                       this.player.body.setSize(16,32)
+
+                       if (this.sortEau == true){
+                           this.player.setVelocityY(-280)
+                           this.sortEau = false
+                       }
                     }
                 }
 
@@ -1385,11 +1497,13 @@
                         this.player.direction = 'left';
                         this.player.setVelocityX(-this.speedLeft); 
                         this.player.anims.play(this.frameLeft, true);
+                        this.player.body.setSize(32,16)
                     }
                     else if (this.moveRight){ 
                         this.player.direction = 'right';
                         this.player.setVelocityX(this.speedRight);
                         this.player.anims.play(this.frameRight, true);
+                        this.player.body.setSize(32,16)
                     }
 
                     if (this.moveUpLiane){ 
@@ -1401,6 +1515,8 @@
 
                     if (this.keys.z.isUp && this.keys.q.isUp && this.keys.d.isUp && this.keys.s.isUp){
                         this.player.setVelocityX(0)
+                        this.player.anims.play(this.frameTurn, true);
+                        this.player.body.setSize(16,32)
                     }
                   
                 }
@@ -1428,11 +1544,6 @@
             rondinBois.y += 2
             rondinBois.setVelocityX(0)
             rondinBois.setVelocityY(30)
-        }
-
-        mouvementJoueurRondins(player,rondinBois){
-            player.body.velocity.x += rondinBois.body.velocity.x 
-    
         }
 
         respawnJoueur(){
@@ -1592,13 +1703,16 @@
                 }
 
                 if (this.nbrTorcheAllume == 1){
-                    this.murAOuvrir.setTexture('mur1')
+                    this.temple.setTexture('temple1')
                 }
                 if (this.nbrTorcheAllume == 2){
-                    this.murAOuvrir.setTexture('mur2')
+                    this.temple.setTexture('temple2')
                 }
                 if (this.nbrTorcheAllume == 3){
-                    this.murAOuvrir.setTexture('mur3')
+                    this.temple.setTexture('temple3')
+                }
+                if (this.nbrTorcheAllume == 4){
+                    this.temple.setTexture('temple4')
                     this.ouvrirTemplePossible = true
                 }
             }
@@ -1607,9 +1721,9 @@
         murOuvert(player,murAOuvrir){
             if (this.ouvrirTemplePossible == true && this.interagir){
                 this.ouvrirTemplePossible = false
-                murAOuvrir.setVelocityY(-11)
+                murAOuvrir.setVelocityY(-20)
                 this.murStop = true
-                this.cameras.main.shake(3000, 0.0007);
+                this.cameras.main.shake(5000, 0.0005);
                 this.nbrTorcheAllume = 0
             }
         }
