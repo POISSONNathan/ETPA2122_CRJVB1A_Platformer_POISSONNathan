@@ -53,7 +53,7 @@ this.startButton.on('pointerdown', function (pointer) {
             doubleJumpActif: false,
             torcheDebloque: false,
             torcheActive: false,
-            pouvoirTirer: false,
+            pouvoirTirer: true,
             tempsAvantTirer: false,
             animTorche: false,
             ouvrirTemplePossible: false,

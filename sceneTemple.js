@@ -1185,7 +1185,7 @@ goOutTemple(player,retourAvantTemple){
 }
 
 goEndTemple(player,sortirTemple){
-    if (this.interagir && this.grille.y > 1850) { 
+    if (this.interagir && this.grille.y > 1840) { 
         this.scene.start("sceneJeu", {
             pointDeVie:this.pointDeVie,
             spawnXSortieScene: this.spawnXSortieScene,

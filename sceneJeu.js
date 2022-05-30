@@ -150,10 +150,10 @@
                     tileset
                     )
 
-            const eau = carte.createLayer(
+            this.eauLayer = carte.createLayer(
                     "eau",
                     tileset
-                    ).setDepth(100)
+                    )
 
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
@@ -185,8 +185,8 @@
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
 
-            this.physics.add.collider(this.player, eau,this.respawnJoueur,null,this);
-            eau.setCollisionByProperty({ eauKill: true });
+            //this.physics.add.collider(this.player, eau,this.respawnJoueur,null,this);
+            //eau.setCollisionByProperty({ eauKill: true });
 
             this.player.setCollideWorldBounds(true);
 
@@ -216,7 +216,7 @@
             this.stopGrimper = false
 
             this.compteurSpawnRondinPossible = 200
-            this.test = true
+            this.testRondins = true
 
 
             this.anims.create({
@@ -633,8 +633,8 @@
             });
 
             this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
-            this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
             this.physics.add.collider(build,this.rondinsBois,this.destructionRondins,null,this)
+            this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
             this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondins,null,this)
 
             this.eau = this.physics.add.group({
@@ -850,6 +850,8 @@
                 this.physics.add.overlap(this.lasso,this.enemisVolant,this.toucheEnnemi,null,this)
                 this.physics.add.overlap(this.lasso,this.caisses,this.bougerCaisse,null,this)
             }
+
+        if (this.inWater == false){
 
             if  (this.attaque == true){
                 this.lasso.y = this.player.y
@@ -1105,8 +1107,28 @@
             else{
                 this.animAccrocheMur = false
             }
-
             }
+        }
+
+        if (this.inWater == true){
+            if (this.moveUpLiane ) {
+                this.player.setVelocityY(-this.speedSaut);
+            }  
+            if (this.moveLeft){ 
+                this.player.direction = 'left';
+                this.player.setVelocityX(-this.speedLeft); 
+                this.player.anims.play(this.frameLeft, true);
+            }
+            else if (this.moveRight){ 
+                this.player.direction = 'right';
+                this.player.setVelocityX(this.speedRight);
+                this.player.anims.play(this.frameRight, true);
+            }
+            else{
+                this.player.setVelocityX(0)
+                this.player.setVelocityY(20)
+            }
+        }
 
             if (this.murStop == true){
                 this.compteurMurStop --
@@ -1329,23 +1351,53 @@
                     this.compteurSpawnRondinPossible = 200
                     this.murAOuvrir.setVelocityY(0)
                     this.spawnRondinPossible = false
-                    this.test = false
+                    this.testRondins = false
                 }
             }
 
-            if (this.test == false){
-                this.rondinsBois.create(this.spawnRondinX + 16 ,this.spawnRondinY + 10,'rondinsBois')
+            if (this.testRondins == false){
+                this.rondintest = this.rondinsBois.create(this.spawnRondinX + 16 ,this.spawnRondinY + 10,'rondinsBois')
                 this.rondinsBois.setVelocityY(-10)
-                this.test = true
+                this.rondintest.body.setSize(96,13)
+                this.rondintest.setOffset(0,6)
+                this.testRondins = true
             }
+
+
+
+                this.tile = this.eauLayer.getTileAtWorldXY(this.player.x, this.player.y, true);
+                if (this.tile != null) {
+                    if (this.tile.index != -1){
+                        this.player.body.setAllowGravity(false)
+                       this.speedLeft = 100
+                       this.speedRight = 100
+                       this.speedSaut = 100
+                       this.attaquePossible = false
+                       this.pouvoirTirer = false
+                       this.inWater = true
+                    }
+                    else{
+                        this.player.body.setAllowGravity(true)
+                        this.speedLeft = this.speed
+                       this.speedRight = this.speed
+                       this.speedSaut = this.speed + 180
+                       this.attaquePossible = true
+                       this.pouvoirTirer = true
+                       this.inWater = false
+                    }
+                }
+
+
+
 
             if (this.pointDeVie == 0){
                 this.respawnJoueur()
             }
+
     } 
 
         spawnRondin(rondinBois,rondinCreate){
-            if (this.test == true) {
+            if (this.testRondins == true) {
             this.spawnRondinPossible = true
             }
         }
@@ -1355,17 +1407,16 @@
         }
 
         destructionRondins(rondinBois,build){
+            rondinBois.y += 2
             rondinBois.setVelocityX(0)
             rondinBois.setVelocityY(30)
         }
 
         mouvementJoueurRondins(player,rondinBois){
-            if (rondinBois.body.velocity.x > 0){
-                player.body.velocity.x += rondinBois.body.velocity.x + 70
-            }
-            if (rondinBois.body.velocity.x < 0){
-                player.body.velocity.x += rondinBois.body.velocity.x - 70
-            }
+            player.body.velocity.x += rondinBois.body.velocity.x 
+        
+
+            console.log("edzer")
         }
 
         respawnJoueur(){
