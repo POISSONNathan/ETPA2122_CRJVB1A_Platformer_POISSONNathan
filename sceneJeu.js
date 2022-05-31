@@ -141,10 +141,18 @@
                     "Phaser_tuilesdejeu"
                     );  
 
-            const background = carte.createLayer(
-                    "background",
-                    tileset
-                        );
+
+            const back2 = carte.createLayer(
+                "back2",
+                tileset
+                    );
+
+            const back3 = carte.createLayer(
+                "back3",
+                tileset
+                    );
+
+            back3.setScrollFactor(0.95,0.95)
 
             const background2 = carte.createLayer(
                     "background2",
@@ -231,6 +239,7 @@
 
             this.animNage = false
 
+            this.armeUnlock = false
 
             this.anims.create({
                 key: 'right',
@@ -585,6 +594,8 @@
                 allowGravity: false
             })
 
+            this.physics.add.collider(this.balles,build,this.destroyBalle,null,this)
+
             this.physics.add.overlap(this.balles,this.enemisVolant,this.hitGun,null,this)
             this.physics.add.overlap(this.balles,this.enemisMurGauche,this.hitGun,null,this)
             this.physics.add.overlap(this.balles,this.enemisMurDroite,this.hitGun,null,this)
@@ -783,14 +794,14 @@
         ////////////////////////INTERFACE//////////////////////////////
         ///////////////////////////////////////////////////////////////
         
-        this.inventaireEcran = this.add.image(838,250,'interfaceArmeObj0').setScale(0.7)
+        this.inventaireEcran = this.add.image(590,154,'interfaceArmeObj0').setScale(0.5)
         this.inventaireEcran.setScrollFactor(0)
         this.inventaireEcran.setDepth(100)
         this.inventaireEcran.setInteractive()
 
-        this.vieTexte = this.add.text(400, 221, this.pointDeVie, {fontSize:30,color:"#000000" });
+        this.vieTexte = this.add.text(280, 140, this.pointDeVie, {fontSize:30,color:"#000000" });
         this.vieTexte.setDepth(100)
-        this.vieTexte.setScale(0.7);
+        this.vieTexte.setScale(0.5);
         this.vieTexte.setScrollFactor(0);
 
 
@@ -1321,6 +1332,7 @@
                     }
                 });
             }
+            }
             if (this.dialogue == true){
                 this.player.body.setAllowGravity(false)
                 this.player.setVelocityY(0)
@@ -1403,13 +1415,13 @@
                 }
             },this);
 
-        }
+        
 
            if(this.invulnérable == true){
             this.compteurInvunlerable -=1 ;
                 if(this.compteurInvunlerable == 0){
                     this.compteurInvunlerable = 100;
-                    this.speedSaut *= 1.5
+                    this.speedSaut *= 1.6
                     this.invulnérable = false ;
                 }
             }
@@ -1472,12 +1484,18 @@
                        this.sortEau = true
                     }
                     else{
-                        this.speedLeft = this.speed
-                       this.speedRight = this.speed
-                       this.speedSaut = this.speed + 180
-                       this.attaquePossible = true
-                       this.pouvoirTirer = true
-                       this.inWater = false
+                        if (this.invulnérable == false && this.doubleSautLeftPossible == false && this.doubleSautRightPossible == false){
+                            this.speedLeft = this.speed
+                        this.speedRight = this.speed
+                       this.speedSaut = 380
+                        }
+                       if (this.armeUnlock == true){
+                        this.pouvoirTirer = true
+                       }
+                       if (this.lassoUnlcok == true){
+                            this.attaquePossible = true
+                        }
+                        this.inWater = false
                        this.animNage = false
                        this.player.body.setSize(16,32)
 
@@ -1487,6 +1505,7 @@
                        }
                     }
                 }
+
 
                 this.tileTest2 = this.eauLayer.getTileAtWorldXY(this.player.x, this.player.y + 32, true);
 
@@ -1521,14 +1540,16 @@
                   
                 }
 
-
-
-
             if (this.pointDeVie == 0){
                 this.respawnJoueur()
             }
+            console.log(this.pouvoirTirer )
 
     } 
+
+        destroyBalle(balle,build){
+            balle.destroy()
+        }
 
         spawnRondin(rondinBois,rondinCreate){
             if (this.testRondins == true) {
@@ -1584,10 +1605,10 @@
                 this.cameras.main.shake(150, 0.004);
                 this.invulnérable = true
 
-                this.speedLeft /= 1.5
-                this.speedRight /= 1.5
+                this.speedLeft = 140
+                this.speedRight = 140
                 if (this.pointDeVie > 0){
-                this.speedSaut /= 1.5
+                this.speedSaut = 280
                 }
             }
         }
@@ -1662,6 +1683,7 @@
 
         takeWeapon(play,arme){
             arme.destroy()
+            this.armeUnlock = true
             this.pouvoirTirer = true
         }
 

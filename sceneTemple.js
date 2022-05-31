@@ -503,14 +503,14 @@ create(){
     ////////////////////////INTERFACE//////////////////////////////
     ///////////////////////////////////////////////////////////////
     
-    this.inventaireEcran = this.add.image(838,250,'interfaceArmeObj0').setScale(0.7)
+    this.inventaireEcran = this.add.image(590,154,'interfaceArmeObj0').setScale(0.5)
     this.inventaireEcran.setScrollFactor(0)
     this.inventaireEcran.setDepth(100)
     this.inventaireEcran.setInteractive()
 
-    this.vieTexte = this.add.text(400, 221, this.pointDeVie, {fontSize:30,color:"#000000" });
+    this.vieTexte = this.add.text(280, 140, this.pointDeVie, {fontSize:30,color:"#000000" });
     this.vieTexte.setDepth(100)
-    this.vieTexte.setScale(0.7);
+    this.vieTexte.setScale(0.5);
     this.vieTexte.setScrollFactor(0);
 
 }
