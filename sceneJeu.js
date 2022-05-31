@@ -140,7 +140,10 @@
                     "tuilesJeu",
                     "Phaser_tuilesdejeu"
                     );  
-
+            const back1 = carte.createLayer(
+                    "back1",
+                    tileset
+                        );
 
             const back2 = carte.createLayer(
                 "back2",
@@ -152,6 +155,7 @@
                 tileset
                     );
 
+            back2.setScrollFactor(0.98,0.98)
             back3.setScrollFactor(0.95,0.95)
 
             const background2 = carte.createLayer(
@@ -1543,7 +1547,6 @@
             if (this.pointDeVie == 0){
                 this.respawnJoueur()
             }
-            console.log(this.pouvoirTirer )
 
     } 
 
