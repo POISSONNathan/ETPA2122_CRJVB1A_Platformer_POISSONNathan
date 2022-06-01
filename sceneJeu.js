@@ -124,6 +124,8 @@
             this.load.image("hp2", "assets/interface/hp2.png");
             this.load.image("hp1", "assets/interface/hp1.png");
 
+            this.load.image("guideAllumeTorhce", "assets/interface/guideAllumeTorhce.png");
+            this.load.image("guideTorcheEtteinteAllume", "assets/interface/guideTorcheEtteinteAllume.png");
 
             this.load.image("checkPoint", "assets/objets/checkPoint.png");
 
@@ -649,8 +651,10 @@
 
             ///////////////////////////////////////////////////////////////
 
-            this.torchesAAllumer = this.physics.add.staticGroup({
-            }); 
+            this.torchesAAllumer  = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            })
             this.torchesAllumer = this.physics.add.staticGroup({
             });      
 
@@ -659,7 +663,6 @@
                 this.torchesAAllumer1.setPushable(false)
                 this.torchesAAllumer1.setInteractive()
                 this.torchesAAllumer1.body.setSize(20,32)
-                this.torchesAAllumer1.setOffset(22,16)
                 this.torchesAAllumer1.setDepth(1)
             });
 
@@ -878,9 +881,13 @@
         this.vieEcran.setDepth(100)
         this.vieEcran.setInteractive()
 
+        this.guideTorche = this.add.image(1000,0,'guideAllumeTorhce').setScale(0.8)
+        this.guideTorche.setDepth(100)
+        this.guideTorche.setInteractive()
 
-        
-
+        this.guideTorcheEtteinteAllume = this.add.image(1000,0,'guideTorcheEtteinteAllume').setScale(0.8)
+        this.guideTorcheEtteinteAllume.setDepth(100)
+        this.guideTorcheEtteinteAllume.setInteractive()
 
         }
 
@@ -1296,8 +1303,6 @@
             
         }
 
-
-
             if (this.murStop == true){
                 if (this.murAOuvrir.y < this.murAOuvrirY - 100){
                     this.murAOuvrir.setVelocityY(0)
@@ -1652,9 +1657,21 @@
                 this.pointDeVie = 4
             }
 
-            this.barreDeVie()
+            this.torchesAAllumer.children.iterate((child) => {
+                if (this.player.x < child.x + 30 && this.player.x > child.x - 30 && this.player.y < child.y + 30 && this.player.y > child.y - 30){
+                    this.guideTorche.alpha = 1
+                    this.guideTorche.x = child.x + 20
+                    this.guideTorche.y = child.y - 20
+                }               
+            });
 
-           
+            if (this.player.x < this.torche.x + 60 && this.player.x > this.torche.x - 60 && this.player.y < this.torche.y + 60 && this.player.y > this.torche.y - 60){
+                    this.guideTorche.alpha = 1
+                    this.guideTorcheEtteinteAllume.x = this.torche.x + 20
+                    this.guideTorcheEtteinteAllume.y = this.torche.y - 30
+                }    
+
+            this.barreDeVie()
     } 
 
         takeHp(player,vieAPrendre){

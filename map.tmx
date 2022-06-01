@@ -8153,7 +8153,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="spawnJoueur">
-  <object id="1" name="Spawn Joueur" x="832" y="1696">
+  <object id="1" name="Spawn Joueur" x="1760" y="1760">
    <point/>
   </object>
  </objectgroup>
@@ -8178,10 +8178,10 @@
  </objectgroup>
  <objectgroup id="12" name="torchesAAllumer">
   <object id="7" gid="135" x="1184" y="1760" width="32" height="32"/>
-  <object id="8" gid="135" x="1440" y="1760" width="32" height="32"/>
+  <object id="8" gid="135" x="1408" y="1760" width="32" height="32"/>
   <object id="10" gid="135" x="1568" y="1760" width="32" height="32"/>
-  <object id="107" gid="135" x="1472" y="1760" width="32" height="32"/>
-  <object id="108" gid="135" x="1408" y="1760" width="32" height="32"/>
+  <object id="107" gid="135" x="1888" y="1760" width="32" height="32"/>
+  <object id="108" gid="135" x="1312" y="1760" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="13" name="murAOuvrir">
   <object id="9" name="MUR A OUVRIR" x="1696" y="1696">
