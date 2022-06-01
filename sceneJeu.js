@@ -130,6 +130,9 @@
             this.load.spritesheet('animEau','assets/animEau.png',
             { frameWidth: 64, frameHeight: 32 });
 
+            this.load.image("blocSolo", "assets/objets/blocSolo.png");
+            this.load.image("blocTriple", "assets/objets/blocTriple.png");
+
 
         }
 
@@ -244,6 +247,8 @@
             this.animNage = false
 
             this.armeUnlock = false
+
+            this.infunctionBloc = false
 
             this.anims.create({
                 key: 'right',
@@ -579,6 +584,7 @@
             this.physics.add.collider(this.enemisEau,build)
             this.physics.add.collider(this.player,this.enemisEau,this.degatEnnemi,null,this)
 
+
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  
@@ -729,7 +735,7 @@
             this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
             this.physics.add.collider(build,this.rondinsBois,this.destructionRondins,null,this)
             this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
-            this.physics.add.collider(this.player,this.rondinsBois)
+            this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondin,null,this)
 
             this.eau = this.physics.add.group({
                 immovable: true,
@@ -741,6 +747,39 @@
             });
 
             this.physics.add.collider(this.enemisEau,this.eau)
+
+            //////////////
+
+            this.blocSoloDroiteGauches = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            });      
+
+            carte.getObjectLayer('blocSoloDroiteGauches').objects.forEach((blocSoloDroiteGauches) => {
+                this.blocSoloDroiteGauche = this.blocSoloDroiteGauches.create(blocSoloDroiteGauches.x, blocSoloDroiteGauches.y - 32, 'blocSolo').setOrigin(0);
+                this.blocSoloDroiteGauche.setBounce(1);
+            });
+
+            this.blocTripleDroiteGauches = this.physics.add.group({
+                immovable: true,
+                allowGravity: false
+            });      
+
+            carte.getObjectLayer('blocTripleDroiteGauches').objects.forEach((blocTripleDroiteGauches) => {
+                this.blocTripleDroiteGauche = this.blocTripleDroiteGauches.create(blocTripleDroiteGauches.x, blocTripleDroiteGauches.y - 32, 'blocTriple').setOrigin(0);
+                this.blocTripleDroiteGauche.setBounce(1);
+
+            });
+
+            this.physics.add.collider(this.player,this.blocSoloDroiteGauches,this.mouvementJoueurPlateforme,null,this)
+            this.physics.add.collider(this.player,this.blocTripleDroiteGauche,this.mouvementJoueurPlateforme,null,this)
+
+            this.blocSoloDroiteGauche.setVelocityX(70)
+            this.physics.add.collider(this.blocSoloDroiteGauches,zoneEnnemi)
+
+            this.blocTripleDroiteGauches.setVelocityX(70)
+            this.physics.add.collider(this.blocTripleDroiteGauches,zoneEnnemi)
+
 
             /////////////////////////////
             /////////////////////////////
@@ -798,14 +837,13 @@
         ////////////////////////INTERFACE//////////////////////////////
         ///////////////////////////////////////////////////////////////
         
-        this.inventaireEcran = this.add.image(590,154,'interfaceArmeObj0').setScale(0.5)
+        this.inventaireEcran = this.add.image(850,250,'interfaceArmeObj0')
         this.inventaireEcran.setScrollFactor(0)
         this.inventaireEcran.setDepth(100)
         this.inventaireEcran.setInteractive()
 
-        this.vieTexte = this.add.text(280, 140, this.pointDeVie, {fontSize:30,color:"#000000" });
+        this.vieTexte = this.add.text(380, 220, this.pointDeVie, {fontSize:30,color:"#000000" });
         this.vieTexte.setDepth(100)
-        this.vieTexte.setScale(0.5);
         this.vieTexte.setScrollFactor(0);
 
 
@@ -1114,7 +1152,9 @@
                     this.player.anims.play(this.frameRight, true);
                 }
                 else{ 
+                    if (this.surRondin == false){
                     this.player.setVelocityX(0); 
+                    }
                     if (this.animTorche == false){
                         this.player.anims.play(this.frameTurn, true);
                     }
@@ -1258,7 +1298,10 @@
                     this.accroche1 = false
                     this.player.body.setAllowGravity(true)
                     this.player.alpha = 1
-                    this.idxDebutAnimLianeStop = this.lianeTemporaire.anims.currentFrame.index
+                    this.lianes.children.iterate((child) => {
+                        this.idxDebutAnimLiane = child.anims.currentFrame.index
+                        this.idxDebutAnimLianeStop =child.anims.currentFrame.index
+                    });
                     this.cameras.main.startFollow(this.player); 
                     this.animLianeSpecial = false
                     this.attaquePossible = true
@@ -1274,12 +1317,17 @@
             
             if (this.animLianeSpecial == false){
                 this.lianes.children.iterate((child) => {
-                    child.anims.play({ key: 'animLianes', startFrame: this.idxDebutAnimLianeStop }, true);
+                    if (this.idxDebutAnimLianeStop == 18){
+                        this.idxDebutAnimLianeStop = 17
+                    }
+                    child.anims.play({ key: 'animLianes', startFrame: this.idxDebutAnimLianeStop}, true);
                 });
             }
             if (this.animLianeSpecial == true && this.accroche1 == true){
                 this.lianes.children.iterate((child) => {
-                    this.idxDebutAnimLiane = child.anims.currentFrame.index
+                    if (this.idxDebutAnimLiane == 18){
+                        this.idxDebutAnimLiane = 17
+                    }
                 });
                 this.lianeTemporaire.anims.play({ key: 'animLianesPerso', startFrame: this.idxDebutAnimLiane }, true);
             }
@@ -1488,7 +1536,7 @@
                        this.sortEau = true
                     }
                     else{
-                        if (this.invulnérable == false && this.doubleSautLeftPossible == false && this.doubleSautRightPossible == false){
+                        if (this.invulnérable == false && this.doubleSautLeftPossible == true && this.doubleSautRightPossible == true){
                             this.speedLeft = this.speed
                         this.speedRight = this.speed
                        this.speedSaut = 380
@@ -1536,7 +1584,7 @@
                         this.player.setVelocityY(this.speedSaut);
                     }
 
-                    if (this.keys.z.isUp && this.keys.q.isUp && this.keys.d.isUp && this.keys.s.isUp){
+                    if (this.keys.z.isUp && this.keys.q.isUp && this.keys.d.isUp && this.keys.s.isUp && this.surRondin == false){
                         this.player.setVelocityX(0)
                         this.player.anims.play(this.frameTurn, true);
                         this.player.body.setSize(16,32)
@@ -1548,7 +1596,29 @@
                 this.respawnJoueur()
             }
 
+            if (this.surRondin == true){
+                this.surRondin = false
+            }
+            else{
+                this.surRondin = false
+            }
+
+           
     } 
+
+        mouvementJoueurRondin(player,rondinBois){
+        this.player.setVelocityX(40)
+        }
+
+        mouvementJoueurPlateforme(player,blocTest){
+            this.surRondin = true
+            if (blocTest.body.velocity.x > 0){
+                this.player.setVelocityX(70)
+            }
+            if (blocTest.body.velocity.x < 0){
+                this.player.setVelocityX(-70)
+            }
+        }
 
         destroyBalle(balle,build){
             balle.destroy()

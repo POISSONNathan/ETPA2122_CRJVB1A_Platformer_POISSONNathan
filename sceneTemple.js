@@ -503,7 +503,7 @@ create(){
     ////////////////////////INTERFACE//////////////////////////////
     ///////////////////////////////////////////////////////////////
     
-    this.inventaireEcran = this.add.image(590,154,'interfaceArmeObj0').setScale(0.5)
+    this.inventaireEcran = this.add.image(850,250,'interfaceArmeObj0')
     this.inventaireEcran.setScrollFactor(0)
     this.inventaireEcran.setDepth(100)
     this.inventaireEcran.setInteractive()

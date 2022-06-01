@@ -13,11 +13,11 @@ preload(){
 create(){
 const carte = this.make.tilemap({ key: 'carte' });
 
-this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"accueil").setScale(0.4);
+this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"accueil").setScale(0.6);
 
 this.cursors = this.input.keyboard.createCursorKeys();
 
-this.startButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 50, 'bouttonPlay').setScale(0.4).setInteractive();
+this.startButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 100, 'bouttonPlay').setScale(0.53).setInteractive();
 
 
 
@@ -73,7 +73,7 @@ this.startButton.on('pointerdown', function (pointer) {
         })
         });
 
-this.quitButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 150, 'bouttonLeave').setScale(0.4).setInteractive();
+this.quitButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 250, 'bouttonLeave').setScale(0.53).setInteractive();
 
 this.quitButton.on('pointerdown', function (pointer) {
         this.scene.scene.stop("accueil")
