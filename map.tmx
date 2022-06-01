@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="49" nextobjectid="115">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="51" nextobjectid="118">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -8153,7 +8153,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="spawnJoueur">
-  <object id="1" name="Spawn Joueur" x="3328" y="1728">
+  <object id="1" name="Spawn Joueur" x="832" y="1696">
    <point/>
   </object>
  </objectgroup>
@@ -8234,5 +8234,9 @@
  </objectgroup>
  <objectgroup id="48" name="blocSoloDroiteGauches">
   <object id="112" gid="206" x="4768" y="1664" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup id="49" name="vieObj">
+  <object id="115" gid="36" x="960" y="1760" width="32" height="32"/>
+  <object id="117" gid="36" x="1056" y="1760" width="32" height="32"/>
  </objectgroup>
 </map>

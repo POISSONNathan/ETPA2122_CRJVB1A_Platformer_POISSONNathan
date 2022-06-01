@@ -29,7 +29,7 @@ this.startButton.on('pointerdown', function (pointer) {
         });
 
         this.scene.scene.start("sceneJeu", {
-            pointDeVie:10,
+            pointDeVie:4,
             spawnXSortieScene: this.spawnXSortieScene,
             spawnYSortieScene: this.spawnYSortieScene,
             speedLeft: 200,
@@ -66,7 +66,7 @@ this.startButton.on('pointerdown', function (pointer) {
             blockCaisse: false,
             lassoUnlcok: false,
             invulnérable: false,
-            compteurInvunlerable: 100,
+            compteurInvunlerable: 300,
             saveXMort: 0,
             saveYMort: 0,
             animAccrocheMur: false

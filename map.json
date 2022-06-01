@@ -231,8 +231,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":3328,
-                 "y":1728
+                 "x":832,
+                 "y":1696
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -858,9 +858,44 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":49,
+         "name":"vieObj",
+         "objects":[
+                {
+                 "gid":36,
+                 "height":32,
+                 "id":115,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":960,
+                 "y":1760
+                }, 
+                {
+                 "gid":36,
+                 "height":32,
+                 "id":117,
+                 "name":"",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":1056,
+                 "y":1760
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":49,
- "nextobjectid":115,
+ "nextlayerid":51,
+ "nextobjectid":118,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.2",

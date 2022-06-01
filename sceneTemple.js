@@ -99,7 +99,22 @@ preload(){
 
     this.load.spritesheet('solTombe','assets/objets/solTombe.png',
     { frameWidth: 96, frameHeight: 17 });
-}
+
+    this.load.image("hp4", "assets/interface/hp4.png");
+            this.load.image("hp3", "assets/interface/hp3.png");
+            this.load.image("hp2", "assets/interface/hp2.png");
+            this.load.image("hp1", "assets/interface/hp1.png");
+
+
+            this.load.spritesheet('vieObj','assets/objets/vieAPrendre.png',
+            { frameWidth: 23, frameHeight: 31 });
+
+            this.load.image("fleches", "assets/objets/fleches.png");
+
+            this.load.image("lanceFleche", "assets/objets/flechesLance.png");
+
+        
+        }
 
 create(){
     const carte2 = this.make.tilemap({ key: 'carte2' });
@@ -164,7 +179,7 @@ create(){
 
     this.player.setCollideWorldBounds(true);
 
-    this.cameras.main.zoom = 2.5
+    this.cameras.main.zoom = 2.9
     this.cameras.main.startFollow(this.player); 
     this.physics.world.setBounds(0, 0, 6400, 1920);
     this.cameras.main.setBounds(0, 0, 6400, 1920);
@@ -175,6 +190,20 @@ create(){
     this.solRevient = false
     this.sol2 = false
     this.compteurSol2 = 300
+
+    this.compteurTirFleche = 400;
+    this.compteurTirFlecheHaut = 400;
+
+    this.tirFleche = true
+    this.tirFlecheHaut = true
+
+
+    this.anims.create({
+        key: 'animVieObj',
+        frames: this.anims.generateFrameNumbers('vieObj', {start:0,end:3}),
+        frameRate: 6,
+        repeat: -1
+    });
 
     this.anims.create({
         key: 'right',
@@ -482,6 +511,68 @@ create(){
     });
 
     this.physics.add.collider(this.player,this.plaquesDispawn)
+    
+    ////////////////////////////////////////////////
+
+    this.vieObj = this.physics.add.group({
+    });      
+
+    carte2.getObjectLayer('vieObj').objects.forEach((vieObj) => {
+        this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y - 6, 'vieObj').setOrigin(0).setScale(0.8);
+        this.vieAPrendre.setPushable(false)
+        this.vieAPrendre.body.setAllowGravity(false)
+    });
+
+    this.physics.add.overlap(this.player,this.vieObj,this.takeHp,null,this)
+
+    ////////////////////////////////////////////
+
+    this.lanceFleche = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });   
+    this.lanceFlecheHaut = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });   
+    this.fleches = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });  
+    this.flechesHaut = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });  
+
+
+    this.physics.add.overlap(this.player,this.fleches,this.degatEnnemi,null,this)
+    this.physics.add.collider(this.fleches,buildGrotte,this.destroyFleche,null,this)
+
+    this.physics.add.overlap(this.player,this.flechesHaut,this.degatEnnemi,null,this)
+    this.physics.add.collider(this.flechesHaut,buildGrotte,this.destroyFleche,null,this)
+
+    this.nbrFleche = 0
+    this.nbrFlecheHaut = 0
+
+    carte2.getObjectLayer('lanceFleche').objects.forEach((lanceFleche) => {
+        this.lancFleche = this.lanceFleche.create(lanceFleche.x, lanceFleche.y + 28, 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.nbrFleche ++
+    });
+
+    this.nbrFlecheStock = this.nbrFleche 
+
+    this.lanceFlecheHaut = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });   
+
+    carte2.getObjectLayer('lanceFlecheHaut').objects.forEach((lanceFlecheHaut) => {
+        this.lancFlecheHaut = this.lanceFlecheHaut.create(lanceFlecheHaut.x, lanceFlecheHaut.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.nbrFlecheHaut ++
+    });
+
+    this.nbrFlecheStockHaut = this.nbrFlecheHaut
+
 
     ///////////////////////////////////////////////////////////////
     /////////////////////////TOUCHES///////////////////////////////
@@ -503,23 +594,71 @@ create(){
     ////////////////////////INTERFACE//////////////////////////////
     ///////////////////////////////////////////////////////////////
     
-    this.inventaireEcran = this.add.image(850,250,'interfaceArmeObj0')
+    this.inventaireEcran = this.add.image(810,260,'interfaceArmeObj0').setScale(0.6)
     this.inventaireEcran.setScrollFactor(0)
     this.inventaireEcran.setDepth(100)
     this.inventaireEcran.setInteractive()
 
-    this.vieTexte = this.add.text(280, 140, this.pointDeVie, {fontSize:30,color:"#000000" });
-    this.vieTexte.setDepth(100)
-    this.vieTexte.setScale(0.5);
-    this.vieTexte.setScrollFactor(0);
+    this.vieEcran = this.add.image(460,260,'hp4').setScale(0.6)
+    this.vieEcran.setScrollFactor(0)
+    this.vieEcran.setDepth(100)
+    this.vieEcran.setInteractive()
+
+
+
 
 }
 
 update(){
+console.log(this.nbrFleche)
 
     this.lave.children.iterate((child) => {
         child.anims.play('animationLave', true);
     });
+
+    this.vieObj.children.iterate((child) => {
+        child.anims.play('animVieObj', true);
+    });
+
+    this.lanceFleche.children.iterate((child) => {
+        if (this.tirFleche == true && this.nbrFleche > 0){
+            this.fleches.create(child.x + 5, child.y - 11, 'fleches').setOrigin(0);
+            this.fleches.setVelocityY(-300)
+            this.nbrFleche --
+        }
+        if (this.nbrFleche == 0){
+            this.tirFleche = false
+            this.nbrFleche = this.nbrFlecheStock
+        }
+    });
+    if(this.tirFleche== false){
+        this.compteurTirFleche -=1 ;
+        if(this.compteurTirFleche == 0){
+            this.compteurTirFleche = 400;
+            this.tirFleche = true ;
+        }
+    }
+
+    this.lanceFlecheHaut.children.iterate((child) => {
+        if (this.tirFlecheHaut == true && this.nbrFlecheHaut > 0){
+            this.flechesHaut1 = this.flechesHaut.create(child.x + 5, child.y - 6, 'fleches').setOrigin(0);
+            this.flechesHaut1.setVelocityY(300)
+            this.nbrFlecheHaut --
+            this.flechesHaut1.flipY = true
+
+        }
+        if (this.nbrFlecheHaut == 0){
+            this.tirFlecheHaut = false
+            this.nbrFlecheHaut = this.nbrFlecheStockHaut
+        }
+    });
+    if(this.tirFlecheHaut == false){
+        this.compteurTirFlecheHaut -=1 ;
+        if(this.compteurTirFlecheHaut == 0){
+            this.compteurTirFlecheHaut = 400;
+            this.tirFlecheHaut = true ;
+        }
+    }
 
     this.plaquesDispawn.children.iterate((child) => {
         if (this.solOuvert == false){
@@ -1018,11 +1157,48 @@ update(){
         }
     }
 
+    if(this.invulnérable == true){
+        this.compteurInvunlerable -=1 ;
+            if(this.compteurInvunlerable == 0){
+                this.compteurInvunlerable = 300;
+                this.speedSaut = 380
+                this.speedLeft = this.speed
+                this.speedRight = this.speed
+                this.invulnérable = false ;
+            }
+        }
+
 
 
     if (this.pointDeVie == 0){
         this.respawnJoueur()
     }
+
+    this.barreDeVie()
+}
+
+destroyFleche(fleches,build){
+    fleches.destroy()
+}
+
+degatEnnemi(play,ennemi){
+    if(this.invulnérable == false){
+        ennemi.destroy()
+        this.pointDeVie --
+        this.cameras.main.shake(150, 0.004);
+        this.invulnérable = true
+
+        this.speedLeft = 140
+        this.speedRight = 140
+        if (this.pointDeVie > 0){
+        this.speedSaut = 280
+        }
+    }
+}
+
+takeHp(player,vieAPrendre){
+    this.pointDeVie++
+    vieAPrendre.destroy()
 }
 
 respawnJoueur(){
@@ -1030,7 +1206,6 @@ respawnJoueur(){
     this.player.y = this.saveYMort + 10
 
     this.pointDeVie = this.pointDeVieStock
-    this.vieTexte.setText(this.pointDeVie)
     this.invulnérable = false
 }
 
@@ -1128,6 +1303,21 @@ tirer(player) {
 prendreTorche(player,torche){
     torche.destroy()
     this.torcheDebloque = true
+}
+
+barreDeVie (){
+    if (this.pointDeVie == 4){
+        this.vieEcran.setTexture('hp4')
+    }
+    if (this.pointDeVie == 3){
+        this.vieEcran.setTexture('hp3')
+    }
+    if (this.pointDeVie == 2){
+        this.vieEcran.setTexture('hp2')
+    }
+    if (this.pointDeVie == 1){
+        this.vieEcran.setTexture('hp1')
+    }
 }
 
 

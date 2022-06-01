@@ -119,6 +119,12 @@
             this.load.image("interfaceArmeObj1", "assets/interface/interfaceArmeObj1.png");
             this.load.image("interfaceArmeObj2", "assets/interface/interfaceArmeObj2.png");
 
+            this.load.image("hp4", "assets/interface/hp4.png");
+            this.load.image("hp3", "assets/interface/hp3.png");
+            this.load.image("hp2", "assets/interface/hp2.png");
+            this.load.image("hp1", "assets/interface/hp1.png");
+
+
             this.load.image("checkPoint", "assets/objets/checkPoint.png");
 
             this.load.spritesheet('enemisMur','assets/enemisMur.png',
@@ -134,6 +140,9 @@
             this.load.image("blocTriple", "assets/objets/blocTriple.png");
 
 
+            this.load.spritesheet('vieObj','assets/objets/vieAPrendre.png',
+            { frameWidth: 23, frameHeight: 31 });
+            
         }
 
         create(){
@@ -216,10 +225,10 @@
 
             this.player.setCollideWorldBounds(true);
 
-            this.cameras.main.zoom = 2.5
+            this.cameras.main.zoom = 2.9
             this.cameras.main.startFollow(this.player); 
-            this.physics.world.setBounds(0, 0, 6400, 1920);
-            this.cameras.main.setBounds(0, 0, 6400, 1920);
+            this.physics.world.setBounds(0, 0, 6400, 1930);
+            this.cameras.main.setBounds(0, 0, 6400, 1930);
 
             this.nbrTorcheAllume = 0
 
@@ -241,7 +250,7 @@
             this.compteurStopGrimper = 8
             this.stopGrimper = false
 
-            this.compteurSpawnRondinPossible = 200
+            this.compteurSpawnRondinPossible = 600
             this.testRondins = true
 
             this.animNage = false
@@ -249,6 +258,13 @@
             this.armeUnlock = false
 
             this.infunctionBloc = false
+
+            this.anims.create({
+                key: 'animVieObj',
+                frames: this.anims.generateFrameNumbers('vieObj', {start:0,end:3}),
+                frameRate: 6,
+                repeat: -1
+            });
 
             this.anims.create({
                 key: 'right',
@@ -524,6 +540,7 @@
 
             this.enemisVolant.setVelocityY(-60)
             this.enemisVolant.setVelocityX(-60)
+            this.physics.add.collider(this.enemisVolant,this.enemisVolant)
             this.physics.add.collider(this.enemisVolant,zoneEnnemi)
             this.physics.add.collider(this.enemisVolant,build)
             this.physics.add.collider(this.player,this.enemisVolant,this.degatEnnemi,null,this)
@@ -730,6 +747,7 @@
 
                 this.rondinCreate = this.physics.add.image(rondinsBois.x + 200,rondinsBois.y,'invisible')
                 this.rondinCreate.body.setAllowGravity(false)
+                this.rondinCreate.body.setSize(2,32)
             });
 
             this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
@@ -779,6 +797,19 @@
 
             this.blocTripleDroiteGauches.setVelocityX(70)
             this.physics.add.collider(this.blocTripleDroiteGauches,zoneEnnemi)
+
+            ////////////////////////////////////////////////
+
+            this.vieObj = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('vieObj').objects.forEach((vieObj) => {
+                this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y - 6, 'vieObj').setOrigin(0).setScale(0.8);;
+                this.vieAPrendre.setPushable(false)
+                this.vieAPrendre.body.setAllowGravity(false)
+            });
+
+            this.physics.add.overlap(this.player,this.vieObj,this.takeHp,null,this)
 
 
             /////////////////////////////
@@ -837,14 +868,18 @@
         ////////////////////////INTERFACE//////////////////////////////
         ///////////////////////////////////////////////////////////////
         
-        this.inventaireEcran = this.add.image(850,250,'interfaceArmeObj0')
+        this.inventaireEcran = this.add.image(810,260,'interfaceArmeObj0').setScale(0.6)
         this.inventaireEcran.setScrollFactor(0)
         this.inventaireEcran.setDepth(100)
         this.inventaireEcran.setInteractive()
 
-        this.vieTexte = this.add.text(380, 220, this.pointDeVie, {fontSize:30,color:"#000000" });
-        this.vieTexte.setDepth(100)
-        this.vieTexte.setScrollFactor(0);
+        this.vieEcran = this.add.image(460,260,'hp4').setScale(0.6)
+        this.vieEcran.setScrollFactor(0)
+        this.vieEcran.setDepth(100)
+        this.vieEcran.setInteractive()
+
+
+        
 
 
         }
@@ -855,6 +890,10 @@
             if ( this.pouvoirTirer == false){
             this.arme.anims.play('animArme', true);
             }
+
+            this.vieObj.children.iterate((child) => {
+                child.anims.play('animVieObj', true);
+            });
 
             this.rondinsBois.children.iterate((child) => {
                 if (child.y < this.spawnRondinY + 1 ){
@@ -1472,7 +1511,7 @@
            if(this.invulnérable == true){
             this.compteurInvunlerable -=1 ;
                 if(this.compteurInvunlerable == 0){
-                    this.compteurInvunlerable = 100;
+                    this.compteurInvunlerable = 300;
                     this.speedSaut *= 1.6
                     this.invulnérable = false ;
                 }
@@ -1501,7 +1540,7 @@
             if (this.spawnRondinPossible == true){
                 this.compteurSpawnRondinPossible --
                 if (this.compteurSpawnRondinPossible == 0){
-                    this.compteurSpawnRondinPossible = 200
+                    this.compteurSpawnRondinPossible = 600
                     this.spawnRondinPossible = false
                     this.testRondins = false
                 }
@@ -1533,6 +1572,11 @@
                        this.animJump = false
                        this.player.setVelocityY(8)
 
+                       if (this.attaque == true){
+                           this.attaque = false
+                           this.lasso.destroy()
+                       }
+
                        this.sortEau = true
                     }
                     else{
@@ -1541,6 +1585,7 @@
                         this.speedRight = this.speed
                        this.speedSaut = 380
                         }
+                   
                        if (this.armeUnlock == true){
                         this.pouvoirTirer = true
                        }
@@ -1603,8 +1648,19 @@
                 this.surRondin = false
             }
 
+            if (this.pointDeVie > 4){
+                this.pointDeVie = 4
+            }
+
+            this.barreDeVie()
+
            
     } 
+
+        takeHp(player,vieAPrendre){
+            this.pointDeVie++
+            vieAPrendre.destroy()
+        }
 
         mouvementJoueurRondin(player,rondinBois){
         this.player.setVelocityX(40)
@@ -1645,7 +1701,6 @@
             this.player.y = this.saveYMort + 10
 
             this.pointDeVie = this.pointDeVieStock
-            this.vieTexte.setText(this.pointDeVie)
             this.invulnérable = false
         }
 
@@ -1674,7 +1729,6 @@
         degatEnnemi(play,ennemi){
             if(this.invulnérable == false){
                 this.pointDeVie --
-                this.vieTexte.setText(this.pointDeVie)
                 this.cameras.main.shake(150, 0.004);
                 this.invulnérable = true
 
@@ -1820,6 +1874,22 @@
                 this.murStop = true
                 this.cameras.main.shake(5000, 0.0005);
                 this.nbrTorcheAllume = 0
+            }
+        }
+
+        
+        barreDeVie (){
+            if (this.pointDeVie == 4){
+                this.vieEcran.setTexture('hp4')
+            }
+            if (this.pointDeVie == 3){
+                this.vieEcran.setTexture('hp3')
+            }
+            if (this.pointDeVie == 2){
+                this.vieEcran.setTexture('hp2')
+            }
+            if (this.pointDeVie == 1){
+                this.vieEcran.setTexture('hp1')
             }
         }
 
