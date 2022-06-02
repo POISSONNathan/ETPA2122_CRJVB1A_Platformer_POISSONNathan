@@ -191,8 +191,8 @@ create(){
     this.sol2 = false
     this.compteurSol2 = 300
 
-    this.compteurTirFleche = 400;
-    this.compteurTirFlecheHaut = 400;
+    this.compteurTirFleche = 250;
+    this.compteurTirFlecheHaut = 250;
 
     this.tirFleche = true
     this.tirFlecheHaut = true
@@ -622,7 +622,7 @@ console.log(this.nbrFleche)
 
     this.lanceFleche.children.iterate((child) => {
         if (this.tirFleche == true && this.nbrFleche > 0){
-            this.fleches.create(child.x + 5, child.y - 11, 'fleches').setOrigin(0);
+            this.fleches.create(child.x + 5, child.y - 11, 'fleches').setOrigin(0).setPipeline('Light2D');
             this.fleches.setVelocityY(-300)
             this.nbrFleche --
         }
@@ -634,14 +634,14 @@ console.log(this.nbrFleche)
     if(this.tirFleche== false){
         this.compteurTirFleche -=1 ;
         if(this.compteurTirFleche == 0){
-            this.compteurTirFleche = 400;
+            this.compteurTirFleche = 250;
             this.tirFleche = true ;
         }
     }
 
     this.lanceFlecheHaut.children.iterate((child) => {
         if (this.tirFlecheHaut == true && this.nbrFlecheHaut > 0){
-            this.flechesHaut1 = this.flechesHaut.create(child.x + 5, child.y - 6, 'fleches').setOrigin(0);
+            this.flechesHaut1 = this.flechesHaut.create(child.x + 5, child.y - 6, 'fleches').setOrigin(0).setPipeline('Light2D');
             this.flechesHaut1.setVelocityY(300)
             this.nbrFlecheHaut --
             this.flechesHaut1.flipY = true
@@ -655,7 +655,7 @@ console.log(this.nbrFleche)
     if(this.tirFlecheHaut == false){
         this.compteurTirFlecheHaut -=1 ;
         if(this.compteurTirFlecheHaut == 0){
-            this.compteurTirFlecheHaut = 400;
+            this.compteurTirFlecheHaut = 250;
             this.tirFlecheHaut = true ;
         }
     }
@@ -1162,8 +1162,6 @@ console.log(this.nbrFleche)
             if(this.compteurInvunlerable == 0){
                 this.compteurInvunlerable = 300;
                 this.speedSaut = 380
-                this.speedLeft = this.speed
-                this.speedRight = this.speed
                 this.invulnérable = false ;
             }
         }
@@ -1188,8 +1186,6 @@ degatEnnemi(play,ennemi){
         this.cameras.main.shake(150, 0.004);
         this.invulnérable = true
 
-        this.speedLeft = 140
-        this.speedRight = 140
         if (this.pointDeVie > 0){
         this.speedSaut = 280
         }

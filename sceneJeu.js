@@ -124,8 +124,12 @@
             this.load.image("hp2", "assets/interface/hp2.png");
             this.load.image("hp1", "assets/interface/hp1.png");
 
-            this.load.image("guideAllumeTorhce", "assets/interface/guideAllumeTorhce.png");
-            this.load.image("guideTorcheEtteinteAllume", "assets/interface/guideTorcheEtteinteAllume.png");
+            this.load.spritesheet('guideAllumeTorhce','assets/interface/guideAllumeTorhce.png',
+            { frameWidth: 54, frameHeight: 32 });
+            this.load.spritesheet('guideTorcheEtteinteAllume','assets/interface/guideTorcheEtteinteAllume.png',
+            { frameWidth: 48, frameHeight: 32 });
+            this.load.spritesheet('guideArme','assets/interface/guideArme.png',
+            { frameWidth: 57, frameHeight: 24 });
 
             this.load.image("checkPoint", "assets/objets/checkPoint.png");
 
@@ -144,6 +148,9 @@
 
             this.load.spritesheet('vieObj','assets/objets/vieAPrendre.png',
             { frameWidth: 23, frameHeight: 31 });
+
+            this.load.image("piquesBas", "assets/objets/piquesBas.png");
+            this.load.image("piquesHaut", "assets/objets/piquesHaut.png");
             
         }
 
@@ -192,6 +199,11 @@
                     tileset
                     ).setDepth(1)
 
+                    this.entreeFinJeu = carte.createLayer(
+                        "entreeFinJeu",
+                        tileset
+                        )
+
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
@@ -229,8 +241,8 @@
 
             this.cameras.main.zoom = 2.9
             this.cameras.main.startFollow(this.player); 
-            this.physics.world.setBounds(0, 0, 6400, 1930);
-            this.cameras.main.setBounds(0, 0, 6400, 1930);
+            this.physics.world.setBounds(0, 0, 6400, 1920);
+            this.cameras.main.setBounds(0, 0, 6400, 1920);
 
             this.nbrTorcheAllume = 0
 
@@ -525,6 +537,29 @@
                 frameRate: 6,
                 repeat: -1
             });
+
+            ////////////////////////
+
+            this.anims.create({
+                key: 'animGuideTorcheEtteinteAllume',
+                frames: this.anims.generateFrameNumbers('guideTorcheEtteinteAllume', {start:0,end:13}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animGuideArme',
+                frames: this.anims.generateFrameNumbers('guideArme', {start:0,end:6}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animGuideAllumeTorhce',
+                frames: this.anims.generateFrameNumbers('guideAllumeTorhce', {start:0,end:9}),
+                frameRate: 6,
+                repeat: -1
+            });
             
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  ENNEMIS
@@ -610,7 +645,7 @@
 
 
             carte.getObjectLayer('torche').objects.forEach((torche) => {
-                this.torche = this.physics.add.image(torche.x, torche.y, 'torche').setOrigin(0);
+                this.torche = this.physics.add.image(torche.x, torche.y, 'torche').setOrigin(0).setScale(0.8);
                 this.torche.body.setAllowGravity(false)
             });
 
@@ -814,6 +849,29 @@
 
             this.physics.add.overlap(this.player,this.vieObj,this.takeHp,null,this)
 
+            //////////////////
+
+            this.piquesBas = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('piquesBas').objects.forEach((piquesBas) => {
+                this.piqueBas = this.piquesBas.create(piquesBas.x - 1, piquesBas.y- 10, 'piquesBas').setOrigin(0);
+                this.piqueBas.body.setAllowGravity(false)
+                this.piqueBas.setPushable(false)
+            });
+
+            this.piquesHaut = this.physics.add.group({
+            });      
+
+            carte.getObjectLayer('piquesHaut').objects.forEach((piquesHaut) => {
+                this.piqueHaut = this.piquesHaut.create(piquesHaut.x + 4, piquesHaut.y- 37, 'piquesHaut').setOrigin(0);
+                this.piqueHaut.body.setAllowGravity(false)
+                this.piqueHaut.setPushable(false)
+            });
+
+            this.physics.add.collider(this.player,this.piquesHaut,this.degatEnnemi,null,this)
+            this.physics.add.collider(this.player,this.piquesBas,this.degatEnnemi,null,this)
+
 
             /////////////////////////////
             /////////////////////////////
@@ -877,17 +935,19 @@
         this.inventaireEcran.setInteractive()
 
         this.vieEcran = this.add.image(460,260,'hp4').setScale(0.6)
-        this.vieEcran.setScrollFactor(0)
+        this.vieEcran.setScrollFactor(0) 
         this.vieEcran.setDepth(100)
         this.vieEcran.setInteractive()
 
-        this.guideTorche = this.add.image(1000,0,'guideAllumeTorhce').setScale(0.8)
-        this.guideTorche.setDepth(100)
-        this.guideTorche.setInteractive()
+        this.guideTorche = this.physics.add.sprite(0,2000,'guideAllumeTorhce').setScale(0.8)
+        this.guideTorche.body.setAllowGravity(false)
 
-        this.guideTorcheEtteinteAllume = this.add.image(1000,0,'guideTorcheEtteinteAllume').setScale(0.8)
-        this.guideTorcheEtteinteAllume.setDepth(100)
-        this.guideTorcheEtteinteAllume.setInteractive()
+        this.guideTest =  this.physics.add.sprite(0,2000,'guideTorcheEtteinteAllume').setScale(0.8)
+        this.guideTest.body.setAllowGravity(false)
+
+        this.guideArme = this.physics.add.sprite(0,2000,'guideArme').setScale(0.8)
+        this.guideArme.body.setAllowGravity(false)
+
 
         }
 
@@ -1343,8 +1403,7 @@
                     this.player.body.setAllowGravity(true)
                     this.player.alpha = 1
                     this.lianes.children.iterate((child) => {
-                        this.idxDebutAnimLiane = child.anims.currentFrame.index
-                        this.idxDebutAnimLianeStop =child.anims.currentFrame.index
+                        this.idxDebutAnimLianeStop = child.anims.currentFrame.index
                     });
                     this.cameras.main.startFollow(this.player); 
                     this.animLianeSpecial = false
@@ -1586,8 +1645,6 @@
                     }
                     else{
                         if (this.invulnérable == false && this.doubleSautLeftPossible == true && this.doubleSautRightPossible == true){
-                            this.speedLeft = this.speed
-                        this.speedRight = this.speed
                        this.speedSaut = 380
                         }
                    
@@ -1659,17 +1716,31 @@
 
             this.torchesAAllumer.children.iterate((child) => {
                 if (this.player.x < child.x + 30 && this.player.x > child.x - 30 && this.player.y < child.y + 30 && this.player.y > child.y - 30){
-                    this.guideTorche.alpha = 1
                     this.guideTorche.x = child.x + 20
                     this.guideTorche.y = child.y - 20
-                }               
+                    this.guideTorche.anims.play('animGuideAllumeTorhce',true);
+                }           
             });
 
-            if (this.player.x < this.torche.x + 60 && this.player.x > this.torche.x - 60 && this.player.y < this.torche.y + 60 && this.player.y > this.torche.y - 60){
-                    this.guideTorche.alpha = 1
-                    this.guideTorcheEtteinteAllume.x = this.torche.x + 20
-                    this.guideTorcheEtteinteAllume.y = this.torche.y - 30
-                }    
+            if (this.player.x < this.torche.x + 50 && this.player.x > this.torche.x - 50 && this.player.y < this.torche.y + 50 && this.player.y > this.torche.y - 50){
+                this.guideTest.x = this.torche.x + 16
+                this.guideTest.y = this.torche.y - 20
+                this.guideTest.anims.play('animGuideTorcheEtteinteAllume',true);
+                this.guideTest.alpha = 1
+            }  
+            else{
+                this.guideTest.alpha = 0
+            }
+            
+            if (this.player.x < this.arme.x + 50 && this.player.x > this.arme.x - 50 && this.arme.y < this.arme.y + 50 && this.player.y > this.arme.y - 50){
+                this.guideArme.x = this.arme.x + 18
+                this.guideArme.y = this.arme.y - 16
+                this.guideArme.anims.play('animGuideArme',true);
+                this.guideArme.alpha = 1
+            } 
+            else{
+                this.guideArme.alpha = 0
+            }
 
             this.barreDeVie()
     } 
@@ -1749,8 +1820,6 @@
                 this.cameras.main.shake(150, 0.004);
                 this.invulnérable = true
 
-                this.speedLeft = 140
-                this.speedRight = 140
                 if (this.pointDeVie > 0){
                 this.speedSaut = 280
                 }
@@ -1821,6 +1890,8 @@
         testAnimLianes(player,lianeTempo){
             this.animLianeSpecial = true
             this.lianeTemporaire = lianeTempo
+            this.idxDebutAnimLiane = lianeTempo.anims.currentFrame.index
+
 
             this.apparaitreAccroche = true
         }

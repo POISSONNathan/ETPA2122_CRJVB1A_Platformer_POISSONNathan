@@ -5,8 +5,12 @@ var config = {
     default: 'arcade',
     arcade: {
     gravity: { y: 1000 },
-    debug: true
+    debug: false
     }},
+    fps: {
+        target: 90,                    
+        forceSetTimeOut: true
+        },
     pixelArt:true,
     scene: [accueil,sceneJeu,sceneTemple],
     input : {gamepad:true},
