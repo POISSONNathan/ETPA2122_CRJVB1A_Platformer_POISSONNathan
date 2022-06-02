@@ -151,6 +151,9 @@
 
             this.load.image("piquesBas", "assets/objets/piquesBas.png");
             this.load.image("piquesHaut", "assets/objets/piquesHaut.png");
+
+            this.load.spritesheet('animFinJeu','assets/animFinJeu.png',
+            { frameWidth: 108, frameHeight: 238 });
             
         }
 
@@ -272,6 +275,8 @@
             this.armeUnlock = false
 
             this.infunctionBloc = false
+
+            this.startAnimOuvertureGrotte = false
 
             this.anims.create({
                 key: 'animVieObj',
@@ -557,6 +562,15 @@
             this.anims.create({
                 key: 'animGuideAllumeTorhce',
                 frames: this.anims.generateFrameNumbers('guideAllumeTorhce', {start:0,end:9}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            //////////////////////////////
+
+            this.anims.create({
+                key: 'animationFinGrotte',
+                frames: this.anims.generateFrameNumbers('animFinJeu', {start:0,end:2}),
                 frameRate: 6,
                 repeat: -1
             });
@@ -871,6 +885,25 @@
 
             this.physics.add.collider(this.player,this.piquesHaut,this.degatEnnemi,null,this)
             this.physics.add.collider(this.player,this.piquesBas,this.degatEnnemi,null,this)
+
+            /////////////////////////////////////
+
+            carte.getObjectLayer('animFinJeu').objects.forEach((animFinJeu) => {
+                this.collideCaisseFinJeu = this.physics.add.image(animFinJeu.x - 33, animFinJeu.y + 48, 'invisible').setOrigin(0);
+                this.collideCaisseFinJeu.body.setAllowGravity(false)
+                this.collideCaisseFinJeu.setPushable(false)
+                this.collideCaisseFinJeu.body.setSize(42,10)
+
+                this.animStart = this.physics.add.sprite(animFinJeu.x - 38, animFinJeu.y + 17, 'animFinJeu').setOrigin(0);
+                this.animStart.body.setAllowGravity(false)
+                this.animStart.setPushable(false)
+                this.animStart.alpha = 0
+            });
+
+            this.physics.add.overlap(this.caisses,this.collideCaisseFinJeu,this.startAnimFin,null,this)
+
+            this.entreeFinJeu.alpha = 1
+
 
 
             /////////////////////////////
@@ -1742,8 +1775,19 @@
                 this.guideArme.alpha = 0
             }
 
+            if (this.startAnimOuvertureGrotte == true){
+                this.animStart.anims.play('animationFinGrotte', true);
+            }
+
             this.barreDeVie()
     } 
+
+        startAnimFin(caisse,collideCaisseFinJeu){
+            collideCaisseFinJeu.destroy()
+            this.entreeFinJeu.alpha = 0
+            this.animStart.alpha = 1
+            this.startAnimOuvertureGrotte = true
+        }
 
         takeHp(player,vieAPrendre){
             this.pointDeVie++
