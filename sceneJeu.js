@@ -237,6 +237,7 @@
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
 
+
             //this.physics.add.collider(this.player, eau,this.respawnJoueur,null,this);
             //eau.setCollisionByProperty({ eauKill: true });
 
@@ -277,6 +278,14 @@
             this.infunctionBloc = false
 
             this.startAnimOuvertureGrotte = false
+
+            this.truc = false
+
+            this.resetEnemis = true
+            this.compteurReset = 1000
+
+            this.resetEnemisEau = true
+            this.compteurResetEau = 1000
 
             this.anims.create({
                 key: 'animVieObj',
@@ -570,14 +579,22 @@
 
             this.anims.create({
                 key: 'animationFinGrotte',
-                frames: this.anims.generateFrameNumbers('animFinJeu', {start:0,end:2}),
+                frames: this.anims.generateFrameNumbers('animFinJeu', {start:0,end:12}),
                 frameRate: 6,
                 repeat: -1
+            });
+
+            this.anims.create({
+                key: 'animationFinGrotteIdle',
+                frames: [ { key: 'animFinJeu', frame: 12 } ],
+                frameRate: 20
             });
             
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  ENNEMIS
             ///////////////////////////////////////////////////////////////  
+
+            this.nbrEnemisVolant = 0
 
             this.enemisVolant = this.physics.add.group({
             });      
@@ -587,7 +604,10 @@
                 this.enemiVolant.setPushable(false)
                 this.enemiVolant.setBounce(1);
                 this.enemiVolant.body.setAllowGravity(false)
+                this.nbrEnemisVolant++
             });
+
+            this.nbrEnemisVolantStock = this.nbrEnemisVolant
 
             this.enemisVolant.setVelocityY(-60)
             this.enemisVolant.setVelocityX(-60)
@@ -634,6 +654,7 @@
 
             
             //////////////
+            this.nbrEnemisEau = 0
 
             this.enemisEau = this.physics.add.group({
             });      
@@ -645,8 +666,12 @@
                 this.enemiEau.body.setAllowGravity(false)
                 this.enemiEau.setDepth(2)
                 this.enemiEau.setCollideWorldBounds(true);
+                this.nbrEnemisEau ++
 
             });
+
+            this.nbrEnemisEauStock = this.nbrEnemisEau
+
             this.enemisEau.setVelocityX(40)
             this.physics.add.collider(this.enemisEau,this.enemisEau)
             this.physics.add.collider(this.enemisEau,build)
@@ -842,13 +867,15 @@
             });
 
             this.physics.add.collider(this.player,this.blocSoloDroiteGauches,this.mouvementJoueurPlateforme,null,this)
-            this.physics.add.collider(this.player,this.blocTripleDroiteGauche,this.mouvementJoueurPlateforme,null,this)
+            this.physics.add.collider(this.player,this.blocTripleDroiteGauches,this.mouvementJoueurPlateforme,null,this)
 
             this.blocSoloDroiteGauche.setVelocityX(70)
             this.physics.add.collider(this.blocSoloDroiteGauches,zoneEnnemi)
+            this.physics.add.collider(this.blocSoloDroiteGauches,build)
 
             this.blocTripleDroiteGauches.setVelocityX(70)
             this.physics.add.collider(this.blocTripleDroiteGauches,zoneEnnemi)
+            this.physics.add.collider(this.blocTripleDroiteGauches,build)
 
             ////////////////////////////////////////////////
 
@@ -869,7 +896,7 @@
             });      
 
             carte.getObjectLayer('piquesBas').objects.forEach((piquesBas) => {
-                this.piqueBas = this.piquesBas.create(piquesBas.x - 1, piquesBas.y- 10, 'piquesBas').setOrigin(0);
+                this.piqueBas = this.piquesBas.create(piquesBas.x + 1, piquesBas.y- 10, 'piquesBas').setOrigin(0);
                 this.piqueBas.body.setAllowGravity(false)
                 this.piqueBas.setPushable(false)
             });
@@ -898,11 +925,18 @@
                 this.animStart.body.setAllowGravity(false)
                 this.animStart.setPushable(false)
                 this.animStart.alpha = 0
+
+                this.collidePorteGrotte = this.physics.add.image(animFinJeu.x + 50, animFinJeu.y + 190, 'invisible').setOrigin(0);
+                this.collidePorteGrotte.body.setAllowGravity(false)
+                this.collidePorteGrotte.setPushable(false)
+                this.collidePorteGrotte.body.setSize(10,96)
+
             });
 
+            this.physics.add.collider(this.player,this.collidePorteGrotte)
+            this.physics.add.collider(this.collidePorteGrotte,zoneEnnemi,this.despawnRondin,null,this)
             this.physics.add.overlap(this.caisses,this.collideCaisseFinJeu,this.startAnimFin,null,this)
 
-            this.entreeFinJeu.alpha = 1
 
 
 
@@ -1579,7 +1613,7 @@
 
             this.enemisVolant.children.iterate(function (child) {
                 this.distEnemisVolant = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
-                if(this.invulnérable == false && this.distEnemisVolant < 150){
+                if(this.invulnérable == false && this.distEnemisVolant < 75){
                     this.physics.moveToObject(child, child.scene.player, 60)
                 }
                 if (child.body.velocity.x > 0){
@@ -1588,11 +1622,32 @@
                 if (child.body.velocity.x < 0){
                     child.anims.play('animEnemisVolantLeft', true);
                 }
+
+                if (this.resetEnemis == true){
+                    child.setVelocityX(60)
+                    child.setVelocityY(60)
+                    this.nbrEnemisVolant--
+                    if (this.nbrEnemisVolant == 0){
+                        this.nbrEnemisVolant = this.nbrEnemisVolantStock
+                        this.resetEnemis = false
+                    }
+                }
+
+                if (this.resetEnemis == false){
+                    this.compteurReset --
+                    if(this.compteurReset == 0){
+                        this.compteurReset = 1000
+                        this.resetEnemis = true
+                    }
+                }
+                    
+                    
+
             },this);
 
             this.enemisEau.children.iterate(function (child) {
                 this.distEnemisEau = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
-                if(this.invulnérable == false && this.distEnemisEau < 150){
+                if(this.invulnérable == false && this.distEnemisEau < 75){
                     this.physics.moveToObject(child, child.scene.player, 40)
                 }
                 if (child.body.velocity.x > 0){
@@ -1600,6 +1655,24 @@
                 }
                 if (child.body.velocity.x < 0){
                     child.anims.play('enemisEauLeft', true);
+                }
+
+                if (this.resetEnemisEau == true){
+                    child.setVelocityX(60)
+                    child.setVelocityY(60)
+                    this.nbrEnemisEau--
+                    if (this.nbrEnemisEau == 0){
+                        this.nbrEnemisEau = this.nbrEnemisEauStock
+                        this.resetEnemisEau = false
+                    }
+                }
+
+                if (this.resetEnemisEau == false){
+                    this.compteurResetEau --
+                    if(this.compteurResetEau == 0){
+                        this.compteurResetEau = 1000
+                        this.resetEnemisEau = true
+                    }
                 }
             },this);
 
@@ -1776,17 +1849,34 @@
             }
 
             if (this.startAnimOuvertureGrotte == true){
-                this.animStart.anims.play('animationFinGrotte', true);
+                if (this.truc == false){
+                    this.animStart.anims.play('animationFinGrotte', true);
+                }
+
+                if (this.animStart.anims.currentFrame.index == 12){
+                    this.startAnimOuvertureGrotte = false
+                    this.truc = true
+                }
+            }
+
+            if (this.truc == true){
+                this.animStart.anims.play('animationFinGrotteIdle', true);
             }
 
             this.barreDeVie()
     } 
 
         startAnimFin(caisse,collideCaisseFinJeu){
+
             collideCaisseFinJeu.destroy()
+            caisse.destroy()
+
             this.entreeFinJeu.alpha = 0
+
             this.animStart.alpha = 1
             this.startAnimOuvertureGrotte = true
+
+            this.collidePorteGrotte.setVelocityY(-50)
         }
 
         takeHp(player,vieAPrendre){
