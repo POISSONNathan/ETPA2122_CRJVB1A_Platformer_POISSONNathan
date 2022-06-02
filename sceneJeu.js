@@ -130,6 +130,8 @@
             { frameWidth: 48, frameHeight: 32 });
             this.load.spritesheet('guideArme','assets/interface/guideArme.png',
             { frameWidth: 57, frameHeight: 24 });
+            this.load.spritesheet('guideLasso','assets/interface/guideLasso.png',
+            { frameWidth: 57, frameHeight: 34 });
 
             this.load.image("checkPoint", "assets/objets/checkPoint.png");
 
@@ -230,16 +232,12 @@
             const devant = carte.createLayer(
                 "devant",
                 tileset
-                ).setDepth(10)
+                ).setDepth(1000)
             
             zoneEnnemi.setCollisionByProperty({ solideEnnemi: true });
 
             this.physics.add.collider(this.player, build);
             build.setCollisionByProperty({ estSolide: true });
-
-
-            //this.physics.add.collider(this.player, eau,this.respawnJoueur,null,this);
-            //eau.setCollisionByProperty({ eauKill: true });
 
             this.player.setCollideWorldBounds(true);
 
@@ -285,7 +283,7 @@
             this.compteurReset = 1000
 
             this.resetEnemisEau = true
-            this.compteurResetEau = 1000
+            this.compteurResetEau = 2000
 
             this.anims.create({
                 key: 'animVieObj',
@@ -569,6 +567,13 @@
             });
 
             this.anims.create({
+                key: 'animGuideLasso',
+                frames: this.anims.generateFrameNumbers('guideLasso', {start:0,end:6}),
+                frameRate: 6,
+                repeat: -1
+            });
+
+            this.anims.create({
                 key: 'animGuideAllumeTorhce',
                 frames: this.anims.generateFrameNumbers('guideAllumeTorhce', {start:0,end:9}),
                 frameRate: 6,
@@ -672,7 +677,7 @@
 
             this.nbrEnemisEauStock = this.nbrEnemisEau
 
-            this.enemisEau.setVelocityX(40)
+            this.enemisEau.setVelocityX(50)
             this.physics.add.collider(this.enemisEau,this.enemisEau)
             this.physics.add.collider(this.enemisEau,build)
             this.physics.add.collider(this.player,this.enemisEau,this.degatEnnemi,null,this)
@@ -841,6 +846,7 @@
                 this.eau.create(eauAnim.x + 32,eauAnim.y - 16,'animEau').setDepth(7)
             });
 
+            this.physics.add.collider(this.enemisVolant,this.eau)
             this.physics.add.collider(this.enemisEau,this.eau)
 
             //////////////
@@ -883,7 +889,7 @@
             });      
 
             carte.getObjectLayer('vieObj').objects.forEach((vieObj) => {
-                this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y - 6, 'vieObj').setOrigin(0).setScale(0.8);;
+                this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y , 'vieObj').setOrigin(0).setScale(0.8);;
                 this.vieAPrendre.setPushable(false)
                 this.vieAPrendre.body.setAllowGravity(false)
             });
@@ -896,7 +902,7 @@
             });      
 
             carte.getObjectLayer('piquesBas').objects.forEach((piquesBas) => {
-                this.piqueBas = this.piquesBas.create(piquesBas.x + 1, piquesBas.y- 10, 'piquesBas').setOrigin(0);
+                this.piqueBas = this.piquesBas.create(piquesBas.x + 1, piquesBas.y- 8, 'piquesBas').setOrigin(0).setDepth(100);
                 this.piqueBas.body.setAllowGravity(false)
                 this.piqueBas.setPushable(false)
             });
@@ -1014,6 +1020,9 @@
 
         this.guideArme = this.physics.add.sprite(0,2000,'guideArme').setScale(0.8)
         this.guideArme.body.setAllowGravity(false)
+
+        this.guideLasso = this.physics.add.sprite(0,2000,'guideLasso').setScale(0.8).setDepth(10000)
+        this.guideLasso.body.setAllowGravity(false)
 
 
         }
@@ -1624,8 +1633,23 @@
                 }
 
                 if (this.resetEnemis == true){
-                    child.setVelocityX(60)
-                    child.setVelocityY(60)
+                    this.choixRandomX = Phaser.Math.Between(1, 2)
+                    if (this.choixRandomX == 1){
+                        this.directionVolantX = 1
+                    }
+                    if (this.choixRandomX == 2){
+                        this.directionVolantX = -1
+                    }
+
+                    this.choixRandomY = Phaser.Math.Between(1, 2)
+                    if (this.choixRandomY == 1){
+                        this.directionVolantY = 1
+                    }
+                    if (this.choixRandomY == 2){
+                        this.directionVolantY = -1
+                    }
+                    child.setVelocityX(60* this.directionVolantX)
+                    child.setVelocityY(60* this.directionVolantY)
                     this.nbrEnemisVolant--
                     if (this.nbrEnemisVolant == 0){
                         this.nbrEnemisVolant = this.nbrEnemisVolantStock
@@ -1648,7 +1672,7 @@
             this.enemisEau.children.iterate(function (child) {
                 this.distEnemisEau = Phaser.Math.Distance.Between(child.scene.player.body.x,child.scene.player.body.y,child.body.x,child.body.y)
                 if(this.invulnérable == false && this.distEnemisEau < 75){
-                    this.physics.moveToObject(child, child.scene.player, 40)
+                    this.physics.moveToObject(child, child.scene.player, 50)
                 }
                 if (child.body.velocity.x > 0){
                     child.anims.play('enemisEauRight', true);
@@ -1658,8 +1682,23 @@
                 }
 
                 if (this.resetEnemisEau == true){
-                    child.setVelocityX(60)
-                    child.setVelocityY(60)
+                    this.choixRandomXEau = Phaser.Math.Between(1, 2)
+                    if (this.choixRandomXEau == 1){
+                        this.directionVolantXEau = 1
+                    }
+                    if (this.choixRandomXEau == 2){
+                        this.directionVolantXEau = -1
+                    }
+                    
+                    this.choixRandomYEau = Phaser.Math.Between(1, 2)
+                    if (this.choixRandomYEau == 1){
+                        this.directionVolantYEau = 1
+                    }
+                    if (this.choixRandomYEau == 2){
+                        this.directionVolantYEau = -1
+                    }
+                    child.setVelocityX(50* this.directionVolantXEau)
+                    child.setVelocityY(50* this.directionVolantYEau)
                     this.nbrEnemisEau--
                     if (this.nbrEnemisEau == 0){
                         this.nbrEnemisEau = this.nbrEnemisEauStock
@@ -1670,7 +1709,7 @@
                 if (this.resetEnemisEau == false){
                     this.compteurResetEau --
                     if(this.compteurResetEau == 0){
-                        this.compteurResetEau = 1000
+                        this.compteurResetEau = 2000
                         this.resetEnemisEau = true
                     }
                 }
@@ -1682,7 +1721,6 @@
             this.compteurInvunlerable -=1 ;
                 if(this.compteurInvunlerable == 0){
                     this.compteurInvunlerable = 300;
-                    this.speedSaut *= 1.6
                     this.invulnérable = false ;
                 }
             }
@@ -1838,7 +1876,7 @@
                 this.guideTest.alpha = 0
             }
             
-            if (this.player.x < this.arme.x + 50 && this.player.x > this.arme.x - 50 && this.arme.y < this.arme.y + 50 && this.player.y > this.arme.y - 50){
+            if (this.player.x < this.arme.x + 50 && this.player.x > this.arme.x - 50 && this.player.y < this.arme.y + 50 && this.player.y > this.arme.y - 50){
                 this.guideArme.x = this.arme.x + 18
                 this.guideArme.y = this.arme.y - 16
                 this.guideArme.anims.play('animGuideArme',true);
@@ -1846,6 +1884,16 @@
             } 
             else{
                 this.guideArme.alpha = 0
+            }
+
+            if (this.player.x < this.lasso.x + 50 && this.player.x > this.lasso.x - 50 && this.player.y  < this.lasso.y + 50 && this.player.y > this.lasso.y - 50){
+                this.guideLasso.x = this.arme.x + 18
+                this.guideLasso.y = this.arme.y - 16
+                this.guideLasso.anims.play('animGuideLasso',true);
+                this.guideLasso.alpha = 1
+            } 
+            else{
+                this.guideLasso.alpha = 0
             }
 
             if (this.startAnimOuvertureGrotte == true){
@@ -1953,10 +2001,6 @@
                 this.pointDeVie --
                 this.cameras.main.shake(150, 0.004);
                 this.invulnérable = true
-
-                if (this.pointDeVie > 0){
-                this.speedSaut = 280
-                }
             }
         }
 
@@ -2124,7 +2168,7 @@
             if (this.interagir && this.entreeTemplePossible == true) {
                 this.ouvrirTemplePossible = true
                 this.entreeTemplePossible = false
-                this.templeOuvertTorcheAllumer = true 
+                this.templeOuvertTorcheAllumer = true   
                 this.scene.start("sceneTemple", {
                     pointDeVie:this.pointDeVie,
                     spawnXSortieScene: this.player.x,

@@ -518,7 +518,7 @@ create(){
     });      
 
     carte2.getObjectLayer('vieObj').objects.forEach((vieObj) => {
-        this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y - 6, 'vieObj').setOrigin(0).setScale(0.8);
+        this.vieAPrendre = this.vieObj.create(vieObj.x + 6, vieObj.y , 'vieObj').setOrigin(0).setScale(0.8);
         this.vieAPrendre.setPushable(false)
         this.vieAPrendre.body.setAllowGravity(false)
     });
@@ -1161,7 +1161,6 @@ console.log(this.nbrFleche)
         this.compteurInvunlerable -=1 ;
             if(this.compteurInvunlerable == 0){
                 this.compteurInvunlerable = 300;
-                this.speedSaut = 380
                 this.invulnérable = false ;
             }
         }
@@ -1185,10 +1184,6 @@ degatEnnemi(play,ennemi){
         this.pointDeVie --
         this.cameras.main.shake(150, 0.004);
         this.invulnérable = true
-
-        if (this.pointDeVie > 0){
-        this.speedSaut = 280
-        }
     }
 }
 
