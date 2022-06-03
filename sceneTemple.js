@@ -512,7 +512,7 @@ create(){
 
     carte2.getObjectLayer('checkPoint').objects.forEach((checkPoint) => {
         this.checkPoint = this.checkPoints.create(checkPoint.x, checkPoint.y, 'checkPoint').setOrigin(0);
-        this.checkPoint.setPushable(false)
+        this.checkPoint.setPushable(false).setPipeline('Light2D')
         this.checkPoint.body.setAllowGravity(false)
     });
 
@@ -1325,8 +1325,10 @@ update(){
 }
 
 jumpAuto(player,build){
-    if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
-        player.setVelocityY(-270)
+    if (this.blockCaisse == false){
+        if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
+            player.setVelocityY(-270)
+        }
     }
 }
 

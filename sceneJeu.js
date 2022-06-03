@@ -290,6 +290,7 @@
 
             this.stopAnimCaisse = false
             this.compteurStopAnimCaisse = 10
+            
 
             this.anims.create({
                 key: 'animVieObj',
@@ -883,7 +884,7 @@
             this.physics.add.collider(this.player,this.blocSoloDroiteGauches,this.mouvementJoueurPlateforme,null,this)
             this.physics.add.collider(this.player,this.blocTripleDroiteGauches,this.mouvementJoueurPlateforme,null,this)
 
-            this.blocSoloDroiteGauche.setVelocityX(70)
+            this.blocSoloDroiteGauches.setVelocityX(70)
             this.physics.add.collider(this.blocSoloDroiteGauches,zoneEnnemi)
             this.physics.add.collider(this.blocSoloDroiteGauches,build)
 
@@ -1038,7 +1039,7 @@
         update(time, delta){
             super.update(time, delta);
 
-            if ( this.pouvoirTirer == false){
+            if ( this.pouvoirTirer == false && this.armeUnlockck == false){
             this.arme.anims.play('animArme', true);
             }
 
@@ -1326,7 +1327,7 @@
                         }          
                 }  
             }
-            
+
             if (this.attaque == false){
                 if (this.moveUp && this.player.body.blocked.down ) {
                     this.player.setVelocityY(-this.speedSaut);
@@ -1413,6 +1414,7 @@
                     }
 
                     if (this.player.body.blocked.down){
+                        this.animAccrocheMur = false
                         this.doubleSautRightPossible = true
                         this.doubleSautLeftPossible = true
                         this.resetGraviteLeft = false
@@ -1950,8 +1952,10 @@
     } 
 
     jumpAuto(player,build){
-        if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
-            player.setVelocityY(-270)
+        if (this.blockCaisse == false){
+            if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
+                player.setVelocityY(-270)
+            }
         }
     }
 
@@ -2056,6 +2060,8 @@
                 player.x = lianesAGrimper.x - 15
                 this.dialogue = true
                 player.setVelocityX(0)
+                this.resetGraviteLeft = false
+                this.resetGraviteRight = false
             }
         }
 

@@ -28,7 +28,7 @@ this.startButton.on('pointerdown', function (pointer) {
             this.spawnYSortieScene =  spawnJoueur.y
         });
 
-        this.scene.scene.start("sceneTemple", {
+        this.scene.scene.start("sceneJeu", {
             pointDeVie:4,
             spawnXSortieScene: this.spawnXSortieScene,
             spawnYSortieScene: this.spawnYSortieScene,
@@ -49,15 +49,15 @@ this.startButton.on('pointerdown', function (pointer) {
             animJump: false,
             animPousseCaisse: false,
             attaque: false,
-            attaquePossible: true,
+            attaquePossible: false,
             doubleJumpActif: false,
             torcheDebloque: true,
             torcheActive: false,
             pouvoirTirer: false,
             tempsAvantTirer: false,
             animTorche: false,
-            ouvrirTemplePossible: true,
-            entreeTemplePossible: false,
+            ouvrirTemplePossible: false,
+            entreeTemplePossible: true,
             templeOuvertTorcheAllumer: false,
             compteurDeplacementLasso: 120,
             compteurDeplacementLassoCaisse: 70,
