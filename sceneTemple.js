@@ -1163,6 +1163,7 @@ console.log(this.nbrFleche)
             if(this.compteurInvunlerable == 0){
                 this.compteurInvunlerable = 200;
                 this.invulnérable = false ;
+                this.player.setTint(0xffffff)
             }
         }
 
@@ -1179,12 +1180,13 @@ destroyFleche(fleches,build){
     fleches.destroy()
 }
 
-degatEnnemi(play,ennemi){
+degatEnnemi(player,ennemi){
     if(this.invulnérable == false){
         ennemi.destroy()
         this.pointDeVie --
         this.cameras.main.shake(150, 0.004);
         this.invulnérable = true
+        player.setTint(0xff0000)
     }
 }
 

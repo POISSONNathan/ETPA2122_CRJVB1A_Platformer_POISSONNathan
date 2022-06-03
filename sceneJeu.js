@@ -285,6 +285,9 @@
             this.resetEnemisEau = true
             this.compteurResetEau = 2000
 
+            this.compteurToucheSol = 25
+                        this.toucheSol = false
+
             this.anims.create({
                 key: 'animVieObj',
                 frames: this.anims.generateFrameNumbers('vieObj', {start:0,end:3}),
@@ -1417,6 +1420,10 @@
                         this.animJump = false
                         this.doubleJumpActif = false
                         this.accrochePossibleLianeAGrimper = false
+
+                        this.toucheSol = true
+
+                        this.compteurToucheSol = 25
                     }      
                     else{
                         this.animNormal = false
@@ -1428,14 +1435,25 @@
                     }      
                 }       
 
-        if (this.tileTest2.index == -1){
-            if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
-                this.player.setVelocityY(20); 
-                this.animAccrocheMur = true
-                this.animJump = false
-            }
-            else{
-                this.animAccrocheMur = false
+                if (this.toucheSol == true){
+                    this.compteurToucheSol --
+                    if(this.compteurToucheSol == 0){
+                        this.compteurToucheSol = 25
+                        this.toucheSol = false
+                        this.animAccrocheMur = false
+                    }
+                }
+
+        if (this.toucheSol == false){
+            if (this.tileTest2.index == -1){
+                if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
+                    this.player.setVelocityY(20); 
+                    this.animAccrocheMur = true
+                    this.animJump = false
+                }
+                else{
+                    this.animAccrocheMur = false
+                }
             }
         }
             
@@ -1724,6 +1742,7 @@
                 if(this.compteurInvunlerable == 0){
                     this.compteurInvunlerable = 200;
                     this.invulnérable = false ;
+                    this.player.setTint(0xffffff)
                 }
             }
 
@@ -1913,6 +1932,10 @@
                 this.animStart.anims.play('animationFinGrotteIdle', true);
             }
 
+            if (this.player.body.blocked.down  && (this.player.body.blocked.right || this.player.body.blocked.left)){
+                this.player.setVelocityY(-270)
+            }
+
             this.barreDeVie()
     } 
 
@@ -1998,11 +2021,12 @@
             this.deplacementEnnemi = true
         }
 
-        degatEnnemi(play,ennemi){
+        degatEnnemi(player,ennemi){
             if(this.invulnérable == false){
                 this.pointDeVie --
                 this.cameras.main.shake(150, 0.004);
                 this.invulnérable = true
+                player.setTint(0xff0000)
             }
         }
 

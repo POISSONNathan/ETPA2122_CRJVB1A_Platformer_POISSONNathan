@@ -8256,7 +8256,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="spawnJoueur">
-  <object id="1" name="Spawn Joueur" x="6112" y="320">
+  <object id="1" name="Spawn Joueur" x="9184" y="448">
    <point/>
   </object>
  </objectgroup>
