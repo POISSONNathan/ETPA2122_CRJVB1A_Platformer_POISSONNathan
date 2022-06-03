@@ -171,7 +171,7 @@ create(){
     this.player = this.physics.add.sprite(this.spawnXGrotte,this.spawnYGrotte, 'perso').setOrigin(0).setPipeline('Light2D').setDepth(10)
     this.player.body.setSize(16,32)
 
-    this.physics.add.collider(this.player, buildGrotte);
+    this.physics.add.collider(this.player, buildGrotte,this.jumpAuto,null,this);
     buildGrotte.setCollisionByProperty({ estSolide: true });
 
     this.physics.add.collider(this.player, lave,this.respawnJoueur,null,this);
@@ -193,9 +193,27 @@ create(){
 
     this.compteurTirFleche = 250;
     this.compteurTirFlecheHaut = 250;
+    this.compteurTirFlecheDroite = 250;
+    this.compteurTirFlecheRapide = 100;
 
-    this.tirFleche = true
+    this.compteurFlecheBasActive = 125
+    this.activeFlecheBas = true
+
     this.tirFlecheHaut = true
+
+    this.tirFlecheDroite = true
+
+    this.tirFlecheRapide = true
+
+    this.compteurInvunlerable = 100
+
+    this.pointDeVieStock = 4
+
+    this.stopAnimCaisse = false
+    this.compteurStopAnimCaisse = 10
+
+    this.compteurToucheSol = 25
+    this.toucheSol = false
 
 
     this.anims.create({
@@ -399,11 +417,13 @@ create(){
         this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caissesEclaire').setDepth(7)
         this.caisse.setPipeline('Light2D')
         this.caisse.body.setSize(28,32)
+
     });
 
     this.physics.add.collider(this.caisses,this.caisses,this.stopCaisseVelocite0,null,this)
     this.physics.add.collider(this.caisses,buildGrotte)
     this.physics.add.collider(this.player,this.caisses,this.stopCaisse,null,this)
+
 
     //////////////////////////////////////////////////////////////
 
@@ -413,7 +433,7 @@ create(){
 
     carte2.getObjectLayer('lights').objects.forEach((light) => {
         this.lights.addLight(light.x, light.y, 400,100000000001110,4);
-        this.torches.create(light.x + 16,light.y,'torches').setPipeline('Light2D').setScale(0.7)
+        this.torches.create(light.x + 16,light.y,'torches').setPipeline('Light2D').setScale(0.7).setDepth(10000)
     });
 
     ////////////////////////////////////////////////////////
@@ -535,12 +555,29 @@ create(){
     this.lanceFlecheHaut = this.physics.add.group({
         immovable: true,
         allowGravity: false
-    });   
+    }); 
+    this.lanceFlecheDroite = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });    
+    this.lanceFlecheRapide = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });      
+
     this.fleches = this.physics.add.group({
         immovable: true,
         allowGravity: false
     });  
     this.flechesHaut = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });  
+    this.flechesDroite = this.physics.add.group({
+        immovable: true,
+        allowGravity: false
+    });  
+    this.flechesRapide = this.physics.add.group({
         immovable: true,
         allowGravity: false
     });  
@@ -552,8 +589,22 @@ create(){
     this.physics.add.overlap(this.player,this.flechesHaut,this.degatEnnemi,null,this)
     this.physics.add.collider(this.flechesHaut,buildGrotte,this.destroyFleche,null,this)
 
+    this.physics.add.overlap(this.player,this.flechesDroite,this.degatEnnemi,null,this)
+    this.physics.add.collider(this.flechesDroite,buildGrotte,this.destroyFleche,null,this)
+
+    this.physics.add.overlap(this.player,this.flechesRapide,this.degatEnnemi,null,this)
+    this.physics.add.collider(this.flechesRapide,buildGrotte,this.destroyFleche,null,this)
+
+    this.physics.add.collider(this.fleches,this.caisses,this.destroyFleche,null,this)
+    this.physics.add.collider(this.flechesHaut,this.caisses,this.destroyFleche,null,this)
+    this.physics.add.collider(this.flechesDroite,this.caisses,this.destroyFleche,null,this)
+    this.physics.add.collider(this.flechesRapide,this.caisses,this.destroyFleche,null,this)
+
+
     this.nbrFleche = 0
     this.nbrFlecheHaut = 0
+    this.nbrFlecheDroite = 0
+    this.nbrFlecheRapide = 0
 
     carte2.getObjectLayer('lanceFleche').objects.forEach((lanceFleche) => {
         this.lancFleche = this.lanceFleche.create(lanceFleche.x, lanceFleche.y + 28, 'lanceFleche').setOrigin(0).setPipeline('Light2D');
@@ -562,17 +613,31 @@ create(){
 
     this.nbrFlecheStock = this.nbrFleche 
 
-    this.lanceFlecheHaut = this.physics.add.group({
-        immovable: true,
-        allowGravity: false
-    });   
-
     carte2.getObjectLayer('lanceFlecheHaut').objects.forEach((lanceFlecheHaut) => {
         this.lancFlecheHaut = this.lanceFlecheHaut.create(lanceFlecheHaut.x, lanceFlecheHaut.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
         this.nbrFlecheHaut ++
     });
 
     this.nbrFlecheStockHaut = this.nbrFlecheHaut
+    
+    carte2.getObjectLayer('lanceFlecheDroite').objects.forEach((lanceFlecheDroite) => {
+        this.lancFlecheDroite = this.lanceFlecheDroite.create(lanceFlecheDroite.x + 28, lanceFlecheDroite.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.nbrFlecheDroite ++
+        this.lancFlecheDroite.angle = -90
+    });
+
+    this.nbrFlecheStockDroite = this.nbrFlecheDroite
+
+    carte2.getObjectLayer('lanceFlecheRapide').objects.forEach((lanceFlecheRapide) => {
+        this.lancFlecheRapide = this.lanceFlecheRapide.create(lanceFlecheRapide.x + 28, lanceFlecheRapide.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.nbrFlecheRapide ++
+        this.lancFlecheRapide.angle = -90
+    });
+
+    this.nbrFlecheStockRapide = this.nbrFlecheRapide
+ 
+
+    
 
 
     ///////////////////////////////////////////////////////////////
@@ -611,7 +676,6 @@ create(){
 }
 
 update(){
-console.log(this.nbrFleche)
 
     this.lave.children.iterate((child) => {
         child.anims.play('animationLave', true);
@@ -632,11 +696,21 @@ console.log(this.nbrFleche)
             this.nbrFleche = this.nbrFlecheStock
         }
     });
-    if(this.tirFleche== false){
+
+    if(this.tirFleche == false){
         this.compteurTirFleche -=1 ;
         if(this.compteurTirFleche == 0){
             this.compteurTirFleche = 250;
             this.tirFleche = true ;
+        }
+    }
+
+    if (this.activeFlecheBas == true){
+        this.compteurFlecheBasActive --
+        if (this.compteurFlecheBasActive == 0){
+            this.tirFleche = false
+            this.activeFlecheBas = true
+            this.compteurFlecheBasActive = 0
         }
     }
 
@@ -658,6 +732,50 @@ console.log(this.nbrFleche)
         if(this.compteurTirFlecheHaut == 0){
             this.compteurTirFlecheHaut = 250;
             this.tirFlecheHaut = true ;
+        }
+    }
+
+    this.lanceFlecheDroite.children.iterate((child) => {
+        if (this.tirFlecheDroite == true && this.nbrFlecheDroite > 0){
+            this.flechesDroite1 = this.flechesDroite.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D');
+            this.flechesDroite1.body.setSize(12,21)
+            this.flechesDroite1.setOffset(-2,-20)
+            this.flechesDroite1.setVelocityX(-300)
+            this.nbrFlecheDroite --
+            this.flechesDroite1.angle = -90
+        }
+        if (this.nbrFlecheDroite == 0){
+            this.tirFlecheDroite = false
+            this.nbrFlecheDroite = this.nbrFlecheStockDroite
+        }
+    });
+    if(this.tirFlecheDroite == false){
+        this.compteurTirFlecheDroite -=1 ;
+        if(this.compteurTirFlecheDroite == 0){
+            this.compteurTirFlecheDroite = 250;
+            this.tirFlecheDroite = true ;
+        }
+    }
+
+    this.lanceFlecheRapide.children.iterate((child) => {
+        if (this.tirFlecheRapide == true && this.nbrFlecheRapide > 0){
+            this.flechesRapide1 = this.flechesRapide.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D');
+            this.flechesRapide1.body.setSize(12,21)
+            this.flechesRapide1.setOffset(-2,-20)
+            this.flechesRapide1.setVelocityX(-300)
+            this.nbrFlecheRapide --
+            this.flechesRapide1.angle = -90
+        }
+        if (this.nbrFlecheRapide == 0){
+            this.tirFlecheRapide = false
+            this.nbrFlecheRapide = this.nbrFlecheStockRapide
+        }
+    });
+    if(this.tirFlecheRapide == false){
+        this.compteurTirFlecheRapide -=1 ;
+        if(this.compteurTirFlecheRapide == 0){
+            this.compteurTirFlecheRapide = 100;
+            this.tirFlecheRapide = true ;
         }
     }
 
@@ -1068,23 +1186,40 @@ console.log(this.nbrFleche)
                 }
                 this.animJump = false
                 this.doubleJumpActif = false
+
+                this.toucheSol = true
+
+                this.compteurToucheSol = 25
             }      
             else{
                 this.animNormal = false
                 this.animJump = true
                 this.doubleJumpActif = true
             }      
-        }       
+        } 
+        
+        if (this.toucheSol == true){
+            this.compteurToucheSol --
+            if(this.compteurToucheSol == 0){
+                this.compteurToucheSol = 25
+                this.toucheSol = false
+                this.animAccrocheMur = false
+            }
+        }
+
+        if (this.toucheSol == false){
+            if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
+                this.player.setVelocityY(20); 
+                this.animAccrocheMur = true
+                this.animJump = false
+            }
+            else{
+                this.animAccrocheMur = false
+            }
+        }
 
 
-        if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
-            this.player.setVelocityY(20); 
-            this.animAccrocheMur = true
-            this.animJump = false
-        }
-        else{
-            this.animAccrocheMur = false
-        }
+
 
         if (this.shot){
             this.tirer(this.player);
@@ -1105,14 +1240,25 @@ console.log(this.nbrFleche)
         this.caisses.children.iterate((child) => {
             if (child.x < this.player.x - 10 ){
                 child.setVelocityX(0)
-                this.animPousseCaisse = false
+                this.stopAnimCaisse = true
             }
             if (child.x > this.player.x + 40 ){
                 child.setVelocityX(0)
-                this.animPousseCaisse = false
+                this.stopAnimCaisse = true
             }
         });
     }
+
+    if (this.stopAnimCaisse == true){
+        this.compteurStopAnimCaisse --
+        if (this.compteurStopAnimCaisse == 0){
+            this.compteurStopAnimCaisse = 10
+            this.animPousseCaisse = false
+            this.stopAnimCaisse = false
+            this.blockCaisse = false
+        }
+    }
+    
 
     if (this.lassoUnlcok == true){
         this.inventaireEcran.setTexture('interfaceArmeObj1')
@@ -1161,19 +1307,27 @@ console.log(this.nbrFleche)
     if(this.invulnérable == true){
         this.compteurInvunlerable -=1 ;
             if(this.compteurInvunlerable == 0){
-                this.compteurInvunlerable = 200;
+                this.compteurInvunlerable = 100;
                 this.invulnérable = false ;
                 this.player.setTint(0xffffff)
             }
         }
 
-
-
     if (this.pointDeVie == 0){
         this.respawnJoueur()
     }
 
+    if (this.pointDeVie > 4){
+        this.pointDeVie = 4
+    }
+
     this.barreDeVie()
+}
+
+jumpAuto(player,build){
+    if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
+        player.setVelocityY(-270)
+    }
 }
 
 destroyFleche(fleches,build){
@@ -1197,9 +1351,9 @@ takeHp(player,vieAPrendre){
 
 respawnJoueur(){
     this.player.x = this.saveXMort
-    this.player.y = this.saveYMort + 10
+    this.player.y = this.saveYMort - 10
 
-    this.pointDeVie = this.pointDeVieStock
+    this.pointDeVie = this.pointDeVieStock - 2
     this.invulnérable = false
 }
 
@@ -1258,6 +1412,7 @@ bougerCaisse(lasso,caisse){
 
 stopCaisse(player,caisse){
     if (this.torcheActive == false){
+        this.compteurStopAnimCaisse = 10
         this.blockCaisse = true
         if (this.player.body.blocked.left){
             caisse.setVelocityX(-55)
@@ -1360,7 +1515,7 @@ goOutTemple(player,retourAvantTemple){
             animPousseCaisse: this.animPousseCaisse,
             lassoUnlcok: this.lassoUnlcok,
             invulnérable: this.invulnérable,
-            compteurInvunlerable: this.compteurInvunlerable,
+            compteurInvunlerable: 200,
             saveXMort: this.saveXMort,
             saveYMort: this.saveYMort,
             animAccrocheMur: this.animAccrocheMur
@@ -1408,7 +1563,7 @@ goEndTemple(player,sortirTemple){
             animPousseCaisse: this.animPousseCaisse,
             lassoUnlcok: this.lassoUnlcok,
             invulnérable: this.invulnérable,
-            compteurInvunlerable: this.compteurInvunlerable,
+            compteurInvunlerable: 200,
             saveXMort: this.saveXMort,
             saveYMort: this.saveYMort,
             animAccrocheMur: this.animAccrocheMur,

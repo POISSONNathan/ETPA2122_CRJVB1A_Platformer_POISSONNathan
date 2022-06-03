@@ -213,7 +213,7 @@
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
 
-            this.pointDeVieStock = this.pointDeVie
+            this.pointDeVieStock = 4
 
             ///////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////
@@ -236,7 +236,7 @@
             
             zoneEnnemi.setCollisionByProperty({ solideEnnemi: true });
 
-            this.physics.add.collider(this.player, build);
+            this.physics.add.collider(this.player, build,this.jumpAuto,null,this);
             build.setCollisionByProperty({ estSolide: true });
 
             this.player.setCollideWorldBounds(true);
@@ -286,7 +286,10 @@
             this.compteurResetEau = 2000
 
             this.compteurToucheSol = 25
-                        this.toucheSol = false
+            this.toucheSol = false
+
+            this.stopAnimCaisse = false
+            this.compteurStopAnimCaisse = 10
 
             this.anims.create({
                 key: 'animVieObj',
@@ -1575,14 +1578,25 @@
                 this.caisses.children.iterate((child) => {
                     if (child.x < this.player.x - 10 ){
                         child.setVelocityX(0)
-                        this.animPousseCaisse = false
+                        this.stopAnimCaisse = true
                     }
                     if (child.x > this.player.x + 40 ){
                         child.setVelocityX(0)
-                        this.animPousseCaisse = false
+                        this.stopAnimCaisse = true
                     }
                 });
             }
+        
+            if (this.stopAnimCaisse == true){
+                this.compteurStopAnimCaisse --
+                if (this.compteurStopAnimCaisse == 0){
+                    this.compteurStopAnimCaisse = 10
+                    this.animPousseCaisse = false
+                    this.stopAnimCaisse = false
+                    this.blockCaisse = false
+                }
+            }
+
             }
             if (this.dialogue == true){
                 this.player.body.setAllowGravity(false)
@@ -1932,12 +1946,14 @@
                 this.animStart.anims.play('animationFinGrotteIdle', true);
             }
 
-            if (this.player.body.blocked.down  && (this.player.body.blocked.right || this.player.body.blocked.left)){
-                this.player.setVelocityY(-270)
-            }
-
             this.barreDeVie()
     } 
+
+    jumpAuto(player,build){
+        if (player.body.blocked.down  && (player.body.blocked.right || player.body.blocked.left)){
+            player.setVelocityY(-270)
+        }
+    }
 
         startAnimFin(caisse,collideCaisseFinJeu){
 
@@ -1993,9 +2009,9 @@
 
         respawnJoueur(){
             this.player.x = this.saveXMort
-            this.player.y = this.saveYMort + 10
+            this.player.y = this.saveYMort - 10
 
-            this.pointDeVie = this.pointDeVieStock
+            this.pointDeVie = this.pointDeVieStock - 2
             this.invulnérable = false
         }
 
@@ -2068,6 +2084,7 @@
 
         stopCaisse(player,caisse){
             if (this.torcheActive == false){
+                this.compteurStopAnimCaisse = 10
                 this.blockCaisse = true
                 if (this.player.body.blocked.left){
                     caisse.setVelocityX(-55)
