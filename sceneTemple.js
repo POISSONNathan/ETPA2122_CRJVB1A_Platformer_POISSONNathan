@@ -398,6 +398,7 @@ create(){
     carte2.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
         this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caissesEclaire').setDepth(7)
         this.caisse.setPipeline('Light2D')
+        this.caisse.body.setSize(28,32)
     });
 
     this.physics.add.collider(this.caisses,this.caisses,this.stopCaisseVelocite0,null,this)
@@ -1050,10 +1051,10 @@ console.log(this.nbrFleche)
             }
 
             if(this.invulnérable == false){
-            if (this.resetGraviteLeft == true ){this.speedRight = 75}
+            if (this.resetGraviteLeft == true ){this.speedRight = 90}
             else{this.speedRight = this.speed}
 
-            if (this.resetGraviteRight == true){this.speedLeft = 75}
+            if (this.resetGraviteRight == true){this.speedLeft = 90}
             else{this.speedLeft = this.speed}
             }
 
@@ -1160,7 +1161,7 @@ console.log(this.nbrFleche)
     if(this.invulnérable == true){
         this.compteurInvunlerable -=1 ;
             if(this.compteurInvunlerable == 0){
-                this.compteurInvunlerable = 300;
+                this.compteurInvunlerable = 200;
                 this.invulnérable = false ;
             }
         }

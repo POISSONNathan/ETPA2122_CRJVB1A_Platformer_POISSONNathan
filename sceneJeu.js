@@ -197,7 +197,7 @@
             const zoneEnnemi = carte.createLayer(
                     "zoneEnnemi",
                     tileset
-                    )
+                    ).setDepth(1000)
 
             this.eauLayer = carte.createLayer(
                     "eau",
@@ -243,8 +243,8 @@
 
             this.cameras.main.zoom = 2.9
             this.cameras.main.startFollow(this.player); 
-            this.physics.world.setBounds(0, 0, 6400, 1920);
-            this.cameras.main.setBounds(0, 0, 6400, 1920);
+            this.physics.world.setBounds(0, 0, 12080, 1920);
+            this.cameras.main.setBounds(0, 0, 12080, 1920);
 
             this.nbrTorcheAllume = 0
 
@@ -280,7 +280,7 @@
             this.truc = false
 
             this.resetEnemis = true
-            this.compteurReset = 1000
+            this.compteurReset = 2000
 
             this.resetEnemisEau = true
             this.compteurResetEau = 2000
@@ -608,6 +608,7 @@
                 this.enemiVolant = this.enemisVolant.create(enemisVolant.x, enemisVolant.y, 'enemisVolant').setOrigin(0);
                 this.enemiVolant.setPushable(false)
                 this.enemiVolant.setBounce(1);
+                this.enemiVolant.setDepth(1000)
                 this.enemiVolant.body.setAllowGravity(false)
                 this.nbrEnemisVolant++
             });
@@ -721,11 +722,11 @@
             /////////////////////////////
 
             carte.getObjectLayer('lasso').objects.forEach((lasso) => {
-                this.lasso = this.physics.add.sprite(lasso.x + 3, lasso.y + 3 , 'lasso').setOrigin(0).setScale(0.8)
-                this.lasso.body.setAllowGravity(false)
+                this.lassoObj = this.physics.add.sprite(lasso.x + 3, lasso.y + 3 , 'lasso').setOrigin(0).setScale(0.8)
+                this.lassoObj.body.setAllowGravity(false)
             });
 
-            this.physics.add.overlap(this.player,this.lasso,this.takeLasso,null,this)
+            this.physics.add.overlap(this.player,this.lassoObj,this.takeLasso,null,this)
 
 
             ///////////////////////////////////////////////////////////////
@@ -775,6 +776,7 @@
 
             carte.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
                 this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(7)
+                this.caisse.body.setSize(28,32)
             });
 
             this.physics.add.collider(this.caisses,this.caisses,this.stopCaisseVelocite0,null,this)
@@ -834,7 +836,7 @@
 
             this.physics.add.overlap(this.rondinsBois,this.rondinCreate,this.spawnRondin,null,this)
             this.physics.add.collider(build,this.rondinsBois,this.destructionRondins,null,this)
-            this.physics.add.collider(zoneEnnemi,this.rondinsBois,this.despawnRondin,null,this)
+            this.physics.add.collider(this.rondinsBois,zoneEnnemi,this.despawnRondin,null,this)
             this.physics.add.collider(this.player,this.rondinsBois,this.mouvementJoueurRondin,null,this)
 
             this.eau = this.physics.add.group({
@@ -1012,13 +1014,13 @@
         this.vieEcran.setDepth(100)
         this.vieEcran.setInteractive()
 
-        this.guideTorche = this.physics.add.sprite(0,2000,'guideAllumeTorhce').setScale(0.8)
+        this.guideTorche = this.physics.add.sprite(0,2000,'guideAllumeTorhce').setScale(0.8).setDepth(10000)
         this.guideTorche.body.setAllowGravity(false)
 
-        this.guideTest =  this.physics.add.sprite(0,2000,'guideTorcheEtteinteAllume').setScale(0.8)
+        this.guideTest =  this.physics.add.sprite(0,2000,'guideTorcheEtteinteAllume').setScale(0.8).setDepth(10000)
         this.guideTest.body.setAllowGravity(false)
 
-        this.guideArme = this.physics.add.sprite(0,2000,'guideArme').setScale(0.8)
+        this.guideArme = this.physics.add.sprite(0,2000,'guideArme').setScale(0.8).setDepth(10000)
         this.guideArme.body.setAllowGravity(false)
 
         this.guideLasso = this.physics.add.sprite(0,2000,'guideLasso').setScale(0.8).setDepth(10000)
@@ -1397,10 +1399,10 @@
                     }
 
                     if(this.invulnérable == false){
-                    if (this.resetGraviteLeft == true ){this.speedRight = 75}
+                    if (this.resetGraviteLeft == true ){this.speedRight = 90}
                     else{this.speedRight = this.speed}
 
-                    if (this.resetGraviteRight == true){this.speedLeft = 75}
+                    if (this.resetGraviteRight == true){this.speedLeft = 90}
                     else{this.speedLeft = this.speed}
                     }
 
@@ -1660,7 +1662,7 @@
                 if (this.resetEnemis == false){
                     this.compteurReset --
                     if(this.compteurReset == 0){
-                        this.compteurReset = 1000
+                        this.compteurReset = 2000
                         this.resetEnemis = true
                     }
                 }
@@ -1720,7 +1722,7 @@
            if(this.invulnérable == true){
             this.compteurInvunlerable -=1 ;
                 if(this.compteurInvunlerable == 0){
-                    this.compteurInvunlerable = 300;
+                    this.compteurInvunlerable = 200;
                     this.invulnérable = false ;
                 }
             }
@@ -1860,13 +1862,13 @@
 
             this.torchesAAllumer.children.iterate((child) => {
                 if (this.player.x < child.x + 30 && this.player.x > child.x - 30 && this.player.y < child.y + 30 && this.player.y > child.y - 30){
-                    this.guideTorche.x = child.x + 20
-                    this.guideTorche.y = child.y - 20
+                    this.guideTorche.x = child.x - 20
+                    this.guideTorche.y = child.y 
                     this.guideTorche.anims.play('animGuideAllumeTorhce',true);
                 }           
             });
 
-            if (this.player.x < this.torche.x + 50 && this.player.x > this.torche.x - 50 && this.player.y < this.torche.y + 50 && this.player.y > this.torche.y - 50){
+            if (this.player.x < this.torche.x + 70 && this.player.x > this.torche.x - 70 && this.player.y < this.torche.y + 70 && this.player.y > this.torche.y - 70){
                 this.guideTest.x = this.torche.x + 16
                 this.guideTest.y = this.torche.y - 20
                 this.guideTest.anims.play('animGuideTorcheEtteinteAllume',true);
@@ -1886,9 +1888,9 @@
                 this.guideArme.alpha = 0
             }
 
-            if (this.player.x < this.lasso.x + 50 && this.player.x > this.lasso.x - 50 && this.player.y  < this.lasso.y + 50 && this.player.y > this.lasso.y - 50){
-                this.guideLasso.x = this.arme.x + 18
-                this.guideLasso.y = this.arme.y - 16
+            if (this.player.x < this.lassoObj.x + 50 && this.player.x > this.lassoObj.x - 50 && this.player.y  < this.lassoObj.y + 50 && this.player.y > this.lassoObj.y - 50){
+                this.guideLasso.x = this.lassoObj.x + 18
+                this.guideLasso.y = this.lassoObj.y - 18
                 this.guideLasso.anims.play('animGuideLasso',true);
                 this.guideLasso.alpha = 1
             } 
