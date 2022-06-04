@@ -194,10 +194,14 @@
                     tileset
                     ).setDepth(6)
 
+                   
+
             const zoneEnnemi = carte.createLayer(
                     "zoneEnnemi",
                     tileset
                     ).setDepth(1000)
+
+                    zoneEnnemi.alpha = 0
 
             this.eauLayer = carte.createLayer(
                     "eau",
@@ -1382,7 +1386,7 @@
                         this.resetGraviteLeft = true
                         this.doubleSautRightPossible = false
                         this.doubleSautLeftPossible = true
-                        this10.compteurDoubleSautLeft -=1 ;
+                        this.compteurDoubleSautLeft -=1 ;
                         this.player.setVelocityX(-300);
                         this.player.setVelocityY(-this.speedSaut + 75);
                         if(this.compteurDoubleSautLeft == 0){
