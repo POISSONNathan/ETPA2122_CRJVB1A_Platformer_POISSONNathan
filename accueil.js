@@ -49,7 +49,7 @@ this.startButton.on('pointerdown', function (pointer) {
             animJump: false,
             animPousseCaisse: false,
             attaque: false,
-            attaquePossible: false,
+            attaquePossible: true,
             doubleJumpActif: false,
             torcheDebloque: true,
             torcheActive: false,

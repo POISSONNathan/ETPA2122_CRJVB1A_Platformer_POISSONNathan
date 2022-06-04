@@ -1390,7 +1390,7 @@
                             this.doubleSautLeft = false
                         }
                     }
-
+        
                     if(this.doubleSautRight == true){
                         this.resetGraviteRight = true
                         this.resetGraviteLeft = false
@@ -1404,7 +1404,6 @@
                             this.doubleSautRight = false
                         }
                     }
-
                     if(this.invulnérable == false){
                     if (this.resetGraviteLeft == true ){this.speedRight = 90}
                     else{this.speedRight = this.speed}

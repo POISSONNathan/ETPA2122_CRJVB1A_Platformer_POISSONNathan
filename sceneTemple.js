@@ -155,6 +155,14 @@ create(){
     this.lights.setAmbientColor(0x111111);
     this.light = this.lights.addLight(0, 0, 400,100000000001110,4);
 
+    this.torches = this.physics.add.staticGroup({
+        immovable: true,
+    })
+
+    carte2.getObjectLayer('lights22').objects.forEach((light) => {
+        this.lights.addLight(light.x, light.y, 400,100000000001110,4);
+        this.torches.create(light.x + 16,light.y,'torches').setScale(0.7).setDepth(10000)
+    });
 
     this.compteurDeplacementLassoStock = this.compteurDeplacementLasso
     this.compteurDeplacementLassoCaisseStock = this.compteurDeplacementLassoCaisse
@@ -425,17 +433,6 @@ create(){
     this.physics.add.collider(this.player,this.caisses,this.stopCaisse,null,this)
 
 
-    //////////////////////////////////////////////////////////////
-
-    this.torches = this.physics.add.staticGroup({
-        immovable: true,
-    })
-
-    carte2.getObjectLayer('lights').objects.forEach((light) => {
-        this.lights.addLight(light.x, light.y, 400,100000000001110,4);
-        this.torches.create(light.x + 16,light.y,'torches').setPipeline('Light2D').setScale(0.7).setDepth(10000)
-    });
-
     ////////////////////////////////////////////////////////
 
     carte2.getObjectLayer('grille').objects.forEach((grille) => {
@@ -444,6 +441,8 @@ create(){
     });
 
     this.hauteurGrille = this.grille.y
+
+    this.hauteurGrilleStock= this.grille.y
 
     ////////////////////////////////////////////////////////
 
@@ -526,7 +525,7 @@ create(){
     });      
 
     carte2.getObjectLayer('plaquesDispawn').objects.forEach((plaquesDispawn) => {
-        this.plaqueDispawn = this.plaquesDispawn.create(plaquesDispawn.x, plaquesDispawn.y - 32, 'solTombe').setOrigin(0);
+        this.plaqueDispawn = this.plaquesDispawn.create(plaquesDispawn.x, plaquesDispawn.y - 32, 'solTombe').setOrigin(0).setPipeline('Light2D');
         this.plaqueDispawn.setPushable(false)
         this.plaqueDispawn.body.setAllowGravity(false)
     });
@@ -607,21 +606,21 @@ create(){
     this.nbrFlecheRapide = 0
 
     carte2.getObjectLayer('lanceFleche').objects.forEach((lanceFleche) => {
-        this.lancFleche = this.lanceFleche.create(lanceFleche.x, lanceFleche.y + 28, 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.lancFleche = this.lanceFleche.create(lanceFleche.x, lanceFleche.y + 28, 'lanceFleche').setOrigin(0).setPipeline('Light2D').setDepth(100);
         this.nbrFleche ++
     });
 
     this.nbrFlecheStock = this.nbrFleche 
 
     carte2.getObjectLayer('lanceFlecheHaut').objects.forEach((lanceFlecheHaut) => {
-        this.lancFlecheHaut = this.lanceFlecheHaut.create(lanceFlecheHaut.x, lanceFlecheHaut.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.lancFlecheHaut = this.lanceFlecheHaut.create(lanceFlecheHaut.x, lanceFlecheHaut.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D').setDepth(100);
         this.nbrFlecheHaut ++
     });
 
     this.nbrFlecheStockHaut = this.nbrFlecheHaut
     
     carte2.getObjectLayer('lanceFlecheDroite').objects.forEach((lanceFlecheDroite) => {
-        this.lancFlecheDroite = this.lanceFlecheDroite.create(lanceFlecheDroite.x + 28, lanceFlecheDroite.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.lancFlecheDroite = this.lanceFlecheDroite.create(lanceFlecheDroite.x + 28, lanceFlecheDroite.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D').setDepth(100);
         this.nbrFlecheDroite ++
         this.lancFlecheDroite.angle = -90
     });
@@ -629,7 +628,7 @@ create(){
     this.nbrFlecheStockDroite = this.nbrFlecheDroite
 
     carte2.getObjectLayer('lanceFlecheRapide').objects.forEach((lanceFlecheRapide) => {
-        this.lancFlecheRapide = this.lanceFlecheRapide.create(lanceFlecheRapide.x + 28, lanceFlecheRapide.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D');
+        this.lancFlecheRapide = this.lanceFlecheRapide.create(lanceFlecheRapide.x + 28, lanceFlecheRapide.y , 'lanceFleche').setOrigin(0).setPipeline('Light2D').setDepth(100);
         this.nbrFlecheRapide ++
         this.lancFlecheRapide.angle = -90
     });
@@ -716,7 +715,7 @@ update(){
 
     this.lanceFlecheHaut.children.iterate((child) => {
         if (this.tirFlecheHaut == true && this.nbrFlecheHaut > 0){
-            this.flechesHaut1 = this.flechesHaut.create(child.x + 5, child.y - 6, 'fleches').setOrigin(0).setPipeline('Light2D');
+            this.flechesHaut1 = this.flechesHaut.create(child.x + 5, child.y - 6, 'fleches').setOrigin(0).setPipeline('Light2D').setDepth(100);
             this.flechesHaut1.setVelocityY(300)
             this.nbrFlecheHaut --
             this.flechesHaut1.flipY = true
@@ -737,7 +736,7 @@ update(){
 
     this.lanceFlecheDroite.children.iterate((child) => {
         if (this.tirFlecheDroite == true && this.nbrFlecheDroite > 0){
-            this.flechesDroite1 = this.flechesDroite.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D');
+            this.flechesDroite1 = this.flechesDroite.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D').setDepth(100);
             this.flechesDroite1.body.setSize(12,21)
             this.flechesDroite1.setOffset(-2,-20)
             this.flechesDroite1.setVelocityX(-300)
@@ -759,7 +758,7 @@ update(){
 
     this.lanceFlecheRapide.children.iterate((child) => {
         if (this.tirFlecheRapide == true && this.nbrFlecheRapide > 0){
-            this.flechesRapide1 = this.flechesRapide.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D');
+            this.flechesRapide1 = this.flechesRapide.create(child.x , child.y - 12, 'fleches').setOrigin(0).setPipeline('Light2D').setDepth(100);
             this.flechesRapide1.body.setSize(12,21)
             this.flechesRapide1.setOffset(-2,-20)
             this.flechesRapide1.setVelocityX(-300)
@@ -1177,6 +1176,7 @@ update(){
             }
 
             if (this.player.body.blocked.down){
+                this.animAccrocheMur = false
                 this.doubleSautRightPossible = true
                 this.doubleSautLeftPossible = true
                 this.resetGraviteLeft = false
@@ -1526,7 +1526,7 @@ goOutTemple(player,retourAvantTemple){
 }
 
 goEndTemple(player,sortirTemple){
-    if (this.interagir && this.grille.y > 1840) { 
+    if (this.interagir && this.grille.y > this.hauteurGrilleStock + 110) { 
         this.scene.start("sceneJeu", {
             pointDeVie:this.pointDeVie,
             spawnXSortieScene: this.spawnXSortieScene,
