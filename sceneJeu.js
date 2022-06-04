@@ -192,7 +192,7 @@
             const build = carte.createLayer(
                     "build",
                     tileset
-                    ).setDepth(8)
+                    ).setDepth(6)
 
             const zoneEnnemi = carte.createLayer(
                     "zoneEnnemi",
@@ -782,7 +782,7 @@
             })
 
             carte.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
-                this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(7)
+                this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(10)
                 this.caisse.body.setSize(28,32)
             });
 
@@ -1382,7 +1382,7 @@
                         this.resetGraviteLeft = true
                         this.doubleSautRightPossible = false
                         this.doubleSautLeftPossible = true
-                        this.compteurDoubleSautLeft -=1 ;
+                        this10.compteurDoubleSautLeft -=1 ;
                         this.player.setVelocityX(-300);
                         this.player.setVelocityY(-this.speedSaut + 75);
                         if(this.compteurDoubleSautLeft == 0){
@@ -1824,9 +1824,7 @@
                        this.sortEau = true
                     }
                     else{
-                        if (this.invulnérable == false && this.doubleSautLeftPossible == true && this.doubleSautRightPossible == true){
                        this.speedSaut = 380
-                        }
                    
                        if (this.armeUnlock == true){
                         this.pouvoirTirer = true
@@ -2016,6 +2014,7 @@
 
             this.pointDeVie = this.pointDeVieStock - 2
             this.invulnérable = false
+            this.player.setTint(0xffffff)
         }
 
         savePoint(player,checkPoint){

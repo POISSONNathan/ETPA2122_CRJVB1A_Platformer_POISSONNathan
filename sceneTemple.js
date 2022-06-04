@@ -1357,6 +1357,7 @@ respawnJoueur(){
 
     this.pointDeVie = this.pointDeVieStock - 2
     this.invulnérable = false
+    this.player.setTint(0xffffff)
 }
 
 savePoint(player,checkPoint){

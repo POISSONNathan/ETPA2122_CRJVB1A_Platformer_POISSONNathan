@@ -4,22 +4,30 @@ class accueil extends Phaser.Scene{
 }
 
 preload(){
-    this.load.image("bouttonPlay", "assets/menu/BouttonPlay.png");
-    this.load.image("bouttonLeave", "assets/menu/BouttonQuit.png");
     this.load.image("accueil", "assets/menu/accueil.png");
+    this.load.image("accueil2", "assets/menu/accueilPage2.png");
+
+    this.load.image("BouttonPlay", "assets/menu/BouttonPlay.png");
+
     this.load.tilemapTiledJSON("carte", "map.json");  
+
+    this.load.image("invisible", "assets/invisible.png");
 }
 
 create(){
+    
 const carte = this.make.tilemap({ key: 'carte' });
 
-this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"accueil").setScale(0.6);
+this.page = 0
+
+this.menu = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"accueil").setScale(0.67);
+this.menu.setInteractive()
 
 this.cursors = this.input.keyboard.createCursorKeys();
 
-this.startButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 100, 'bouttonPlay').setScale(0.53).setInteractive();
+this.startButton = this.add.image(this.cameras.main.width/2 + 260,this.cameras.main.height/2 + 157, 'BouttonPlay').setScale(0.8).setInteractive();
 
-
+this.startButton.alpha = 0
 
 
 this.startButton.on('pointerdown', function (pointer) {
@@ -49,15 +57,15 @@ this.startButton.on('pointerdown', function (pointer) {
             animJump: false,
             animPousseCaisse: false,
             attaque: false,
-            attaquePossible: true,
+            attaquePossible: false,
             doubleJumpActif: false,
-            torcheDebloque: true,
+            torcheDebloque: false,
             torcheActive: false,
             pouvoirTirer: false,
             tempsAvantTirer: false,
             animTorche: false,
             ouvrirTemplePossible: false,
-            entreeTemplePossible: true,
+            entreeTemplePossible: false,
             templeOuvertTorcheAllumer: false,
             compteurDeplacementLasso: 120,
             compteurDeplacementLassoCaisse: 70,
@@ -73,11 +81,20 @@ this.startButton.on('pointerdown', function (pointer) {
         })
         });
 
-this.quitButton = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2 + 250, 'bouttonLeave').setScale(0.53).setInteractive();
 
-this.quitButton.on('pointerdown', function (pointer) {
-        this.scene.scene.stop("accueil")
-});
+this.cursors = this.input.keyboard.createCursorKeys();
+            this.keys = this.input.keyboard.addKeys({
+                space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+            });
+
+
 }
-update(){}
+update(){
+
+    this.tournePage = Phaser.Input.Keyboard.JustDown(this.keys.space)
+    if (this.tournePage){
+        this.menu.setTexture('accueil2')
+        this.startButton.alpha = 1
+    }
+}
 }
