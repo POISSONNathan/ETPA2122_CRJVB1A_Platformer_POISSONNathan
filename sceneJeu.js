@@ -156,6 +156,10 @@
 
             this.load.spritesheet('animFinJeu','assets/animFinJeu.png',
             { frameWidth: 108, frameHeight: 238 });
+
+            this.load.spritesheet('livre','assets/objets/livreFinJeu.png',
+            { frameWidth: 24, frameHeight: 39 });
+
             
         }
 
@@ -247,8 +251,8 @@
 
             this.cameras.main.zoom = 2.9
             this.cameras.main.startFollow(this.player); 
-            this.physics.world.setBounds(0, 0, 12080, 1920);
-            this.cameras.main.setBounds(0, 0, 12080, 1920);
+            this.physics.world.setBounds(0, 0, 12180, 1920);
+            this.cameras.main.setBounds(0, 0, 12180, 1920);
 
             this.nbrTorcheAllume = 0
 
@@ -606,6 +610,15 @@
                 frameRate: 20
             });
             
+            ///////////////////
+
+            this.anims.create({
+                key: 'animLivre',
+                frames: this.anims.generateFrameNumbers('livre', {start:0,end:7}),
+                frameRate: 6,
+                repeat: -1
+            });
+
             ///////////////////////////////////////////////////////////////  
             ///////////////////////////////////////////////////////////////  ENNEMIS
             ///////////////////////////////////////////////////////////////  
@@ -956,7 +969,14 @@
             this.physics.add.collider(this.collidePorteGrotte,zoneEnnemi,this.despawnRondin,null,this)
             this.physics.add.overlap(this.caisses,this.collideCaisseFinJeu,this.startAnimFin,null,this)
 
+            ////////////////////////
 
+            carte.getObjectLayer('livre').objects.forEach((livre) => {
+                this.livre = this.physics.add.sprite(livre.x, livre.y - 20, 'livre').setOrigin(0);
+                this.livre.body.setAllowGravity(false)
+            });
+
+            this.physics.add.overlap(this.player,this.livre,this.finJeu,null,this)
 
 
             /////////////////////////////
@@ -1050,6 +1070,8 @@
             this.vieObj.children.iterate((child) => {
                 child.anims.play('animVieObj', true);
             });
+
+            this.livre.anims.play('animLivre', true);
 
             this.rondinsBois.children.iterate((child) => {
                 if (child.y < this.spawnRondinY + 1 ){
@@ -2264,6 +2286,10 @@
                     animAccrocheMur: this.animAccrocheMur
                 })
             }
+        }
+
+        finJeu(player,livre){
+            this.scene.start("accueil", {})
         }
     }
         

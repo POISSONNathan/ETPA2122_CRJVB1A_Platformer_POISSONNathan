@@ -6,6 +6,7 @@ class accueil extends Phaser.Scene{
 preload(){
     this.load.image("accueil", "assets/menu/accueil.png");
     this.load.image("accueil2", "assets/menu/accueilPage2.png");
+    this.load.image("menu", "assets/menu/menu.png");
 
     this.load.image("BouttonPlay", "assets/menu/BouttonPlay.png");
 
@@ -20,7 +21,7 @@ const carte = this.make.tilemap({ key: 'carte' });
 
 this.page = 0
 
-this.menu = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"accueil").setScale(0.67);
+this.menu = this.add.image(this.cameras.main.width/2,this.cameras.main.height/2,"menu").setScale(0.67);
 this.menu.setInteractive()
 
 this.cursors = this.input.keyboard.createCursorKeys();
@@ -92,9 +93,33 @@ this.cursors = this.input.keyboard.createCursorKeys();
 update(){
 
     this.tournePage = Phaser.Input.Keyboard.JustDown(this.keys.space)
-    if (this.tournePage){
-        this.menu.setTexture('accueil2')
-        this.startButton.alpha = 1
+    if (this.page == 0){
+        if (this.tournePage){
+            this.page++
+        }
+        
     }
+
+    if (this.page >= 1){
+        if (this.tournePage){
+            this.menu.setTexture('accueil2')
+            this.page++
+        }
+
+        if (this.page == 2){
+            if (this.tournePage){
+                this.menu.setTexture('accueil')
+                this.page++
+            }
+        }
+    }
+    
+    if (this.page > 3){
+        this.startButton.alpha = 1
+
+    }
+
+  
+    
 }
 }
