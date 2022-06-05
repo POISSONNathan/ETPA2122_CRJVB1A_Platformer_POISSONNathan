@@ -66,7 +66,7 @@ this.startButton.on('pointerdown', function (pointer) {
             tempsAvantTirer: false,
             animTorche: false,
             ouvrirTemplePossible: false,
-            entreeTemplePossible: false,
+            entreeTemplePossible: true,
             templeOuvertTorcheAllumer: false,
             compteurDeplacementLasso: 120,
             compteurDeplacementLassoCaisse: 70,

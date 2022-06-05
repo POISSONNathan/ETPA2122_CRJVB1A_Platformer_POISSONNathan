@@ -113,6 +113,7 @@ preload(){
 
             this.load.image("lanceFleche", "assets/objets/flechesLance.png");
 
+            this.load.audio("jumpSound", "sons/jumpSound.mp3");
         
         }
 
@@ -669,7 +670,9 @@ create(){
     this.vieEcran.setDepth(100)
     this.vieEcran.setInteractive()
 
+ /////////////////// SONS /////////////////
 
+ this.jumpSound = this.sound.add('jumpSound', {volume: 0.005});
 
 
 }
@@ -1094,6 +1097,7 @@ update(){
     if (this.attaque == false){
         if (this.moveUp && this.player.body.blocked.down ) {
             this.player.setVelocityY(-this.speedSaut);
+            this.jumpSound.play()
 
         }  
         if (this.moveLeft){ 
@@ -1125,6 +1129,7 @@ update(){
                 if(this.doubleSautRightPossible == true){
                     if (this.player.body.blocked.right ) {
                         if (this.moveUp) {
+                            this.jumpSound.play()
                             this.doubleSautLeft = true
                         }  
                     }
@@ -1133,6 +1138,7 @@ update(){
                 if(this.doubleSautLeftPossible == true){
                     if (this.player.body.blocked.left ) {
                         if (this.moveUp) {
+                            this.jumpSound.play()
                             this.doubleSautRight = true
                         }  
                     }
@@ -1210,6 +1216,8 @@ update(){
         if (this.toucheSol == false){
             if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
                 this.player.setVelocityY(20); 
+                this.animTorche = false
+                this.torcheActive = false
                 this.animAccrocheMur = true
                 this.animJump = false
             }

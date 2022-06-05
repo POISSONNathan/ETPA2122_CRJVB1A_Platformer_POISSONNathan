@@ -159,6 +159,8 @@
 
             this.load.spritesheet('livre','assets/objets/livreFinJeu.png',
             { frameWidth: 24, frameHeight: 39 });
+            
+            this.load.audio("jumpSound", "sons/jumpSound.mp3");
 
             
         }
@@ -1057,6 +1059,12 @@
         this.guideLasso = this.physics.add.sprite(0,2000,'guideLasso').setScale(0.8).setDepth(10000)
         this.guideLasso.body.setAllowGravity(false)
 
+        ////////////////////
+        ///////////////////
+
+        /////////////////// SONS /////////////////
+
+         this.jumpSound = this.sound.add('jumpSound', {volume: 0.005});
 
         }
 
@@ -1110,6 +1118,7 @@
             this.moveUpLiane = (this.keys.z.isDown )  
             this.moveDownLiane = (this.keys.s.isDown ) 
 
+      
 
             if (this.dialogue == false){
 
@@ -1357,6 +1366,7 @@
             if (this.attaque == false){
                 if (this.moveUp && this.player.body.blocked.down ) {
                     this.player.setVelocityY(-this.speedSaut);
+                    this.jumpSound.play()
                 }  
                 if (this.moveLeft){ 
                     this.player.direction = 'left';
@@ -1390,6 +1400,7 @@
                             if (this.player.body.blocked.right ) {
                                 if (this.moveUp) {
                                     this.doubleSautLeft = true
+                                    this.jumpSound.play()
                                 }  
                             }
                         }
@@ -1398,6 +1409,7 @@
                             if (this.player.body.blocked.left ) {
                                 if (this.moveUp) {
                                     this.doubleSautRight = true
+                                    this.jumpSound.play()
                                 }  
                             }
                         }
@@ -1479,6 +1491,8 @@
                 if (this.player.body.blocked.left ||this.player.body.blocked.right ) {
                     this.player.setVelocityY(20); 
                     this.animAccrocheMur = true
+                    this.torcheActive = false
+                    this.animTorche = false
                     this.animJump = false
                 }
                 else{
@@ -1523,6 +1537,7 @@
                 this.doubleSautLeftPossible = true
                 
                 if (this.moveUp){
+                    this.jumpSound.play()
                     this.player.setVelocityY(-this.speedSaut)
                     this.accrochePossible1 = false
                     this.accroche1 = false
@@ -1650,6 +1665,7 @@
                 }
 
                 if (this.moveUp){
+                    this.jumpSound.play()
                     this.accrochePossibleLianeAGrimper = false
                     if (this.player.direction == 'right'){
                         this.player.setVelocityX(300)
