@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="28" nextobjectid="189">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="200" height="60" tilewidth="32" tileheight="32" infinite="0" nextlayerid="28" nextobjectid="190">
  <editorsettings>
   <export target="mapTemple.json" format="json"/>
  </editorsettings>
@@ -6862,6 +6862,7 @@
   <object id="127" gid="136" x="2944" y="224" width="32" height="32"/>
   <object id="135" gid="136" x="3712" y="192" width="32" height="32"/>
   <object id="156" gid="136" x="4416" y="96" width="32" height="32"/>
+  <object id="189" gid="136" x="3264" y="192" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="9" name="plaquePression1">
   <object id="158" gid="137" x="4352" y="224" width="32" height="32"/>

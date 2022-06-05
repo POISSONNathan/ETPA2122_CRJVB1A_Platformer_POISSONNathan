@@ -192,7 +192,7 @@
             const build = carte.createLayer(
                     "build",
                     tileset
-                    ).setDepth(6)
+                    ).setDepth(8)
 
                    
 
@@ -786,7 +786,7 @@
             })
 
             carte.getObjectLayer('caissesDeplacables').objects.forEach((caisses) => {
-                this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(10)
+                this.caisse = this.caisses.create(caisses.x + 16,caisses.y + 16,'caisses').setDepth(10000)
                 this.caisse.body.setSize(28,32)
             });
 
