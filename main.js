@@ -12,7 +12,7 @@ var config = {
         forceSetTimeOut: true
         },
     pixelArt:true,
-    scene: [accueil,sceneJeu,sceneTemple],
+    scene: [accueil,sceneJeu,sceneTemple,sceneFin],
     input : {gamepad:true},
     };
 

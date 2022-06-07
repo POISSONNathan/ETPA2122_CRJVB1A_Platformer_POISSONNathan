@@ -187,8 +187,9 @@
                 tileset
                     );
 
-            back2.setScrollFactor(0.98,0.98)
-            back3.setScrollFactor(0.95,0.95)
+            back3.setScrollFactor(0.9,0.9)
+            back2.setScrollFactor(0.7,0.7)
+            back1.setScrollFactor(0.5,0.5)
 
             const background2 = carte.createLayer(
                     "background2",
@@ -219,6 +220,11 @@
                         tileset
                         )
 
+                        const deadZone = carte.createLayer(
+                            "deadZone",
+                            tileset
+                            )
+
             this.lights.enable();
             this.lights.setAmbientColor(0xFF0000);
             this.light = this.lights.addLight(400, 300, 100).setIntensity(0);
@@ -248,6 +254,9 @@
 
             this.physics.add.collider(this.player, build,this.jumpAuto,null,this);
             build.setCollisionByProperty({ estSolide: true });
+
+            this.physics.add.collider(this.player, deadZone,this.deadZoneDie,null,this);
+            deadZone.setCollisionByProperty({ deadZone: true });
 
             this.player.setCollideWorldBounds(true);
 
@@ -1064,7 +1073,7 @@
 
         /////////////////// SONS /////////////////
 
-         this.jumpSound = this.sound.add('jumpSound', {volume: 0.005});
+         this.jumpSound = this.sound.add('jumpSound', {volume: 0.05});
 
         }
 
@@ -1197,9 +1206,7 @@
                     this.animNormal = false
                     this.animJump = false
                     this.attaquePossible = false
-        
-                    this.player.direction = 'right';
-                    this.createLasso = true
+                            this.createLasso = true
                     this.test = true
                 }
             }
@@ -2266,7 +2273,7 @@
                     speedRight: this.speedRight,
                     dialogue: this.dialogue,
                     speed: this.speed,
-                    speedSaut: this.speedSaut,
+                    speedSaut: this.speedSaut,  
                     doubleSautLeft: this.doubleSautLeft,
                     compteurDoubleSautLeft: this.compteurDoubleSautLeft,
                     doubleSautRight: this.doubleSautRight,
@@ -2305,7 +2312,11 @@
         }
 
         finJeu(player,livre){
-            this.scene.start("accueil", {})
+            this.scene.start("sceneFin")
+        }
+
+        deadZoneDie(player,deadZone){
+            this.respawnJoueur()
         }
     }
         

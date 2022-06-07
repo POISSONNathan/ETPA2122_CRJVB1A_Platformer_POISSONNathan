@@ -938,7 +938,6 @@ update(){
             this.animJump = false
             this.attaquePossible = false
 
-            this.player.direction = 'right';
             this.createLasso = true
             this.test = true
         }
