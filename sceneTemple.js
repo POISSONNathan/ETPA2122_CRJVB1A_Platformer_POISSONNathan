@@ -114,6 +114,10 @@ preload(){
             this.load.image("lanceFleche", "assets/objets/flechesLance.png");
 
             this.load.audio("jumpSound", "sons/jumpSound.mp3");
+            this.load.audio("ambianceSound", "sons/ambianceSound.mp3");
+
+            
+
         
         }
 
@@ -672,7 +676,10 @@ create(){
 
  /////////////////// SONS /////////////////
 
- this.jumpSound = this.sound.add('jumpSound', {volume: 0.005});
+ this.jumpSound = this.sound.add('jumpSound', {volume: 0.02});
+ this.ambianceSound = this.sound.add('ambianceSound', {volume: 0.01,loop: true});
+ this.ambianceSound.play()
+
 
 
 }
@@ -1535,6 +1542,7 @@ goOutTemple(player,retourAvantTemple){
 
 goEndTemple(player,sortirTemple){
     if (this.interagir && this.grille.y > this.hauteurGrilleStock + 110) { 
+        this.ambianceSound.stop()
         this.scene.start("sceneJeu", {
             pointDeVie:this.pointDeVie,
             spawnXSortieScene: this.spawnXSortieScene,

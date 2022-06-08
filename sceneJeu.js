@@ -161,6 +161,8 @@
             { frameWidth: 24, frameHeight: 39 });
             
             this.load.audio("jumpSound", "sons/jumpSound.mp3");
+            this.load.audio("ambianceSound", "sons/ambianceSound.mp3");
+
 
             
         }
@@ -1073,7 +1075,10 @@
 
         /////////////////// SONS /////////////////
 
-         this.jumpSound = this.sound.add('jumpSound', {volume: 0.05});
+         this.jumpSound = this.sound.add('jumpSound', {volume: 0.02});
+         this.ambianceSound = this.sound.add('ambianceSound', {volume: 0.01,loop: true});
+         this.ambianceSound.play()
+
 
         }
 
@@ -2262,6 +2267,7 @@
 
         goTemple(player,entreTemple){
             if (this.interagir && this.entreeTemplePossible == true) {
+                this.ambianceSound.stop()
                 this.ouvrirTemplePossible = true
                 this.entreeTemplePossible = false
                 this.templeOuvertTorcheAllumer = true   
