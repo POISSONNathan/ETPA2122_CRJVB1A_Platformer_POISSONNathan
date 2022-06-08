@@ -275,7 +275,7 @@
             this.accroche1 = false
 
             this.accrochePossible1 = true
-            this.compteurAccrochePossible1 = 50
+            this.compteurAccrochePossible1 = 30
 
             this.animLianeSpecial = false
             this.idxDebutAnimLianeStop = 0
@@ -1566,7 +1566,7 @@
             if (this.accrochePossible1 == false){
                 this.compteurAccrochePossible1 -= 1
                 if (this.compteurAccrochePossible1 == 0){
-                    this.compteurAccrochePossible1 = 50
+                    this.compteurAccrochePossible1 = 30
                     this.accrochePossible1 = true
                 }
             }      
